@@ -214,7 +214,10 @@ export function flushAutosave() {
    dédiée (KEY_CURRENT_BACKUP_<timestamp>) pour analyse ultérieure, puis
    la reprise est abandonnée proprement avec une alerte utilisateur.
 ═════════════════════════════════════════════════════════════════════════ */
-const VALID_PERIODS = ['MT1', 'MT2', 'Prol.1', 'Prol.2'];
+/* v1.4.31 (BUG-MT3) : 'MT3' était absent depuis l'arrivée des matchs à 3 MT
+   (v1.4.19) → la reprise d'un match interrompu pendant la MT3 était rejetée
+   comme « corrompue » et le suivi archivé. */
+const VALID_PERIODS = ['MT1', 'MT2', 'MT3', 'Prol.1', 'Prol.2'];
 
 export function validateSnapshot(snap) {
   const errors = [];
@@ -414,6 +417,7 @@ export function resumeMatch() {
     pb.textContent = S.period;
     if      (S.period === 'MT1') pb.className = 'period-badge p-mt1';
     else if (S.period === 'MT2') pb.className = 'period-badge p-mt2';
+    else if (S.period === 'MT3') pb.className = 'period-badge p-mt3'; /* v1.4.31 (BUG-MT3) */
     else                          pb.className = 'period-badge p-prol';
     S.run = false;
     document.getElementById('BSS').textContent = 'Reprendre';

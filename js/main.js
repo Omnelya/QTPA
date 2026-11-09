@@ -493,6 +493,7 @@ async function _renderLastMatchCard() {
    CHANGELOG / BADGE VERSION (v1.4.8)
 ════════════════════════════════════════ */
 const CHANGELOG = [
+  { v: '1.4.31', items: ['Correction : reprise d\'un match à 3 mi-temps interrompu pendant la MT3 (il était rejeté à tort)'] },
   { v: '1.4.11', items: [
     'Overlay de confirmation pour retour accueil depuis le suivi (plus de popup natif)',
     'Alerte non-bloquante si champs équipes/arbitres vides avant démarrage',

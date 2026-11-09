@@ -60,6 +60,26 @@ Quand une version corrige un bug ou un frag identifié dans l'audit, **toujours 
 
 ---
 
+## [1.4.31] — 2026-11-09
+
+> **Hotfix — reprise d'un match à 3 mi-temps.** Sujet unique : BUG-MT3, relevé lors de l'audit du 2026-11-09. Les versions 1.1.1 à 1.4.30 ne sont pas détaillées dans ce fichier (historique non repris dans ce dépôt) ; la numérotation reprend à partir de la version en production.
+
+### Corrigé
+- `js/storage.js` — **Fix BUG-MT3 : match à 3 MT rejeté à la reprise.** *Symptôme :* un suivi interrompu pendant la MT3 (matchs à 3 mi-temps, introduits en v1.4.19) était déclaré « corrompu » par `validateSnapshot()`, archivé sous une clé `arbitres_hb_current_BACKUP_*` puis supprimé de la reprise. *Cause :* la liste `VALID_PERIODS` ne contenait pas `'MT3'`. *Correctif :* `'MT3'` ajouté à `VALID_PERIODS`. Dans `resumeMatch()`, le badge de période reçoit désormais la classe `p-mt3` (au lieu de `p-prol`, mauvaise couleur) quand la période est MT3.
+
+### Modifié
+- `js/main.js` — entrée `1.4.31` ajoutée dans la liste « Nouveautés » (qui s'arrêtait à 1.4.11).
+
+### Maintenance
+- `js/version.js` — version `1.4.31`.
+- `sw.js` — cache name `arbitres-hb-v1.4.31`.
+
+### Validation effectuée avant livraison
+- Test automatisé de `validateSnapshot()` (Node) : périodes MT1, MT2, MT3, Prol.1, Prol.2 acceptées, MT4 refusée. Le même test **échoue avant** le correctif (MT3 refusée) et **passe après**.
+- Test fonctionnel dans le navigateur (reprise réelle d'un match 3 MT) : **à la charge de l'utilisateur** — voir `docs/instructions test.md`.
+
+---
+
 ## [1.1.0] — 2026-04-19
 
 > **Authentification Supabase.** Restaure l'intégralité du système d'authentification et de synchronisation, en remplaçant le backend custom `api.suiviarbitres.omnelya.fr` par Supabase (auth JWT, base PostgreSQL, Edge Function). L'application reste 100 % statique côté client — aucun serveur à maintenir.
