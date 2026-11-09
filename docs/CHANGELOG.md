@@ -60,6 +60,29 @@ Quand une version corrige un bug ou un frag identifié dans l'audit, **toujours 
 
 ---
 
+## [1.4.32] — 2026-11-09
+
+> **Hotfix — doublons de sauvegarde.** Sujet unique : BUG-DOUBLON, relevé lors de l'audit du 2026-11-09.
+
+### Corrigé
+- `js/storage.js` — **Fix BUG-DOUBLON : un match enregistré en double.** *Symptôme :* exporter le PDF puis revenir à l'accueil créait 2 entrées dans l'historique local et 2 lignes dans la table Supabase `matches`. *Cause :* `saveToHistory()` est appelée à l'export PDF (`pdf.js`) puis dans `goHomeFromEnd()` (`match.js`) et ajoutait à chaque fois une nouvelle entrée. *Correctif :* l'entrée déjà créée est mémorisée (`S.histId`, `S.remoteId`) ; un nouvel appel la **remplace** au lieu d'en ajouter. Côté Supabase, la nouvelle version est insérée **puis** l'ancienne supprimée (si l'insertion échoue, l'ancienne copie reste intacte). Les appels sont sérialisés (`_saveQueue`) pour éviter une course entre export PDF et retour accueil sur réseau lent. `js/auth.js` n'est **pas** modifié (utilise `saveMatchRemote` et `deleteMatchRemote` existants, règles RLS inchangées).
+- `js/state.js` — champs `histId` et `remoteId` ajoutés à `S` (valeur initiale `null`).
+- `js/match.js` — `_doGoHome()` remet `histId` et `remoteId` à `null` (un nouveau match ne doit pas écraser le précédent).
+
+### Modifié
+- `js/main.js` — entrée `1.4.32` ajoutée dans la liste « Nouveautés ».
+
+### Maintenance
+- `js/version.js` — version `1.4.32`.
+- `sw.js` — cache name `arbitres-hb-v1.4.32`.
+
+### Validation effectuée avant livraison
+- Test automatisé Node avec Supabase simulé (`auth.js` remplacé par un faux module) : export + retour accueil simultanés → 1 entrée locale, 2 insertions distantes puis suppression de la 1re (il reste 1 copie) ; nouveau match → entrée distincte ; hors ligne → 1 entrée et aucun appel distant. Le même test **échoue avant** le correctif et **passe après**.
+- Validation syntaxique JavaScript de tous les fichiers JS et `sw.js`.
+- Non testé : vrai Supabase et navigateur (voir `docs/instructions test.md`).
+
+---
+
 ## [1.4.31] — 2026-11-09
 
 > **Hotfix — reprise d'un match à 3 mi-temps.** Sujet unique : BUG-MT3, relevé lors de l'audit du 2026-11-09. Les versions 1.1.1 à 1.4.30 ne sont pas détaillées dans ce fichier (historique non repris dans ce dépôt) ; la numérotation reprend à partir de la version en production.

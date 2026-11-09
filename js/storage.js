@@ -474,21 +474,41 @@ export function discardMatch() {
 }
 
 /* ── Sauvegarder dans l'historique local + backend si connecté ── */
-export async function saveToHistory() {
+/* v1.4.32 (BUG-DOUBLON) : avant, chaque appel créait une nouvelle entrée locale
+   ET une nouvelle ligne Supabase. Or saveToHistory() est appelée à l'export PDF
+   puis au retour accueil (goHomeFromEnd) → 2 entrées pour 1 match. Désormais :
+   - S.histId / S.remoteId mémorisent l'entrée déjà créée ;
+   - un nouvel appel REMPLACE l'entrée locale (même id) au lieu d'en ajouter une ;
+   - côté Supabase on insère la nouvelle version PUIS on supprime l'ancienne
+     (ordre voulu : si l'insertion échoue, l'ancienne copie reste intacte) ;
+   - les appels sont sérialisés (_saveQueue) pour éviter une course entre
+     export PDF et retour accueil quand le réseau est lent. */
+let _saveQueue = Promise.resolve();
+
+export function saveToHistory() {
+  _saveQueue = _saveQueue.then(_saveToHistoryNow, _saveToHistoryNow);
+  return _saveQueue;
+}
+
+async function _saveToHistoryNow() {
   try {
     const ctx = document.getElementById('ctxTA')?.value || '';
     const gc  = document.getElementById('GC')?.value    || '';
+    const prevId     = S.histId;
+    const prevRemote = S.remoteId;
     const entry = {
-      id:      Date.now(),
+      id:      prevId || Date.now(),
       savedAt: Date.now(),
       S:       JSON.parse(JSON.stringify(S)),
       ans:     JSON.parse(JSON.stringify(ans)),
       ctx, gc
     };
+    if (prevRemote) entry.remoteId = prevRemote;
 
     // Sauvegarde locale
     const history = _loadHistory();
-    history.unshift(entry);
+    const idx = prevId ? history.findIndex(e => e.id === prevId) : -1;
+    if (idx >= 0) history[idx] = entry; else history.unshift(entry);
     /* v0.3.24 (FRAG-6) : rotation FIFO pour limiter la taille de l'historique.
        Au-delà de MAX_HISTORY matchs, les plus anciens sont supprimés
        automatiquement. Évite que le localStorage ne se remplisse
@@ -507,12 +527,11 @@ export async function saveToHistory() {
       }
       throw quotaErr;
     }
+    S.histId = entry.id;
     localStorage.removeItem(KEY_CURRENT);
-    log.info('STORAGE', 'match_sauvegarde_local', { nbObs: S.obs.length, historyCount: history.length });
+    log.info('STORAGE', idx >= 0 ? 'match_mis_a_jour_local' : 'match_sauvegarde_local', { nbObs: S.obs.length, historyCount: history.length });
 
-    // Sauvegarde distante si admin connecté (Supabase)
-    /* v1.1.0 : uniquement pour les admins — les utilisateurs non-admin
-       travaillent exclusivement avec l'historique local. */
+    // Sauvegarde distante si connecté (Supabase)
     /* v1.3.1 : sauvegarde Supabase pour tous les utilisateurs connectés
        (pas seulement les admins). Chaque utilisateur retrouve ainsi ses
        matchs sur n'importe quel terminal. */
@@ -529,13 +548,18 @@ export async function saveToHistory() {
       };
       const result = await saveMatchRemote(matchData);
       if (result.ok) {
-        history[0].remoteId = result.id;
-        localStorage.setItem(KEY_HISTORY, JSON.stringify(history));
+        S.remoteId = result.id;
+        const h2 = _loadHistory();
+        const j  = h2.findIndex(e => e.id === entry.id);
+        if (j >= 0) { h2[j].remoteId = result.id; localStorage.setItem(KEY_HISTORY, JSON.stringify(h2)); }
         log.info('STORAGE', 'match_sauvegarde_remote_ok', { remoteId: result.id });
+        /* Nouvelle version bien enregistrée → on retire l'ancienne copie distante. */
+        if (prevRemote && prevRemote !== result.id) {
+          const del = await deleteMatchRemote(prevRemote);
+          if (!del.ok) log.warn('STORAGE', 'ancienne_copie_remote_non_supprimee', { prevRemote, error: del.error });
+        }
       }
     }
-
-
   } catch (e) {
     log.error('STORAGE', 'save_history_erreur', { message: e.message });
   }
