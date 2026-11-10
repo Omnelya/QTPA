@@ -60,6 +60,77 @@ Quand une version corrige un bug ou un frag identifié dans l'audit, **toujours 
 
 ---
 
+## [1.4.33] — 2026-11-09
+
+> **Sécurité — Supabase.** Correctifs issus de l'audit du 2026-11-09 (points 3 et 4). Aucun changement de comportement visible pour un utilisateur normal.
+
+### Corrigé
+- **`handle_new_user()` appelable publiquement** (migration `supabase/migrations/20261109210000_secure_handle_new_user.sql`, appliquée sur le projet Suiviarbitres). Cette fonction (trigger `on_auth_user_created`) pouvait être exécutée par `anon` et `authenticated` via `/rest/v1/rpc/handle_new_user` et n'avait pas de `search_path` fixé. Le droit d'exécution est retiré à `public`, `anon` et `authenticated`, et `search_path` est vidé (la fonction utilise `public.profiles`, nom qualifié). La création automatique du profil à l'inscription fonctionne toujours (testé avec annulation).
+- `supabase/functions/admin-users` **v1.4.33** (déployée, version 14) :
+  - `updateRole` : le rôle doit être `user` ou `admin`, et un administrateur **ne peut plus modifier son propre rôle** (évite de se retirer ses droits et de n'avoir plus aucun admin).
+  - `deleteUser` : un administrateur **ne peut plus supprimer son propre compte**.
+  - `createUser`, `inviteUser`, `resetPassword` : validation **côté serveur** de l'email, du mot de passe (mêmes 5 règles que le client) et du rôle. Corps JSON invalide → erreur 400 au lieu d'un plantage.
+  - **Pagination** : la liste des utilisateurs (et l'enrichissement des emails dans `listMatches`) parcourt toutes les pages (200 par page) au lieu de s'arrêter aux 50 premiers.
+  - Nouveau fichier `validate.ts` (règles partagées).
+
+### Modifié
+- `js/main.js` — entrée `1.4.33` dans « Nouveautés ».
+- `docs/README.md`, `docs/ARCHITECTURE.md` — décrivent désormais la version avec authentification Supabase (ils décrivaient encore la variante statique v1.0.0 sans authentification).
+
+### Maintenance
+- `js/version.js` — `1.4.33`. `sw.js` — cache `arbitres-hb-v1.4.33`.
+
+### Validation effectuée avant livraison
+- Advisors sécurité Supabase : 4 avertissements avant, **1 après** (reste uniquement « protection contre les mots de passe piratés », à activer dans le tableau de bord Supabase, plan gratuit éventuellement non concerné).
+- Création d'un utilisateur de test dans la base avec annulation : le trigger crée bien le profil `user` ; aucun résidu (2 comptes, 2 profils avant et après).
+- Test Node de `validate.ts` (rôles, 5 règles de mot de passe, emails) et contrôle syntaxique de `index.ts`.
+- **Non testé en conditions réelles** : appels HTTP à la fonction déployée (réseau bloqué depuis l'environnement de travail) — voir `docs/instructions test.md`.
+
+---
+
+## [1.4.32] — 2026-11-09
+
+> **Hotfix — doublons de sauvegarde.** Sujet unique : BUG-DOUBLON, relevé lors de l'audit du 2026-11-09.
+
+### Corrigé
+- `js/storage.js` — **Fix BUG-DOUBLON : un match enregistré en double.** *Symptôme :* exporter le PDF puis revenir à l'accueil créait 2 entrées dans l'historique local et 2 lignes dans la table Supabase `matches`. *Cause :* `saveToHistory()` est appelée à l'export PDF (`pdf.js`) puis dans `goHomeFromEnd()` (`match.js`) et ajoutait à chaque fois une nouvelle entrée. *Correctif :* l'entrée déjà créée est mémorisée (`S.histId`, `S.remoteId`) ; un nouvel appel la **remplace** au lieu d'en ajouter. Côté Supabase, la nouvelle version est insérée **puis** l'ancienne supprimée (si l'insertion échoue, l'ancienne copie reste intacte). Les appels sont sérialisés (`_saveQueue`) pour éviter une course entre export PDF et retour accueil sur réseau lent. `js/auth.js` n'est **pas** modifié (utilise `saveMatchRemote` et `deleteMatchRemote` existants, règles RLS inchangées).
+- `js/state.js` — champs `histId` et `remoteId` ajoutés à `S` (valeur initiale `null`).
+- `js/match.js` — `_doGoHome()` remet `histId` et `remoteId` à `null` (un nouveau match ne doit pas écraser le précédent).
+
+### Modifié
+- `js/main.js` — entrée `1.4.32` ajoutée dans la liste « Nouveautés ».
+
+### Maintenance
+- `js/version.js` — version `1.4.32`.
+- `sw.js` — cache name `arbitres-hb-v1.4.32`.
+
+### Validation effectuée avant livraison
+- Test automatisé Node avec Supabase simulé (`auth.js` remplacé par un faux module) : export + retour accueil simultanés → 1 entrée locale, 2 insertions distantes puis suppression de la 1re (il reste 1 copie) ; nouveau match → entrée distincte ; hors ligne → 1 entrée et aucun appel distant. Le même test **échoue avant** le correctif et **passe après**.
+- Validation syntaxique JavaScript de tous les fichiers JS et `sw.js`.
+- Non testé : vrai Supabase et navigateur (voir `docs/instructions test.md`).
+
+---
+
+## [1.4.31] — 2026-11-09
+
+> **Hotfix — reprise d'un match à 3 mi-temps.** Sujet unique : BUG-MT3, relevé lors de l'audit du 2026-11-09. Les versions 1.1.1 à 1.4.30 ne sont pas détaillées dans ce fichier (historique non repris dans ce dépôt) ; la numérotation reprend à partir de la version en production.
+
+### Corrigé
+- `js/storage.js` — **Fix BUG-MT3 : match à 3 MT rejeté à la reprise.** *Symptôme :* un suivi interrompu pendant la MT3 (matchs à 3 mi-temps, introduits en v1.4.19) était déclaré « corrompu » par `validateSnapshot()`, archivé sous une clé `arbitres_hb_current_BACKUP_*` puis supprimé de la reprise. *Cause :* la liste `VALID_PERIODS` ne contenait pas `'MT3'`. *Correctif :* `'MT3'` ajouté à `VALID_PERIODS`. Dans `resumeMatch()`, le badge de période reçoit désormais la classe `p-mt3` (au lieu de `p-prol`, mauvaise couleur) quand la période est MT3.
+
+### Modifié
+- `js/main.js` — entrée `1.4.31` ajoutée dans la liste « Nouveautés » (qui s'arrêtait à 1.4.11).
+
+### Maintenance
+- `js/version.js` — version `1.4.31`.
+- `sw.js` — cache name `arbitres-hb-v1.4.31`.
+
+### Validation effectuée avant livraison
+- Test automatisé de `validateSnapshot()` (Node) : périodes MT1, MT2, MT3, Prol.1, Prol.2 acceptées, MT4 refusée. Le même test **échoue avant** le correctif (MT3 refusée) et **passe après**.
+- Test fonctionnel dans le navigateur (reprise réelle d'un match 3 MT) : **à la charge de l'utilisateur** — voir `docs/instructions test.md`.
+
+---
+
 ## [1.1.0] — 2026-04-19
 
 > **Authentification Supabase.** Restaure l'intégralité du système d'authentification et de synchronisation, en remplaçant le backend custom `api.suiviarbitres.omnelya.fr` par Supabase (auth JWT, base PostgreSQL, Edge Function). L'application reste 100 % statique côté client — aucun serveur à maintenir.

@@ -69,3 +69,16 @@
 
 1. Barre copyright → ✅ version `v1.1.0`.
 
+
+---
+
+## Tests à faire pour les versions 1.4.31 à 1.4.33
+
+Faire ces tests sur l'iPad (ou le navigateur), après avoir rechargé l'application deux fois pour que la nouvelle version s'installe (vérifier le numéro 1.4.33 sur l'écran d'accueil).
+
+1. **Reprise MT3 (1.4.31)** : lancer un match à 3 mi-temps, passer en MT3, fermer l'application sans terminer le match, la rouvrir. Le bandeau de reprise doit apparaître ; cliquer « Reprendre ». Le badge de période doit être orange (MT3) et le match doit être intact.
+2. **Pas de doublon (1.4.32)** : terminer un match, exporter le PDF, puis cliquer « Accueil ». Ouvrir l'historique : le match doit apparaître **une seule fois**. Vérifier aussi dans l'écran Admin (tous les matchs) qu'il n'y a qu'une ligne.
+3. **Nouveau match (1.4.32)** : faire un second match complet, l'enregistrer. L'historique doit contenir 2 matchs distincts (le premier n'est pas écrasé).
+4. **Admin, son propre compte (1.4.33)** : en tant qu'admin, écran Admin, ligne de votre compte : changer votre rôle en « user » doit afficher un message d'erreur rouge et ne rien changer. Le bouton « Supprimer » n'existe pas sur votre ligne.
+5. **Admin, autre compte (1.4.33)** : créer un compte de test avec un mot de passe valide, changer son rôle, réinitialiser son mot de passe, puis le supprimer. Tout doit fonctionner. Un mot de passe trop simple doit être refusé.
+6. **Inscription (1.4.33)** : créer ou inviter un nouvel utilisateur, puis vérifier qu'il peut se connecter et enregistrer un match (le profil se crée automatiquement).

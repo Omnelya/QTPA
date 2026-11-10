@@ -158,5 +158,12 @@ export const S = {
      et goHome(). L'autosave sur fermeture ne se déclenche que si ce flag
      est true — empêche le bandeau de reprise fantôme après un simple
      démarrage de match sans action. */
-  matchActif: false
+  matchActif: false,
+
+  /* v1.4.32 (BUG-DOUBLON) : identifiants de l'entrée déjà enregistrée pour ce
+     match (historique local / table Supabase). Évite qu'un 2e appel à
+     saveToHistory() (export PDF puis bouton Accueil) crée un doublon.
+     Remis à null par _doGoHome() (match.js). */
+  histId: null,
+  remoteId: null
 };

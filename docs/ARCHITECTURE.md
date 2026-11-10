@@ -1,4 +1,4 @@
-# Architecture — Suivi Arbitres Handball (v1.0.0_static_sans_auth)
+# Architecture — Suivi Arbitres Handball (v1.4.33)
 
 > Ce document décrit la structure interne de l'application : comment les modules s'articulent, où vit l'état, comment les données circulent, et quelles sont les conventions de couplage. Il est destiné à toute personne qui doit lire ou modifier le code (développeur humain ou IA assistante).
 >
@@ -160,9 +160,11 @@ Le module qui a le plus évolué au fil de l'audit. Contient :
 
 Émet de nombreux logs structurés via `js/logger.js` pour faciliter le diagnostic en production.
 
-### `js/auth.js` — Supprimé dans cette variante
+### `js/auth.js` — Connexion et accès Supabase
 
-> **Ce module n'existe pas dans la variante `v1.0.0_static_sans_auth`.** Il gérait la connexion JWT au backend `api.suiviarbitres.omnelya.fr`, la synchronisation distante des matchs et la gestion admin des utilisateurs. L'intégralité de ces fonctionnalités est sans objet en mode statique. Voir `docs/CHANGELOG.md` pour le détail des suppressions.
+Gère la session Supabase (`initAuth`, `login`, `logout`, réinitialisation et changement de mot de passe), la lecture du profil et du rôle (`isLoggedIn`, `isAdmin`, `getEmail`), la **sauvegarde distante des matchs** (`saveMatchRemote`, `fetchMatches`, `fetchMatchById`, `deleteMatchRemote`) et les appels d'administration (`admin*`) qui passent par l'Edge Function `admin-users`. Côté base, la sécurité par ligne (RLS) limite chaque utilisateur à ses propres matchs.
+
+**Edge Function `supabase/functions/admin-users`** : vérifie le jeton de l'appelant puis son rôle `admin` avant toute action ; utilise la clé `service_role` uniquement côté serveur. Depuis la v1.4.33 elle valide rôle, email et mot de passe, interdit à un admin de modifier ou supprimer son propre compte, et pagine la liste des utilisateurs.
 
 ### `js/utils.js` — Fonctions utilitaires pures
 
@@ -336,9 +338,7 @@ L'app **mute directement** l'état global `S` partout. Pas de `setState`, pas de
 | `arbitres_hb_history` | Tableau JSON des matchs sauvegardés (jusqu'à 50, rotation FIFO) | `storage.js::saveToHistory()` |
 | `arbitres_hb_current_BACKUP_<ts>` | Snapshot corrompu archivé après échec de validation | `storage.js::_backupCorruptedSnapshot()` |
 | `arbitres_hb_theme` | `'dark'` ou `'light'` | `js/ui.js::applyTheme()` |
-| ~~`arbitres_hb_token`~~ | ~~Token JWT~~ | **Supprimé** (variante statique) |
-| ~~`arbitres_hb_email`~~ | ~~Email utilisateur~~ | **Supprimé** (variante statique) |
-| ~~`arbitres_hb_role`~~ | ~~Rôle utilisateur~~ | **Supprimé** (variante statique) |
+| Clés `sb-…-auth-token` | Session Supabase | `js/auth.js` (bibliothèque Supabase) |
 
 ---
 
