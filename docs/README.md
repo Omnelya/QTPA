@@ -1,6 +1,6 @@
-# Suivi Arbitres Handball — Variante statique sans authentification
+# Suivi Arbitres Handball
 
-> **Version `v1.0.0_static_sans_auth`** — Dérivée de la v1.0.0 officielle. Supprime l'authentification et le backend pour un déploiement 100 % statique (GitHub Pages, hébergement mutualisé, etc.). Toutes les données sont conservées localement via `localStorage`.
+> **Version `1.4.33`** — Application statique (GitHub Pages) avec **authentification et sauvegarde des matchs via Supabase** (projet « Suiviarbitres »). Les données restent aussi conservées localement (`localStorage`), l'application fonctionne hors ligne. Deux rôles : `user` (ses propres matchs) et `admin` (gestion des utilisateurs et de tous les matchs, via l'Edge Function `admin-users`).
 
 Application web progressive (PWA) de suivi et d'évaluation des arbitres de handball, conçue pour une utilisation sur tablette (iPad paysage) pendant un match.
 
@@ -18,7 +18,8 @@ Application web progressive (PWA) de suivi et d'évaluation des arbitres de hand
 - saisir des observations rapides via un système de **Quick Notes** tactile avec tags prédéfinis par catégorie ;
 - visualiser la synthèse via un **radar interactif** avec comparaison des deux arbitres ;
 - exporter un rapport complet au format PDF ;
-- consulter l'historique des matchs précédents.
+- consulter l'historique des matchs précédents ;
+- se connecter (comptes Supabase), retrouver ses matchs sur tout appareil, et pour les administrateurs gérer les comptes.
 
 ---
 
@@ -30,6 +31,11 @@ Application web progressive (PWA) de suivi et d'évaluation des arbitres de hand
 ├── theme-init.js       # Initialisation du thème avant le rendu (évite le flash)
 ├── manifest.json       # Manifeste PWA
 ├── sw.js               # Service Worker (cache hors ligne + CDN jsPDF)
+├── .github/workflows/  # Script anti-pause du projet Supabase
+├── supabase/
+│   ├── functions/admin-users/  # Edge Function d'administration (index.ts, validate.ts)
+│   ├── migrations/             # Migrations SQL appliquées
+│   └── email-templates/        # Modèles d'e-mails (invitation, réinitialisation, bienvenue)
 ├── logo.png            # Logo FFHandball
 ├── docs/
 │   ├── CHANGELOG.md    # Historique des modifications
@@ -44,6 +50,7 @@ Application web progressive (PWA) de suivi et d'évaluation des arbitres de hand
     ├── synthesis.js    # Radar SVG de synthèse par catégorie avec filtres
     ├── pdf.js          # Export PDF (chargement lazy de jsPDF + autoTable)
     ├── storage.js      # Persistance localStorage, reprise de match, historique
+    ├── auth.js         # Connexion Supabase, sauvegarde distante des matchs, appels admin
     ├── ui.js           # Thème clair/sombre, alertes, questionnaire d'évaluation
     ├── utils.js        # Fonctions utilitaires (formatage temps, dates)
     ├── logger.js       # Journal structuré JSON exportable

@@ -60,6 +60,34 @@ Quand une version corrige un bug ou un frag identifié dans l'audit, **toujours 
 
 ---
 
+## [1.4.33] — 2026-11-09
+
+> **Sécurité — Supabase.** Correctifs issus de l'audit du 2026-11-09 (points 3 et 4). Aucun changement de comportement visible pour un utilisateur normal.
+
+### Corrigé
+- **`handle_new_user()` appelable publiquement** (migration `supabase/migrations/20261109210000_secure_handle_new_user.sql`, appliquée sur le projet Suiviarbitres). Cette fonction (trigger `on_auth_user_created`) pouvait être exécutée par `anon` et `authenticated` via `/rest/v1/rpc/handle_new_user` et n'avait pas de `search_path` fixé. Le droit d'exécution est retiré à `public`, `anon` et `authenticated`, et `search_path` est vidé (la fonction utilise `public.profiles`, nom qualifié). La création automatique du profil à l'inscription fonctionne toujours (testé avec annulation).
+- `supabase/functions/admin-users` **v1.4.33** (déployée, version 14) :
+  - `updateRole` : le rôle doit être `user` ou `admin`, et un administrateur **ne peut plus modifier son propre rôle** (évite de se retirer ses droits et de n'avoir plus aucun admin).
+  - `deleteUser` : un administrateur **ne peut plus supprimer son propre compte**.
+  - `createUser`, `inviteUser`, `resetPassword` : validation **côté serveur** de l'email, du mot de passe (mêmes 5 règles que le client) et du rôle. Corps JSON invalide → erreur 400 au lieu d'un plantage.
+  - **Pagination** : la liste des utilisateurs (et l'enrichissement des emails dans `listMatches`) parcourt toutes les pages (200 par page) au lieu de s'arrêter aux 50 premiers.
+  - Nouveau fichier `validate.ts` (règles partagées).
+
+### Modifié
+- `js/main.js` — entrée `1.4.33` dans « Nouveautés ».
+- `docs/README.md`, `docs/ARCHITECTURE.md` — décrivent désormais la version avec authentification Supabase (ils décrivaient encore la variante statique v1.0.0 sans authentification).
+
+### Maintenance
+- `js/version.js` — `1.4.33`. `sw.js` — cache `arbitres-hb-v1.4.33`.
+
+### Validation effectuée avant livraison
+- Advisors sécurité Supabase : 4 avertissements avant, **1 après** (reste uniquement « protection contre les mots de passe piratés », à activer dans le tableau de bord Supabase, plan gratuit éventuellement non concerné).
+- Création d'un utilisateur de test dans la base avec annulation : le trigger crée bien le profil `user` ; aucun résidu (2 comptes, 2 profils avant et après).
+- Test Node de `validate.ts` (rôles, 5 règles de mot de passe, emails) et contrôle syntaxique de `index.ts`.
+- **Non testé en conditions réelles** : appels HTTP à la fonction déployée (réseau bloqué depuis l'environnement de travail) — voir `docs/instructions test.md`.
+
+---
+
 ## [1.4.32] — 2026-11-09
 
 > **Hotfix — doublons de sauvegarde.** Sujet unique : BUG-DOUBLON, relevé lors de l'audit du 2026-11-09.

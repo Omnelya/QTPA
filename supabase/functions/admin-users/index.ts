@@ -1,9 +1,12 @@
-/* ═══ Edge Function : admin-users v1.4.12 ═══════════════════════════════════
+/* ═══ Edge Function : admin-users v1.4.33 ═══════════════════════════════════
    Actions : getUsers | createUser | inviteUser | updateUser |
              updateRole | deleteUser | resetPassword | listMatches
    Le service_role_key n'est JAMAIS exposé côté client.
+   v1.4.33 : validation serveur (rôle, email, mot de passe), interdiction de
+   modifier/supprimer son propre compte, liste des utilisateurs paginée.
 ═══════════════════════════════════════════════════════════════════════════ */
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { isRole, passwordError, emailError } from './validate.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin' : '*',
@@ -17,6 +20,19 @@ Deno.serve(async (req: Request) => {
   const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
   const serviceKey  = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
   const admin       = createClient(supabaseUrl, serviceKey, { auth: { autoRefreshToken: false, persistSession: false } });
+
+  /* v1.4.33 : listUsers() renvoie 50 comptes par défaut → on parcourt toutes les pages */
+  async function listAllUsers() {
+    const users: Array<{ id: string; email?: string; user_metadata?: Record<string, string>; created_at: string; last_sign_in_at?: string | null }> = [];
+    for (let page = 1; ; page++) {
+      const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 200 });
+      if (error) return { users, error };
+      users.push(...data.users);
+      if (data.users.length < 200) return { users, error: null };
+    }
+  }
+  const bad = (status: number, msg: string) =>
+    new Response(JSON.stringify({ error: msg }), { status, headers: corsHeaders });
 
   /* Vérification JWT de l'appelant */
   const jwt = req.headers.get('Authorization')?.replace('Bearer ', '');
@@ -42,14 +58,14 @@ Deno.serve(async (req: Request) => {
     }
 
     /* listUsers */
-    const { data, error } = await admin.auth.admin.listUsers();
+    const { users: allUsers, error } = await listAllUsers();
     if (error) return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
 
-    const profileIds = data.users.map(u => u.id);
+    const profileIds = allUsers.map(u => u.id);
     const { data: profiles } = await admin.from('profiles').select('id, role').in('id', profileIds);
     const roleMap = Object.fromEntries((profiles || []).map(p => [p.id, p.role]));
 
-    const users = data.users.map(u => ({
+    const users = allUsers.map(u => ({
       id              : u.id,
       email           : u.email,
       role            : roleMap[u.id] || 'user',
@@ -64,12 +80,15 @@ Deno.serve(async (req: Request) => {
 
   /* ── POST : actions ── */
   if (req.method === 'POST') {
-    const body = await req.json();
+    let body;
+    try { body = await req.json(); } catch { return bad(400, 'Corps de requête invalide.'); }
     const { action } = body;
 
     /* createUser */
     if (action === 'createUser') {
       const { email, password, role, firstName = '', lastName = '' } = body;
+      const vErr = emailError(email) || passwordError(password) || (role !== undefined && !isRole(role) ? 'Rôle invalide.' : null);
+      if (vErr) return bad(400, vErr);
       const { data, error } = await admin.auth.admin.createUser({
         email, password,
         email_confirm : true,
@@ -83,6 +102,8 @@ Deno.serve(async (req: Request) => {
     /* inviteUser */
     if (action === 'inviteUser') {
       const { email, role, firstName = '', lastName = '' } = body;
+      const vErr = emailError(email) || (role !== undefined && !isRole(role) ? 'Rôle invalide.' : null);
+      if (vErr) return bad(400, vErr);
       const { data, error } = await admin.auth.admin.inviteUserByEmail(email, {
         data: { first_name: firstName, last_name: lastName },
       });
@@ -113,6 +134,9 @@ Deno.serve(async (req: Request) => {
     /* updateRole */
     if (action === 'updateRole') {
       const { userId, role } = body;
+      if (!isRole(role)) return bad(400, 'Rôle invalide.');
+      /* v1.4.33 : un admin ne peut pas se retirer ses propres droits (risque de n'avoir plus aucun admin) */
+      if (userId === user.id) return bad(403, 'Vous ne pouvez pas modifier votre propre rôle.');
       const { error } = await admin.from('profiles').update({ role }).eq('id', userId);
       if (error) return new Response(JSON.stringify({ error: error.message }), { status: 400, headers: corsHeaders });
       return new Response(JSON.stringify({ ok: true }), { headers: corsHeaders });
@@ -121,6 +145,7 @@ Deno.serve(async (req: Request) => {
     /* deleteUser */
     if (action === 'deleteUser') {
       const { userId } = body;
+      if (userId === user.id) return bad(403, 'Vous ne pouvez pas supprimer votre propre compte.');
       const { error } = await admin.auth.admin.deleteUser(userId);
       if (error) return new Response(JSON.stringify({ error: error.message }), { status: 400, headers: corsHeaders });
       await admin.from('profiles').delete().eq('id', userId);
@@ -130,6 +155,8 @@ Deno.serve(async (req: Request) => {
     /* resetPassword */
     if (action === 'resetPassword') {
       const { userId, password } = body;
+      const pErr = passwordError(password);
+      if (pErr) return bad(400, pErr);
       const { error } = await admin.auth.admin.updateUserById(userId, { password });
       if (error) return new Response(JSON.stringify({ error: error.message }), { status: 400, headers: corsHeaders });
       return new Response(JSON.stringify({ ok: true }), { headers: corsHeaders });
@@ -148,8 +175,8 @@ Deno.serve(async (req: Request) => {
       const userIds = [...new Set((data || []).map((m: Record<string,unknown>) => m.user_id).filter(Boolean))] as string[];
       const emailMap: Record<string, string> = {};
       if (userIds.length > 0) {
-        const { data: authUsers } = await admin.auth.admin.listUsers();
-        (authUsers?.users || []).forEach((u: { id: string; email?: string }) => {
+        const { users: authUsers } = await listAllUsers();
+        authUsers.forEach((u: { id: string; email?: string }) => {
           if (userIds.includes(u.id)) emailMap[u.id] = u.email || '';
         });
       }

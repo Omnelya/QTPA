@@ -493,6 +493,7 @@ async function _renderLastMatchCard() {
    CHANGELOG / BADGE VERSION (v1.4.8)
 ════════════════════════════════════════ */
 const CHANGELOG = [
+  { v: '1.4.33', items: ['Sécurité : un administrateur ne peut plus modifier son propre rôle ni supprimer son propre compte', 'Sécurité : validation des rôles, emails et mots de passe côté serveur', 'Administration : la liste des utilisateurs n\'est plus limitée à 50'] },
   { v: '1.4.32', items: ['Correction : un match n\'est plus enregistré en double (export PDF puis retour accueil)'] },
   { v: '1.4.31', items: ['Correction : reprise d\'un match à 3 mi-temps interrompu pendant la MT3 (il était rejeté à tort)'] },
   { v: '1.4.11', items: [
