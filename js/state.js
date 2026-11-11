@@ -11,6 +11,15 @@ export const CA = [
 export const CP = ["Placement","Déplacement","Zone d'influence","Gestion du sifflet"];
 export const CAU = 'Autre';
 
+/* v1.5.0 : familles d'affichage de la grille d'observations rapides.
+   Contiennent exactement CA + CP + CAU (vérifié par tests/families.test.mjs). */
+export const FAMILIES = [
+  { title: "Fautes d'attaque", cats: ['Passage en Force', 'Mauvais Bloc', 'Marcher', 'Pied', 'Reprise de dribble', 'Jeu Passif'] },
+  { title: 'Sanctions et jets', cats: ['SPP', 'SPA', 'J7M', 'Jet Franc', 'Exécution du Jet'] },
+  { title: 'Gestion du jeu', cats: ['Continuité', 'Zone', 'Communication', 'Protocole'] },
+  { title: 'Positionnement', cats: ['Placement', 'Déplacement', "Zone d'influence", 'Gestion du sifflet', 'Autre'] }
+];
+
 /* ═══ TAGS SPÉCIFIQUES PAR CATÉGORIE ═════════════════════════════════════
    red   → tags affichés uniquement sur appui long rouge
    green → tags affichés uniquement sur appui long vert

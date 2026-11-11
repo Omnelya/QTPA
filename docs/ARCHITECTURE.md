@@ -137,7 +137,7 @@ Gère les boutons +/- des scores et le tableau des TME. Pause automatique du chr
 
 ### `js/observations.js` — Quick Notes
 
-Le module le plus volumineux. Construit la grille d'observations rapides (boutons par catégorie), gère la popup de détail à chaque tap (tags spécifiques + tags généraux + note libre + ajout d'un second arbitre), enregistre les observations dans `S.obs`, met à jour les compteurs en temps réel et le tableau des observations. Échappe systématiquement les noms d'arbitres et commentaires injectés en HTML (FRAG-3, v0.3.24).
+Le module le plus volumineux. Construit la grille d'observations rapides par familles (`FAMILIES` de `state.js`), gère la popup de détail à chaque tap (drapeau « à revoir », tags spécifiques + généraux triés par fréquence, note libre, choix de l'arbitre = enregistrement), les boutons Annuler (confirmation) / Rétablir, enregistre les observations dans `S.obs`, met à jour les compteurs en temps réel et le tableau des observations. Échappe systématiquement les noms d'arbitres et commentaires injectés en HTML (FRAG-3, v0.3.24).
 
 ### `js/synthesis.js` — Radar de synthèse
 

@@ -60,6 +60,41 @@ Quand une version corrige un bug ou un frag identifié dans l'audit, **toujours 
 
 ---
 
+## [1.5.0] — 2026-11-10
+
+> **Nouvelle interface des observations rapides** (cartes « Observations rapides » et « Observations » de l'écran match) + correctif du mode sombre. Compatible iPad (paysage/portrait) et iPhone.
+
+### Ajouté
+
+- `js/state.js` — constante `FAMILIES` : 4 familles (Fautes d'attaque, Sanctions et jets, Gestion du jeu, Positionnement) couvrant les 20 catégories.
+- `js/observations.js` — drapeau « à revoir » (champ `flag` booléen sur l'observation), boutons **Annuler** (confirmation, plusieurs observations à la suite) et **Rétablir** (sans confirmation), pastilles par arbitre avec les noms réels, tags triés par fréquence (historique local + match en cours).
+- `index.html` — colonne ⚑ et option de filtre « ⚑ À revoir » dans les deux tableaux (match et fin de match) ; fenêtre `#undoOverlay`.
+- `js/pdf.js` — les observations à revoir sont préfixées `[À revoir]` dans le tableau PDF.
+
+### Modifié
+
+- `js/observations.js` — une seule grille de catégories (plus de zones A1/A2). L'arbitre se choisit dans la fenêtre : les trois boutons d'enregistrement (arbitre 1, arbitre 2, « Les deux ») valident l'observation. En édition, le bouton de l'arbitre actuel est entouré. Le contrôle « Arbitre » du mode édition est supprimé (redondant). `saveDetail(sel)` reçoit désormais `'A1' | 'A2' | 'both'`.
+- `styles.css` — nouvelles classes `qn-families`, `qn-family`, `qn-row`, `qn-head`, `qn-chip`, `qn-flag-btn`, `qn-save-*`. Arbitre 2 = rouge du logo `#981010` (`--a2-main`). Fenêtre : centrée à partir de 768 px, feuille basse en dessous, barre d'enregistrement collée en bas, cibles tactiles ≥ 44 px, champ note à 16 px (pas de zoom iOS).
+- Boutons ✘/✔ : écoute de `click` uniquement (`touch-action: manipulation`) — le défilement de la page n'est plus bloqué sur iPhone.
+
+### Corrigé
+
+- **Mode sombre/clair** : `theme-init.js` posait `--bg-app` en inline sur `<html>` et rien ne le retirait ; en mode clair forcé sur un appareil en mode sombre, le fond restait noir. `js/main.js` retire maintenant cette variable une fois le thème appliqué.
+- `styles.css` — couleur invalide `##bfcaff` (`--amber-border`, thème sombre) corrigée en `#bfcaff`.
+- `js/match.js` — la fenêtre des paramètres du match (durée des mi-temps) devient défilable : sur iPhone en paysage, son bouton « Démarrer » sortait de l'écran et le match ne pouvait pas être lancé.
+- `js/main.js` — la touche Échap ne fermait pas la fenêtre d'observation (test d'une classe `open` inexistante au lieu de `on`).
+
+### Retiré
+
+- Retour tactile à l'enregistrement : flash du bouton et `navigator.vibrate` (à la demande de l'utilisateur : ne pas perturber les arbitres).
+- Tag « + A2 aussi » de la fenêtre (remplacé par le bouton « Les deux »).
+
+### Maintenance
+
+- `js/version.js` — `1.5.0`. `sw.js` — cache `arbitres-hb-v1.5.0`. `js/main.js` — entrée `1.5.0` dans « Nouveautés ».
+
+---
+
 ## [1.4.33] — 2026-11-09
 
 > **Sécurité — Supabase.** Correctifs issus de l'audit du 2026-11-09 (points 3 et 4). Aucun changement de comportement visible pour un utilisateur normal.

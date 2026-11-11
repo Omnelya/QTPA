@@ -82,7 +82,7 @@ body.dark {
   --red-dark:      #e07070;
   --amber-bg:      #252e57;
   --amber-text:    #a5a1ff;
-  --amber-border:  ##bfcaff;
+  --amber-border:  #bfcaff;
   --score-color:   #c45a52;
   --shadow:        rgba(0,0,0,0.4);
 
@@ -754,98 +754,76 @@ body.dark .alert-overlay { background: rgba(0,0,0,0.65); }
 #quickNotesWrap {
   display: flex; flex-direction: column; gap: 8px;
 }
-@media (min-width: 768px) {
-  #quickNotesWrap {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
+/* ═══ OBSERVATIONS RAPIDES v1.5.0 — grille par familles ═══════════════
+   A1 = bleu de l'app, A2 = rouge du logo (#981010). */
+:root {
+  --a1-main:#1D3A7A; --a1-bg:#E6F1FB; --a1-border:#B5D4F4; --a1-text:#1D3A7A;
+  --a2-main:#981010; --a2-bg:#FBE9E7; --a2-border:#E8B4B0; --a2-text:#7A0D0D;
+  --flag-main:#92400E; --flag-bg:#FEF3C7; --flag-border:#F0D48A; --flag-text:#6B2F06;
+  --qn-fam-bg:#faf8f3; --qn-row-bg:#ffffff;
+}
+body.dark {
+  --a1-main:#3b5bb5; --a1-bg:#1e2a4a; --a1-border:#34508f; --a1-text:#b8ccff;
+  --a2-main:#b32020; --a2-bg:#3a1414; --a2-border:#7a2a2a; --a2-text:#ffb4b0;
+  --flag-main:#b8741a; --flag-bg:#3a2e10; --flag-border:#6b5320; --flag-text:#f6d98a;
+  --qn-fam-bg:#151826; --qn-row-bg:#1c1f2e;
 }
 
-/* ── Zone arbitre ── */
-.qn-zone {
-  background: var(--bg-card);
-  border: 2px solid var(--border);
-  border-radius: 14px;
-  padding: 10px;
+.qn-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+.qn-cnt-head { margin-left: 0; background: var(--bg-input); border-radius: 12px; padding: 2px 9px; }
+.qn-head-spacer { flex: 1 1 0; min-width: 0; }
+.qn-chip {
+  font-size: 13px; font-weight: 700; padding: 6px 10px; border-radius: 10px;
+  border: 1px solid var(--border); white-space: nowrap;
 }
-.qn-a1 { border-color: #1d3a7a; }
-.qn-a2 { border-color: #fc1500; }
-body.dark .qn-a1 { border-color: var(--amber-border); }
-body.dark .qn-a2 { border-color: var(--blue-light); }
+.qn-chip:empty { display: none; }
+.qn-chip-a1   { background: var(--a1-bg);   color: var(--a1-text);   border-color: var(--a1-border); }
+.qn-chip-a2   { background: var(--a2-bg);   color: var(--a2-text);   border-color: var(--a2-border); }
+.qn-chip-flag { background: var(--flag-bg); color: var(--flag-text); border-color: var(--flag-border); }
+.qn-hbtn {
+  min-height: 44px; padding: 0 14px; border-radius: 10px;
+  border: 1.5px solid var(--border-input); background: var(--bg-card); color: var(--text-main);
+  font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer;
+  touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+}
+.qn-hbtn:disabled { opacity: .4; cursor: default; }
 
-.qn-header {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 6px; padding: 0 2px;
+.qn-families {
+  display: grid; gap: 10px; align-items: start;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
 }
-.qn-name {
-  font-size: 13px; font-weight: 700;
-  padding: 3px 10px; border-radius: 16px;
+.qn-family {
+  background: var(--qn-fam-bg); border: 1px solid var(--border); border-radius: 12px;
+  padding: 8px; display: flex; flex-direction: column; gap: 4px; min-width: 0;
 }
-.qn-a1 .qn-name { background: var(--blue-bg); color: var(--blue-a1); }
-.qn-a2 .qn-name { background: var(--amber-badge); color: var(--amber-a2); }
-.qn-stats {
-  font-size: 11px; color: var(--text-muted); font-weight: 600;
+.qn-family-title {
+  font-size: 12px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase;
+  color: var(--text-muted); padding: 2px 4px 4px;
 }
+.qn-row {
+  display: flex; align-items: center; gap: 6px; min-width: 0;
+  background: var(--qn-row-bg); border: 1px solid var(--border); border-radius: 10px;
+  padding: 3px 4px 3px 10px;
+}
+.qn-rname { flex: 1 1 auto; min-width: 0; font-size: 14px; font-weight: 600; line-height: 1.15; color: var(--text-main); }
+.qn-rname-autre { font-style: italic; }
 
-/* ── Grille catégories — layout compact 6 colonnes par paires ── */
-.qn-grid { display: flex; flex-direction: column; gap: 1px; }
-.qn-section-label {
-  font-size: 9px; font-weight: 700; color: var(--text-hint);
-  text-transform: uppercase; letter-spacing: 0.04em;
-  padding: 3px 2px 1px;
-}
-.qn-compact-row {
-  display: grid;
-  grid-template-columns: minmax(50px,1.2fr) 36px 36px minmax(50px,1.2fr) 36px 36px;
-  gap: 2px;
-  column-gap: 3px;
-  align-items: stretch;
-}
-.qn-cname {
-  display: flex; align-items: center;
-  font-size: 10px; font-weight: 600; color: var(--text-main);
-  padding: 0 3px; line-height: 1.15;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-/* Catégorie droite (4ème colonne) : bordure gauche pour séparation visuelle */
-.qn-cname:nth-child(4) {
-  border-left: 2px solid var(--border-light);
-  padding-left: 6px;
-  margin-left: 2px;
-}
-
-/* ── Boutons tap ── */
+/* ── Boutons tap (✘ / ✔) — cible tactile ≥ 44 px ── */
 .qn-tap {
-  padding: 6px 2px;
-  border-radius: 6px;
-  border: none;
-  font-size: 11px; font-weight: 700;
-  cursor: pointer; font-family: inherit;
-  position: relative; overflow: hidden;
-  min-height: 28px;
-  display: flex; align-items: center; justify-content: center;
-  transition: transform 0.08s;
-  -webkit-tap-highlight-color: transparent;
+  flex: none; width: 50px; min-height: 44px; border-radius: 9px; border: 1.5px solid transparent;
+  font-size: 20px; font-weight: 800; cursor: pointer; font-family: inherit;
+  position: relative; display: flex; align-items: center; justify-content: center;
+  touch-action: manipulation; -webkit-tap-highlight-color: transparent;
 }
-.qn-tap:active { transform: scale(0.93); }
-.qn-tap.red   { background: var(--red-bg);   color: var(--red-dark); }
-.qn-tap.green { background: var(--green-bg); color: var(--green-dark); }
+.qn-tap.red   { background: var(--red-bg);   color: var(--red-dark);   border-color: var(--red-border); }
+.qn-tap.green { background: var(--green-bg); color: var(--green-dark); border-color: var(--green-border); }
 
 /* Compteur en haut à droite du bouton */
 .qn-count {
-  position: absolute; top: 1px; right: 3px;
-  font-size: 8px; font-weight: 700; opacity: 0.7;
+  position: absolute; top: 1px; right: 4px;
+  font-size: 10px; font-weight: 700; opacity: 0.7;
   min-width: 10px; text-align: center;
 }
-
-/* Flash de confirmation */
-@keyframes qnFlash {
-  0%   { opacity: 1; transform: scale(1); }
-  50%  { opacity: 0.4; transform: scale(1.06); }
-  100% { opacity: 1; transform: scale(1); }
-}
-.qn-tap.qn-flash { animation: qnFlash 0.22s ease-out; }
 
 /* ── Bottom sheet détail (appui long) ── */
 .qn-overlay {
@@ -857,13 +835,18 @@ body.dark .qn-a2 { border-color: var(--blue-light); }
   justify-content: center;
 }
 .qn-overlay.on { display: flex; }
+@media (min-width: 768px) {
+  .qn-overlay { align-items: center; }
+  .qn-sheet { border-radius: 20px; }
+}
 
 .qn-sheet {
   background: var(--bg-card);
   border-radius: 20px 20px 0 0;
-  width: 100%; max-width: 500px;
+  width: 100%; max-width: 640px;
   padding: 16px 16px 24px;
-  max-height: 70dvh;
+  max-height: 92vh; max-height: 92dvh;
+  overscroll-behavior: contain;
   overflow-y: auto;
   animation: qnSlideUp 0.2s ease-out;
 }
@@ -888,8 +871,8 @@ body.dark .qn-a2 { border-color: var(--blue-light); }
 .qn-tags-wrap { display: flex; flex-wrap: wrap; gap: 5px; }
 
 .qn-tag {
-  font-size: 13px; padding: 7px 14px;
-  border-radius: 20px;
+  font-size: 14px; padding: 7px 14px; min-height: 44px;
+  border-radius: 22px;
   border: 1px solid var(--border-input);
   background: var(--bg-input);
   color: var(--text-main);
@@ -912,7 +895,7 @@ body.dark .qn-tag.selected {
   width: 100%; min-height: 60px; padding: 10px 12px;
   border: 1px solid var(--border-input); border-radius: 10px;
   background: var(--bg-input); color: var(--text-main);
-  font-size: 14px; font-family: inherit; resize: none; margin-top: 6px;
+  font-size: 16px; font-family: inherit; resize: none; margin-top: 6px;
 }
 .qn-detail-textarea:focus { outline: none; border-color: var(--blue-main); }
 
@@ -928,13 +911,44 @@ body.dark .qn-tag.selected {
 }
 .qn-btn-save { background: var(--blue-main); color: var(--white); }
 
-/* ── Responsive mobile Quick Notes ── */
+/* ── Fenêtre d'observation : drapeau + enregistrement par arbitre ── */
+.qn-flag-btn {
+  width: 100%; min-height: 48px; margin: 2px 0 4px; border-radius: 12px;
+  border: 2px solid var(--flag-main); background: var(--flag-bg); color: var(--flag-text);
+  font-size: 15px; font-weight: 800; font-family: inherit; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  touch-action: manipulation;
+}
+.qn-flag-btn.on { background: var(--flag-main); color: #fff; }
+.qn-save-zone {
+  position: sticky; bottom: -24px; margin: 14px -16px -24px;
+  padding: 4px 16px calc(14px + env(safe-area-inset-bottom));
+  background: var(--bg-card); border-top: 1px solid var(--border);
+}
+.qn-save-arbs { display: flex; gap: 8px; }
+.qn-save-arb {
+  flex: 1 1 0; min-width: 0; min-height: 56px; padding: 6px 8px; border-radius: 12px;
+  border: 2px solid transparent; font-size: 17px; font-weight: 800; color: #fff;
+  font-family: inherit; cursor: pointer; overflow-wrap: anywhere; touch-action: manipulation;
+}
+.qn-save-a1   { background: var(--a1-main); }
+.qn-save-a2   { background: var(--a2-main); }
+.qn-save-both { background: var(--bg-card); color: var(--a1-text); border-color: var(--a1-main); }
+.qn-save-arb.is-current { outline: 3px solid var(--text-main); outline-offset: 2px; }
+.qn-btn-close {
+  width: 100%; margin-top: 8px; min-height: 44px; padding: 10px; border-radius: 10px;
+  font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit;
+}
+.obs-flag { text-align: center; color: var(--flag-main); font-weight: 800; font-size: 16px; }
+body.dark .obs-flag { color: #f0b45a; }
+
+/* ── Responsive mobile (iPhone) ── */
 @media (max-width: 767px) {
-  .qn-zone { padding: 6px; }
-  .qn-tap { min-height: 32px; padding: 6px 2px; font-size: 11px; }
-  .qn-cname { font-size: 9px; }
-  .qn-compact-row { grid-template-columns: minmax(40px,1.2fr) 30px 30px minmax(40px,1.2fr) 30px 30px; gap: 1px; }
-  .qn-tag { padding: 8px 12px; font-size: 13px; min-height: 40px; }
+  .qn-head { gap: 6px; }
+  .qn-chip { font-size: 12px; padding: 5px 8px; }
+  .qn-hbtn { padding: 0 10px; font-size: 13px; }
+  .qn-families { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+  .qn-save-arb { font-size: 15px; }
 }
 
 /* ═══ RADAR SYNTHESE v0.3.6 ═════════════════════════════════════════════ */

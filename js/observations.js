@@ -1,237 +1,164 @@
-/* ═══ OBSERVATIONS — Mode Quick Notes vbeta.3 ════════════════════════════
-   • Tap = ouvre obligatoirement la popup tags (plus de tap court)
-   • Layout compact 7 colonnes : [cat ✘ ✔] [cat ✘ ✔] ...
-   • Tags spécifiques par catégorie + tags généraux
-   • Gestion du sifflet dans Positionnement
+/* ═══ OBSERVATIONS — Observations rapides v1.5.0 ═════════════════════════
+   • Grille unique de catégories rangées par familles (plus de zone A1/A2)
+   • Tap ✘/✔ = ouvre la popup : tags (les plus fréquents d'abord), drapeau
+     « à revoir », note libre, puis choix de l'arbitre = enregistrement
+   • Annuler (avec confirmation) / Rétablir (sans confirmation)
+   • Aucun retour sonore, vibratoire ou lumineux à l'enregistrement
 ════════════════════════════════════════════════════════════════════════════ */
-import { S, CA, CP, CAU, CAT_TAGS, TAGS_GENERAUX } from './state.js';
+import { S, CA, CP, CAU, CAT_TAGS, TAGS_GENERAUX, FAMILIES, KEY_HISTORY } from './state.js';
 import { fmt, escapeHtml } from './utils.js';
 import { log } from './logger.js';
 
-/* ── Abréviations pour les boutons de l'écran de saisie des abréviations en mode match (supprimées le 19/04/2026) ── */
-const SHORT = { 'Exécution du Jet' : 'Exécution Jet', 'Reprise de dribble' : 'Reprise dribb.', 
-   'Passage en Force' : 'Passage Force', 'Communication' : 'Comm.', 
-   'Gestion du sifflet' : 'Gestion Sifflet', "Zone d'influence" : "Zone Influence"
-   
-};
-function shortName(cat) { return SHORT[cat] || cat; }
+/* Observations annulées, rétablissables (vidé au démarrage/reprise d'un match
+   et à chaque nouvelle observation). Volontairement hors de S : non sauvegardé. */
+const _undone = [];
 
-/* ═══ Construction de la grille Quick Notes (layout compact 7 col) ═════ */
+/* ═══ Construction de la grille (familles) ═════════════════════════════ */
 export function buildQuickNotes() {
   const wrap = document.getElementById('quickNotesWrap');
   if (!wrap) return;
   wrap.innerHTML = '';
+  _undone.length = 0;
 
-  ['A1', 'A2'].forEach(arb => {
-    const zone = document.createElement('div');
-    zone.className = 'qn-zone qn-' + arb.toLowerCase();
-    zone.id = 'qnZone_' + arb;
-
-    const nameLabel = arb === 'A1' ? S.a1 : S.a2;
-
-    /* En-tête de zone — v0.3.24 (FRAG-3) : nom d'arbitre échappé */
-    zone.innerHTML =
-      '<div class="qn-header">' +
-        '<span class="qn-name">' + arb + ' — ' + escapeHtml(nameLabel) + '</span>' +
-        '<span class="qn-stats" id="qnStats_' + arb + '">0R · 0V</span>' +
-      '</div>' +
-      '<div class="qn-grid" id="qnGrid_' + arb + '"></div>';
-    wrap.appendChild(zone);
-
-    const grid = document.getElementById('qnGrid_' + arb);
-
-    /* Décisions techniques — grille compacte 7 colonnes :
-       [catName] [✘] [✔]  [catName] [✘] [✔]  (+ 1 col vide si impair)
-       On regroupe les catégories par paires sur une même ligne */
-    _addSectionLabel(grid, 'Décisions techniques');
-    _addCompactRows(grid, arb, CA);
-
-    /* Positionnement */
-    _addSectionLabel(grid, 'Positionnement');
-    _addCompactRows(grid, arb, CP);
-
-    /* Autre — toujours sur sa propre ligne */
-    const autreRow = document.createElement('div');
-    autreRow.className = 'qn-compact-row';
-
-    const autreNameEl = document.createElement('div');
-    autreNameEl.className = 'qn-cname';
-    autreNameEl.style.fontStyle = 'italic';
-    autreNameEl.style.color = '#999';
-    autreNameEl.textContent = 'Autre';
-
-    const btnAutreR = _makeTapBtn(arb, 'Autre', 'red');
-    btnAutreR.style.borderStyle = 'dashed';
-    btnAutreR.style.background = 'transparent';
-    btnAutreR.style.color = '#aaa';
-
-    const btnAutreG = _makeTapBtn(arb, 'Autre', 'green');
-    btnAutreG.style.borderStyle = 'dashed';
-    btnAutreG.style.background = 'transparent';
-    btnAutreG.style.color = '#aaa';
-
-    autreRow.appendChild(autreNameEl);
-    autreRow.appendChild(btnAutreR);
-    autreRow.appendChild(btnAutreG);
-    /* Remplir les 3 colonnes restantes */
-    for (let i = 0; i < 3; i++) {
-      const spacer = document.createElement('div');
-      autreRow.appendChild(spacer);
-    }
-    grid.appendChild(autreRow);
+  const grid = document.createElement('div');
+  grid.className = 'qn-families';
+  FAMILIES.forEach(fam => {
+    const box = document.createElement('div');
+    box.className = 'qn-family';
+    const title = document.createElement('div');
+    title.className = 'qn-family-title';
+    title.textContent = fam.title;
+    box.appendChild(title);
+    fam.cats.forEach(cat => {
+      const row = document.createElement('div');
+      row.className = 'qn-row';
+      const name = document.createElement('div');
+      name.className = 'qn-rname' + (cat === CAU ? ' qn-rname-autre' : '');
+      name.textContent = cat;
+      row.appendChild(name);
+      row.appendChild(_makeTapBtn(cat, 'red'));
+      row.appendChild(_makeTapBtn(cat, 'green'));
+      box.appendChild(row);
+    });
+    grid.appendChild(box);
   });
-
+  wrap.appendChild(grid);
   refreshCounters();
 }
 
-/* ── Ajoute un label de section (occupe toute la largeur) ── */
-function _addSectionLabel(grid, text) {
-  const lbl = document.createElement('div');
-  lbl.className = 'qn-section-label';
-  lbl.textContent = text;
-  grid.appendChild(lbl);
-}
-
-/* ── Ajoute les catégories par paires dans une grille 7 colonnes ── */
-function _addCompactRows(grid, arb, cats) {
-  for (let i = 0; i < cats.length; i += 2) {
-    const row = document.createElement('div');
-    row.className = 'qn-compact-row';
-
-    /* Première catégorie de la paire */
-    const name1 = document.createElement('div');
-    name1.className = 'qn-cname';
-    name1.textContent = shortName(cats[i]);
-    row.appendChild(name1);
-    row.appendChild(_makeTapBtn(arb, cats[i], 'red'));
-    row.appendChild(_makeTapBtn(arb, cats[i], 'green'));
-
-    /* Deuxième catégorie (si elle existe) */
-    if (i + 1 < cats.length) {
-      const name2 = document.createElement('div');
-      name2.className = 'qn-cname';
-      name2.textContent = shortName(cats[i + 1]);
-      row.appendChild(name2);
-      row.appendChild(_makeTapBtn(arb, cats[i + 1], 'red'));
-      row.appendChild(_makeTapBtn(arb, cats[i + 1], 'green'));
-    } else {
-      /* Impair : remplir les colonnes vides */
-      for (let j = 0; j < 3; j++) {
-        const spacer = document.createElement('div');
-        row.appendChild(spacer);
-      }
-    }
-
-    grid.appendChild(row);
-  }
-}
-
-/* ═══ Bouton tap — ouvre TOUJOURS la popup (plus de tap court) ═════════ */
-function _makeTapBtn(arb, cat, col) {
+/* ═══ Bouton tap — ouvre TOUJOURS la popup ═════════════════════════════
+   Uniquement « click » : touch-action:manipulation (CSS) supprime le délai
+   iOS, et on ne bloque plus le défilement de la page (iPhone). */
+function _makeTapBtn(cat, col) {
   const btn = document.createElement('button');
+  btn.type = 'button';
   btn.className = 'qn-tap ' + col;
-  const safeId = 'qnCnt_' + arb + '_' + cat.replace(/[^a-zA-Z0-9]/g, '') + '_' + col;
+  btn.setAttribute('aria-label', cat + (col === 'red' ? ' non conforme' : ' conforme'));
   btn.innerHTML = (col === 'red' ? '✘' : '✔') +
-    '<span class="qn-count" id="' + safeId + '"></span>';
-
-  /* Simple tap → ouvre la popup obligatoirement */
-  btn.addEventListener('touchstart', e => { e.preventDefault(); }, { passive: false });
-  btn.addEventListener('touchend', e => {
-    e.preventDefault();
-    _flashBtn(btn);
-    _openDetail(arb, cat, col);
-  });
-
-  /* Fallback souris (desktop) */
+    '<span class="qn-count" id="' + _cntId(cat, col) + '"></span>';
   btn.addEventListener('click', e => {
     e.preventDefault();
-    _flashBtn(btn);
-    _openDetail(arb, cat, col);
+    _openDetail(cat, col);
   });
-
   return btn;
 }
 
-function _flashBtn(btn) {
-  btn.classList.remove('qn-flash');
-  void btn.offsetWidth;
-  btn.classList.add('qn-flash');
-  if (navigator.vibrate) navigator.vibrate(15);
+function _cntId(cat, col) {
+  return 'qnCnt_' + cat.replace(/[^a-zA-Z0-9]/g, '') + '_' + col;
 }
 
-/* ═══ Popup détail (obligatoire à chaque tap) ══════════════════════════ */
+/* ═══ Fréquence des tags (historique local + match en cours) ═══════════ */
+function _tagFreq() {
+  const freq = {};
+  const add = o => (o.tags || []).forEach(t => { freq[t] = (freq[t] || 0) + 1; });
+  try {
+    const h = JSON.parse(localStorage.getItem(KEY_HISTORY) || '[]');
+    if (Array.isArray(h)) h.forEach(m => ((m && m.S && m.S.obs) || []).forEach(add));
+  } catch (e) { /* historique illisible : on ignore, ordre par défaut */ }
+  S.obs.forEach(add);
+  return freq;
+}
+
+/** Tri stable : plus fréquent d'abord, ex æquo = ordre d'origine. */
+function _byFreq(list, freq) {
+  return list
+    .map((t, i) => [t, i])
+    .sort((a, b) => (freq[b[0]] || 0) - (freq[a[0]] || 0) || a[1] - b[1])
+    .map(x => x[0]);
+}
+
+/* ═══ Popup détail ═════════════════════════════════════════════════════ */
+
+function _addTag(wrap, t, selected) {
+  const tag = document.createElement('button');
+  tag.type = 'button';
+  tag.className = 'qn-tag' + (selected ? ' selected' : '');
+  tag.textContent = t;
+  tag.dataset.tag = t;
+  tag.setAttribute('aria-pressed', selected ? 'true' : 'false');
+  tag.onclick = () => {
+    tag.classList.toggle('selected');
+    tag.setAttribute('aria-pressed', tag.classList.contains('selected') ? 'true' : 'false');
+  };
+  wrap.appendChild(tag);
+}
 
 /**
  * Reconstruit la zone de tags dans la popup.
  * @param {string}   cat       catégorie de l'observation
  * @param {string}   col       'red' | 'green' — type courant
  * @param {string[]} keepTags  tags à pré-sélectionner (vide = aucun)
- * @param {string}   primaryArb  'A1' | 'A2' — arbitre principal courant
  */
-function _rebuildTags(cat, col, keepTags, primaryArb) {
+function _rebuildTags(cat, col, keepTags) {
   const tagsWrap = document.getElementById('detailTags');
   tagsWrap.innerHTML = '';
-
-  /* ── Tag "Autre arbitre aussi" ── */
-  const otherArb = primaryArb === 'A1' ? 'A2' : 'A1';
-  const tagBoth = document.createElement('button');
-  tagBoth.id = 'tagBothArb';
-  tagBoth.className = 'qn-tag';
-  tagBoth.textContent = '+ ' + otherArb + ' aussi';
-  tagBoth.style.borderStyle = 'dashed';
-  if (S.detailPending.arb.includes(otherArb)) tagBoth.classList.add('selected');
-  tagBoth.onclick = () => {
-    tagBoth.classList.toggle('selected');
-    S.detailPending.arb = tagBoth.classList.contains('selected')
-      ? [primaryArb, otherArb]
-      : [primaryArb];
-  };
-  tagsWrap.appendChild(tagBoth);
+  const freq = _tagFreq();
 
   /* ── Tags spécifiques à la catégorie (filtrés par couleur) ── */
   const catDef = CAT_TAGS[cat];
+  const hasSpecific = !!(catDef && (catDef.both.length || catDef.red.length || catDef.green.length));
   if (catDef) {
-    const specific = [
-      ...(col === 'red' ? catDef.red : catDef.green),
-      ...catDef.both
-    ];
-    specific.forEach(t => {
-      const tag = document.createElement('button');
-      tag.className = 'qn-tag';
-      tag.textContent = t;
-      if (keepTags.includes(t)) tag.classList.add('selected');
-      tag.onclick = () => tag.classList.toggle('selected');
-      tagsWrap.appendChild(tag);
-    });
+    _byFreq([...(col === 'red' ? catDef.red : catDef.green), ...catDef.both], freq)
+      .forEach(t => _addTag(tagsWrap, t, keepTags.includes(t)));
   }
 
   /* ── Séparateur ── */
-  if (catDef && (catDef.both.length || catDef.red.length || catDef.green.length)) {
+  if (hasSpecific) {
     const sep = document.createElement('div');
     sep.style.cssText = 'width:100%;height:0;border-top:1px dashed var(--border-input);margin:4px 0;';
     tagsWrap.appendChild(sep);
   }
 
-  /* ── Tags généraux (équipes + généraux) ── */
-  const tagsGenerauxDyn = [S.tA, S.tB].filter(Boolean).concat(TAGS_GENERAUX);
-  tagsGenerauxDyn.forEach(t => {
-    const tag = document.createElement('button');
-    tag.className = 'qn-tag';
-    tag.textContent = t;
-    if (keepTags.includes(t)) tag.classList.add('selected');
-    tag.onclick = () => tag.classList.toggle('selected');
-    tagsWrap.appendChild(tag);
-  });
+  /* ── Tags généraux : équipes d'abord, puis généraux par fréquence ── */
+  [S.tA, S.tB].filter(Boolean).concat(_byFreq(TAGS_GENERAUX, freq))
+    .forEach(t => _addTag(tagsWrap, t, keepTags.includes(t)));
 }
 
-function _openDetail(arb, cat, col, prefill) {
-  /* prefill : objet { arb, tags, cmt, editIndex, time, el, period }
+function _syncFlagBtn() {
+  const btn = document.getElementById('detailFlag');
+  if (!btn || !S.detailPending) return;
+  const on = !!S.detailPending.flag;
+  btn.classList.toggle('on', on);
+  btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  const lbl = btn.querySelector('.qn-flag-label');
+  if (lbl) lbl.textContent = on ? 'À revoir avec l’arbitre : activé' : 'Marquer à revoir avec l’arbitre';
+}
+
+export function toggleDetailFlag() {
+  if (!S.detailPending) return;
+  S.detailPending.flag = !S.detailPending.flag;
+  _syncFlagBtn();
+}
+
+function _openDetail(cat, col, prefill) {
+  /* prefill : objet { arb, tags, cmt, flag, editIndex, time, el, period }
      pour le mode édition, undefined pour une nouvelle observation. */
   const isEdit = prefill !== undefined;
 
   S.detailPending = {
-    arb:       isEdit ? [...prefill.arb] : [arb],
+    arb:       isEdit ? [...prefill.arb] : [],
     cat, col,
+    flag:      isEdit ? !!prefill.flag : false,
     time:      isEdit ? prefill.time   : fmt(S.elapsed),
     el:        isEdit ? prefill.el     : S.elapsed,
     period:    isEdit ? prefill.period : S.period,
@@ -245,35 +172,24 @@ function _openDetail(arb, cat, col, prefill) {
   document.getElementById('detailMeta').textContent =
     S.detailPending.time + ' · ' + S.detailPending.period;
 
-  /* ── Bouton save ── */
-  const btnSave = document.getElementById('detailBtnSave');
-  if (btnSave) btnSave.textContent = isEdit ? 'Mettre à jour' : 'Enregistrer';
+  /* ── Boutons d'enregistrement = choix de l'arbitre ── */
+  const cur = S.detailPending.arb;
+  [['A1', S.a1 || 'A1'], ['A2', S.a2 || 'A2']].forEach(([a, label]) => {
+    const b = document.getElementById('detailSave_' + a);
+    if (!b) return;
+    b.textContent = label;
+    b.classList.toggle('is-current', isEdit && cur.length === 1 && cur[0] === a);
+  });
+  const bBoth = document.getElementById('detailSave_both');
+  if (bBoth) bBoth.classList.toggle('is-current', isEdit && cur.length === 2);
+  const saveLbl = document.getElementById('detailSaveLabel');
+  if (saveLbl) saveLbl.textContent = isEdit ? 'Mettre à jour pour' : 'Enregistrer pour';
 
-  /* ══ Contrôles édition : Arbitre + Type (mode édition uniquement) ══ */
+  /* ══ Contrôle Type (mode édition uniquement) ══ */
   const editControls = document.getElementById('detailEditControls');
   if (editControls) {
     if (isEdit) {
       editControls.style.display = 'flex';
-
-      /* ── Toggle Arbitre ── */
-      const primaryArb = S.detailPending.arb[0];
-      ['A1', 'A2'].forEach(a => {
-        const btn = document.getElementById('detailArb_' + a);
-        if (!btn) return;
-        btn.textContent = a === 'A1' ? (S.a1 || 'A1') : (S.a2 || 'A2');
-        btn.classList.toggle('edit-ctrl-active', a === primaryArb);
-        btn.onclick = () => {
-          /* Changer l'arbitre principal, réinitialiser "autre aussi" */
-          S.detailPending.arb = [a];
-          document.querySelectorAll('.edit-ctrl-arb').forEach(b =>
-            b.classList.toggle('edit-ctrl-active', b.dataset.arb === a));
-          /* Reconstruire les tags pour mettre à jour le label "+ Autre aussi" */
-          const currentTags = _getSelectedTags();
-          _rebuildTags(cat, S.detailPending.col, currentTags, a);
-        };
-      });
-
-      /* ── Toggle Type ── */
       ['red', 'green'].forEach(c => {
         const btn = document.getElementById('detailCol_' + c);
         if (!btn) return;
@@ -281,8 +197,6 @@ function _openDetail(arb, cat, col, prefill) {
         btn.onclick = () => {
           if (S.detailPending.col === c) return; /* pas de changement */
           S.detailPending.col = c;
-
-          /* Mettre à jour le titre */
           document.getElementById('detailTitle').textContent =
             '✎ Modifier — ' + cat + ' — ' + (c === 'red' ? 'Non conforme' : 'Conforme');
 
@@ -291,38 +205,31 @@ function _openDetail(arb, cat, col, prefill) {
           const bothTags  = catDef ? catDef.both : [];
           const genTags   = [S.tA, S.tB].filter(Boolean).concat(TAGS_GENERAUX);
           const keepable  = [...bothTags, ...genTags];
-          const currentSelected = _getSelectedTags();
-          const keepTags  = currentSelected.filter(t => keepable.includes(t));
+          const keepTags  = _getSelectedTags().filter(t => keepable.includes(t));
 
           document.querySelectorAll('.edit-ctrl-type').forEach(b =>
             b.classList.toggle('edit-ctrl-active', b.dataset.col === c));
-
-          _rebuildTags(cat, c, keepTags, S.detailPending.arb[0]);
+          _rebuildTags(cat, c, keepTags);
         };
       });
-
     } else {
       editControls.style.display = 'none';
     }
   }
 
-  /* ── Tags initiaux ── */
-  const initialTags = isEdit ? (prefill.tags || []) : [];
-  const primaryArb  = isEdit ? prefill.arb[0] : arb;
-  _rebuildTags(cat, col, initialTags, primaryArb);
-
-  /* ── Note libre ── */
+  /* ── Tags, drapeau, note ── */
+  _rebuildTags(cat, col, isEdit ? (prefill.tags || []) : []);
+  _syncFlagBtn();
   document.getElementById('detailNote').value = isEdit ? (prefill.cmt || '') : '';
-  document.getElementById('detailOverlay').classList.add('on');
+  const ov = document.getElementById('detailOverlay');
+  ov.classList.add('on');
+  const sheet = ov.querySelector('.qn-sheet');
+  if (sheet) sheet.scrollTop = 0;
 }
 
-/** Lit les tags actuellement sélectionnés dans la popup (hors tag "autre arbitre"). */
+/** Lit les tags actuellement sélectionnés dans la popup. */
 function _getSelectedTags() {
-  const tags = [];
-  document.querySelectorAll('#detailTags .qn-tag.selected').forEach(t => {
-    if (!t.textContent.startsWith('+')) tags.push(t.textContent);
-  });
-  return tags;
+  return [...document.querySelectorAll('#detailTags .qn-tag.selected')].map(t => t.dataset.tag);
 }
 
 export function closeDetail() {
@@ -330,26 +237,26 @@ export function closeDetail() {
   S.detailPending = null;
 }
 
-export function saveDetail() {
-  S.matchActif = true; /* v0.3.31 (BUG-5) */
-  if (!S.detailPending) return;
-
-  const selectedTags = [];
-  document.querySelectorAll('#detailTags .qn-tag.selected').forEach(t => {
-    if (!t.textContent.startsWith('+')) selectedTags.push(t.textContent);
-  });
-  const cmt = document.getElementById('detailNote').value.trim();
-
+/* Appelé par les 3 boutons de la popup : 'A1' | 'A2' | 'both' */
+export function saveDetail(sel) {
   const d = S.detailPending;
-  const arbNames = d.arb.map(a => a === 'A1' ? S.a1 : S.a2);
+  if (!d) return;
+  if (sel !== 'A1' && sel !== 'A2' && sel !== 'both') return; /* choix d'arbitre obligatoire */
+  S.matchActif = true; /* v0.3.31 (BUG-5) */
+
+  const selectedTags = _getSelectedTags();
+  const cmt = document.getElementById('detailNote').value.trim();
+  const arb = sel === 'both' ? ['A1', 'A2'] : [sel];
+  const arbNames = arb.map(a => a === 'A1' ? S.a1 : S.a2);
 
   const obsEntry = {
     time: d.time, el: d.el, period: d.period,
-    arb: [...d.arb],
+    arb,
     an: arbNames.join(' + '),
     cat: d.cat,
     cats: [d.cat],
     col: d.col,
+    flag: !!d.flag,
     tags: selectedTags,
     cmt: cmt
   };
@@ -363,15 +270,18 @@ export function saveDetail() {
       index: d.editIndex,
       arbitres: arbNames.join(' + '), categorie: d.cat,
       type: d.col === 'red' ? 'non_conforme' : 'conforme',
+      a_revoir: obsEntry.flag,
       tags: selectedTags.join(', '),
       totalObservations: S.obs.length
     });
   } else {
     /* ── Mode création : ajout ── */
     S.obs.push(obsEntry);
+    _undone.length = 0; /* une nouvelle observation invalide le « Rétablir » */
     log.info('OBS', 'observation_enregistree', {
       arbitres: arbNames.join(' + '), categorie: d.cat,
       type: d.col === 'red' ? 'non_conforme' : 'conforme',
+      a_revoir: obsEntry.flag,
       tags: selectedTags.join(', '),
       temps: d.time, periode: d.period,
       totalObservations: S.obs.length
@@ -379,11 +289,52 @@ export function saveDetail() {
   }
 
   closeDetail();
+  _afterObsChange();
+}
+
+function _afterObsChange() {
   refreshCounters();
   renderTable();
   renderEndTable();
   _refreshSynthesisIfVisible(); /* v0.4.10 */
   window.App.autosave();
+}
+
+/* ═══ Annuler (avec confirmation) / Rétablir (sans confirmation) ═══════ */
+function _resume(o) {
+  return o.time + ' · ' + o.period + ' · ' + o.an + ' · ' + o.cat +
+    ' ' + (o.col === 'red' ? '✘' : '✔') + (o.flag ? ' ⚑' : '') +
+    (o.cmt ? ' — ' + o.cmt : '');
+}
+
+export function askUndo() {
+  if (!S.obs.length) return;
+  const el = document.getElementById('undoObsSummary');
+  if (el) el.textContent = _resume(S.obs[S.obs.length - 1]);
+  document.getElementById('undoOverlay').classList.add('on');
+}
+
+export function cancelUndo() {
+  document.getElementById('undoOverlay').classList.remove('on');
+}
+
+export function doUndo() {
+  cancelUndo();
+  S.matchActif = true;
+  const o = S.obs.pop();
+  if (!o) return;
+  _undone.push(o);
+  log.info('OBS', 'observation_annulee', { categorie: o.cat, totalObservations: S.obs.length });
+  _afterObsChange();
+}
+
+export function redoObs() {
+  const o = _undone.pop();
+  if (!o) return;
+  S.matchActif = true;
+  S.obs.push(o);
+  log.info('OBS', 'observation_retablie', { categorie: o.cat, totalObservations: S.obs.length });
+  _afterObsChange();
 }
 
 /* ═══ Édition d'une observation existante — v0.4.9 ═════════════════════
@@ -392,12 +343,11 @@ export function saveDetail() {
 export function editObservation(idx) {
   const o = S.obs[idx];
   if (!o) return;
-  /* L'arbitre principal est le premier de la liste */
-  const primaryArb = o.arb[0];
-  _openDetail(primaryArb, o.cat, o.col, {
+  _openDetail(o.cat, o.col, {
     arb:       o.arb,
     tags:      o.tags || [],
     cmt:       o.cmt  || '',
+    flag:      !!o.flag,
     time:      o.time,
     el:        o.el,
     period:    o.period,
@@ -464,21 +414,30 @@ export function closeConfirm() {
 
 /* ═══ Compteurs ════════════════════════════════════════════════════════ */
 export function refreshCounters() {
-  ['A1', 'A2'].forEach(arb => {
-    let totalR = 0, totalG = 0;
-    [...CA, ...CP, CAU].forEach(cat => {
-      const safeKey = arb + '_' + cat.replace(/[^a-zA-Z0-9]/g, '') + '_';
-      const cR = S.obs.filter(o => o.arb.includes(arb) && o.cat === cat && o.col === 'red').length;
-      const cG = S.obs.filter(o => o.arb.includes(arb) && o.cat === cat && o.col === 'green').length;
-      totalR += cR; totalG += cG;
-      const elR = document.getElementById('qnCnt_' + safeKey + 'red');
-      const elG = document.getElementById('qnCnt_' + safeKey + 'green');
-      if (elR) elR.textContent = cR || '';
-      if (elG) elG.textContent = cG || '';
+  /* Compteur par bouton : toutes observations de la catégorie, tous arbitres confondus */
+  [...CA, ...CP, CAU].forEach(cat => {
+    ['red', 'green'].forEach(col => {
+      const el = document.getElementById(_cntId(cat, col));
+      if (!el) return;
+      const n = S.obs.filter(o => o.cat === cat && o.col === col).length;
+      el.textContent = n || '';
     });
-    const stats = document.getElementById('qnStats_' + arb);
-    if (stats) stats.textContent = totalR + 'R · ' + totalG + 'V';
   });
+
+  /* Pastilles par arbitre (noms réels) + total à revoir */
+  ['A1', 'A2'].forEach(arb => {
+    const r = S.obs.filter(o => o.arb.includes(arb) && o.col === 'red').length;
+    const g = S.obs.filter(o => o.arb.includes(arb) && o.col === 'green').length;
+    const el = document.getElementById('qnStats_' + arb);
+    if (el) el.textContent = (arb === 'A1' ? S.a1 : S.a2) + ' ' + r + '✘ ' + g + '✔';
+  });
+  const fl = document.getElementById('qnFlags');
+  if (fl) fl.textContent = '⚑ ' + S.obs.filter(o => o.flag).length;
+
+  const bu = document.getElementById('btnUndo');
+  const br = document.getElementById('btnRedo');
+  if (bu) bu.disabled = S.obs.length === 0;
+  if (br) br.disabled = _undone.length === 0;
 
   const oc = document.getElementById('OC');
   if (oc) oc.textContent = S.obs.length + ' obs.';
@@ -524,7 +483,8 @@ function applyFilters(obs, f) {
     /* Filtre catégorie : correspondance exacte */
     if (f.cat !== 'all' && o.cat !== f.cat) return false;
     /* Filtre type : 'red' = Non conforme, 'green' = Conforme */
-    if (f.col !== 'all' && o.col !== f.col) return false;
+    if (f.col === 'flag') { if (!o.flag) return false; }
+    else if (f.col !== 'all' && o.col !== f.col) return false;
     /* Filtre période (MT) : correspondance exacte */
     if (f.period !== 'all' && o.period !== f.period) return false;
     /* Filtre arbitre : l'observation doit inclure l'arbitre sélectionné.
@@ -670,6 +630,7 @@ export function oRow(o, idx) {
     '<td><span class="badge ba">' + escapeHtml(o.an) + '</span></td>' +
     '<td style="font-weight:700;white-space:nowrap;">' + escapeHtml(o.cat) + '</td>' +
     '<td><span class="lc">' + tl + '</span></td>' +
+    '<td class="obs-flag">' + (o.flag ? '<span role="img" aria-label="À revoir">⚑</span>' : '') + '</td>' +
     '<td>' + escapeHtml(cmtText) + '</td>' +
     '<td class="obs-actions"><div class="obs-actions-inner">' +
       '<button class="obs-btn-edit" onclick="editObservation(' + idx + ')" title="Modifier">' +
@@ -696,9 +657,9 @@ export function renderTable() {
   const tb = document.getElementById('OTB');
   if (tb) {
     if (S.obs.length === 0) {
-      tb.innerHTML = '<tr><td colspan="7" class="empty">Aucune observation</td></tr>';
+      tb.innerHTML = '<tr><td colspan="8" class="empty">Aucune observation</td></tr>';
     } else if (filtered.length === 0) {
-      tb.innerHTML = '<tr><td colspan="7" class="empty">Aucun résultat pour ces filtres</td></tr>';
+      tb.innerHTML = '<tr><td colspan="8" class="empty">Aucun résultat pour ces filtres</td></tr>';
     } else {
       /* Passer l'index réel dans S.obs (pas l'index dans filtered) */
       tb.innerHTML = filtered.map(o => oRow(o, S.obs.indexOf(o))).join('');
@@ -726,9 +687,9 @@ export function renderEndTable() {
   const etb = document.getElementById('EETB');
   if (etb) {
     if (S.obs.length === 0) {
-      etb.innerHTML = '<tr><td colspan="7" class="empty">Aucune observation</td></tr>';
+      etb.innerHTML = '<tr><td colspan="8" class="empty">Aucune observation</td></tr>';
     } else if (filtered.length === 0) {
-      etb.innerHTML = '<tr><td colspan="7" class="empty">Aucun résultat pour ces filtres</td></tr>';
+      etb.innerHTML = '<tr><td colspan="8" class="empty">Aucun résultat pour ces filtres</td></tr>';
     } else {
       etb.innerHTML = filtered.map(o => oRow(o, S.obs.indexOf(o))).join('');
     }
