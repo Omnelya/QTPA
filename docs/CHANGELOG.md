@@ -60,6 +60,25 @@ Quand une version corrige un bug ou un frag identifié dans l'audit, **toujours 
 
 ---
 
+## [1.5.1] — 2026-11-12
+
+### Modifié
+- Observations rapides : les catégories sont rangées dans la classification A / B / C (`FAMILIES` dans `js/state.js`, désormais des groupes contenant des blocs). A1 Gestion des duels, A2 Continuité du jeu, B1/B2 Irrégularités et comportements antisportifs, C1 Technique d'arbitrage, C2 Pouvoir décisionnel. « Autre » occupe la case libre de A1 (grise).
+- Affichage iPad : grille alignée sur 7 colonnes (A = 6 colonnes dont A1 sur 4 et A2 sur 2, B = 1 colonne, C = 7 colonnes), boutons ✘ / ✔ carrés (36 px) aux bords arrondis. Carte plus compacte : au moins 3 lignes du tableau « Observations » restent visibles sans défiler (iPad 1180×820 et 1133×744).
+- Affichage iPhone : liste inchangée, avec les titres de groupe A/B/C ; boutons carrés de 44 px.
+- Pastilles de groupe : A brun, B rouge sombre, C violet ; fonds A crème, B rose, C bleu pâle (variantes en mode sombre).
+
+### Ajouté
+- Catégorie « Gestuelle » (C1), ajoutée à `CP` ; sans tag spécifique (tags généraux). « Gestion du sifflet » passe dans C2. Les noms des autres catégories sont inchangés : les anciens suivis, la synthèse et le PDF restent lisibles.
+
+### Maintenance
+- `js/version.js` — `1.5.1`. `sw.js` — cache `arbitres-hb-v1.5.1`. `js/main.js` — entrée `1.5.1` dans « Nouveautés ». `tests/families.test.mjs` adapté aux groupes.
+
+### Validation effectuée avant livraison
+- `node tests/families.test.mjs` : 21 catégories, 3 groupes. Tests navigateur (Chromium, 6 formats iPad/iPhone, clair/sombre) : tous passés, dont 21 catégories uniques, boutons carrés et ≥ 3 lignes du tableau visibles sur iPad. Non testé : vrai Safari/WebKit.
+
+---
+
 ## [1.5.0] — 2026-11-10
 
 > **Nouvelle interface des observations rapides** (cartes « Observations rapides » et « Observations » de l'écran match) + correctif du mode sombre. Compatible iPad (paysage/portrait) et iPhone.

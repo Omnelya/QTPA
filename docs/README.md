@@ -76,7 +76,7 @@ Application web progressive (PWA) de suivi et d'évaluation des arbitres de hand
 - **Contexte du match** : zone de texte libre.
 
 **Panneau droit — Quick Notes :**
-- **Grille par familles** (Fautes d'attaque, Sanctions et jets, Gestion du jeu, Positionnement), un seul jeu de boutons ✘ / ✔ pour les deux arbitres (v1.5.0).
+- **Grille par groupes A/B/C** (A Protection du jeu : A1 duels, A2 continuité ; B Protection des joueurs : SPP, SPA ; C Savoir être : C1 technique, C2 pouvoir décisionnel ; plus « Autre »), un seul jeu de boutons ✘ / ✔ pour les deux arbitres (v1.5.0).
 - **19 catégories** réparties en Décisions techniques (SPP, SPA, J7M, Protocole, PF, MB, JF, EJ, Jeu Passif, Marcher, Pied, Reprise de dribble, Zone, Continuité, Communication) et Positionnement (Placement, Déplacement, Zone d'influence, Gestion du sifflet) + Autre.
 - **Tap sur ✘ ou ✔** → ouvre une popup : drapeau « à revoir », tags (les plus fréquents d'abord) + tags généraux, note libre, puis **choix de l'arbitre** (arbitre 1 / arbitre 2 / les deux) qui enregistre l'observation.
 - **Annuler** (avec confirmation, plusieurs observations de suite) et **Rétablir** (sans confirmation).

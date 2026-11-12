@@ -1,4 +1,4 @@
-/* ═══ OBSERVATIONS — Observations rapides v1.5.0 ═════════════════════════
+/* ═══ OBSERVATIONS — Observations rapides v1.5.1 ═════════════════════════
    • Grille unique de catégories rangées par familles (plus de zone A1/A2)
    • Tap ✘/✔ = ouvre la popup : tags (les plus fréquents d'abord), drapeau
      « à revoir », note libre, puis choix de l'arbitre = enregistrement
@@ -22,25 +22,49 @@ export function buildQuickNotes() {
 
   const grid = document.createElement('div');
   grid.className = 'qn-families';
-  FAMILIES.forEach(fam => {
-    const box = document.createElement('div');
-    box.className = 'qn-family';
-    const title = document.createElement('div');
-    title.className = 'qn-family-title';
-    title.textContent = fam.title;
-    box.appendChild(title);
-    fam.cats.forEach(cat => {
-      const row = document.createElement('div');
-      row.className = 'qn-row';
-      const name = document.createElement('div');
-      name.className = 'qn-rname' + (cat === CAU ? ' qn-rname-autre' : '');
-      name.textContent = cat;
-      row.appendChild(name);
-      row.appendChild(_makeTapBtn(cat, 'red'));
-      row.appendChild(_makeTapBtn(cat, 'green'));
-      box.appendChild(row);
+  FAMILIES.forEach(g => {
+    const group = document.createElement('div');
+    group.className = 'qn-group qn-g-' + g.code;
+    const span = g.blocks.reduce((n, b) => n + b.cols, 0);
+    const head = document.createElement('div');
+    head.className = 'qn-group-head';
+    head.innerHTML = '<span class="qn-gchip">' + g.code + '</span> ' +
+      '<span class="qn-gfull">' + escapeHtml(g.title) + '</span>' +
+      (g.short ? '<span class="qn-gshort">' + escapeHtml(g.short) + '</span>' : '');
+    group.appendChild(head);
+    const blocks = document.createElement('div');
+    blocks.className = 'qn-blocks';
+    blocks.style.setProperty('--span', span);
+    g.blocks.forEach(b => {
+      const blk = document.createElement('div');
+      blk.className = 'qn-block';
+      blk.style.setProperty('--cols', b.cols);
+      blk.style.gridColumn = 'span ' + b.cols;
+      const bt = document.createElement('div');
+      bt.className = 'qn-block-title';
+      bt.textContent = b.code + ' · ' + b.title;
+      blk.appendChild(bt);
+      const cells = document.createElement('div');
+      cells.className = 'qn-cells';
+      b.cats.forEach(cat => {
+        const cell = document.createElement('div');
+        cell.className = 'qn-cell' + (cat === CAU ? ' qn-cell-autre' : '');
+        const name = document.createElement('div');
+        name.className = 'qn-rname';
+        name.textContent = cat;
+        const btns = document.createElement('div');
+        btns.className = 'qn-btns';
+        btns.appendChild(_makeTapBtn(cat, 'red'));
+        btns.appendChild(_makeTapBtn(cat, 'green'));
+        cell.appendChild(name);
+        cell.appendChild(btns);
+        cells.appendChild(cell);
+      });
+      blk.appendChild(cells);
+      blocks.appendChild(blk);
     });
-    grid.appendChild(box);
+    group.appendChild(blocks);
+    grid.appendChild(group);
   });
   wrap.appendChild(grid);
   refreshCounters();
