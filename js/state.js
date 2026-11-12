@@ -8,8 +8,28 @@ export const CA = [
   'Jeu Passif','Marcher','Pied','Reprise de dribble','Zone',
   'Communication','Protocole'
 ];
-export const CP = ["Placement","Déplacement","Zone d'influence","Gestion du sifflet"];
+export const CP = ["Placement","Déplacement","Zone d'influence","Gestion du sifflet","Gestuelle"];
 export const CAU = 'Autre';
+
+/* v1.5.1 : groupes A/B/C de la grille d'observations rapides.
+   Les catégories gardent leur nom d'origine (les anciens suivis restent lisibles).
+   cols = nombre de colonnes de cases du bloc (la grille de l'écran compte
+   6 colonnes pour A, 1 pour B, 7 pour C — alignées sur 7 colonnes).
+   'Autre' occupe la case libre de A1 (affichée en gris).
+   Contiennent exactement CA + CP + CAU (vérifié par tests/families.test.mjs). */
+export const FAMILIES = [
+  { code: 'A', title: 'PROTECTION DU JEU', blocks: [
+    { code: 'A1', title: 'GESTION DES DUELS', cols: 4, cats: ['Marcher', 'Reprise de dribble', 'Mauvais Bloc', 'Passage en Force', 'Pied', 'J7M', 'Zone', 'Autre'] },
+    { code: 'A2', title: 'CONTINUITÉ DU JEU', cols: 2, cats: ['Continuité', 'Jeu Passif', 'Exécution du Jet', 'Jet Franc'] }
+  ] },
+  { code: 'B', title: 'PROTECTION DES JOUEURS', short: 'JOUEURS', blocks: [
+    { code: 'B1 / B2', title: 'IRRÉGULARITÉS ET COMPORTEMENTS ANTISPORTIFS', cols: 1, cats: ['SPP', 'SPA'] }
+  ] },
+  { code: 'C', title: 'SAVOIR ÊTRE', blocks: [
+    { code: 'C1', title: "TECHNIQUE D'ARBITRAGE", cols: 4, cats: ['Placement', 'Déplacement', "Zone d'influence", 'Gestuelle'] },
+    { code: 'C2', title: 'POUVOIR DÉCISIONNEL', cols: 3, cats: ['Communication', 'Gestion du sifflet', 'Protocole'] }
+  ] }
+];
 
 /* ═══ TAGS SPÉCIFIQUES PAR CATÉGORIE ═════════════════════════════════════
    red   → tags affichés uniquement sur appui long rouge

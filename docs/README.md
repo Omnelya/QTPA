@@ -46,7 +46,7 @@ Application web progressive (PWA) de suivi et d'évaluation des arbitres de hand
     ├── match.js        # Cycle de vie du match (démarrer, terminer, retour accueil)
     ├── timer.js        # Chronomètre, gestion des périodes, prolongations, recalage
     ├── score.js        # Score et gestion des temps morts (TME)
-    ├── observations.js # Quick Notes : grille tactile, popup tags, compteurs
+    ├── observations.js # Quick Notes : grille par familles, popup (arbitre, drapeau, tags), annuler/rétablir, compteurs
     ├── synthesis.js    # Radar SVG de synthèse par catégorie avec filtres
     ├── pdf.js          # Export PDF (chargement lazy de jsPDF + autoTable)
     ├── storage.js      # Persistance localStorage, reprise de match, historique
@@ -76,12 +76,13 @@ Application web progressive (PWA) de suivi et d'évaluation des arbitres de hand
 - **Contexte du match** : zone de texte libre.
 
 **Panneau droit — Quick Notes :**
-- **Grille compacte 6 colonnes** avec les deux zones A1/A2 côte à côte.
+- **Grille par groupes A/B/C** (A Protection du jeu : A1 duels, A2 continuité ; B Protection des joueurs : SPP, SPA ; C Savoir être : C1 technique, C2 pouvoir décisionnel ; plus « Autre »), un seul jeu de boutons ✘ / ✔ pour les deux arbitres (v1.5.0).
 - **19 catégories** réparties en Décisions techniques (SPP, SPA, J7M, Protocole, PF, MB, JF, EJ, Jeu Passif, Marcher, Pied, Reprise de dribble, Zone, Continuité, Communication) et Positionnement (Placement, Déplacement, Zone d'influence, Gestion du sifflet) + Autre.
-- **Tap sur ✘ ou ✔** → ouvre une popup avec tags prédéfinis spécifiques à la catégorie + tags généraux + note libre optionnelle.
+- **Tap sur ✘ ou ✔** → ouvre une popup : drapeau « à revoir », tags (les plus fréquents d'abord) + tags généraux, note libre, puis **choix de l'arbitre** (arbitre 1 / arbitre 2 / les deux) qui enregistre l'observation.
+- **Annuler** (avec confirmation, plusieurs observations de suite) et **Rétablir** (sans confirmation).
 - **Tags conditionnés à la couleur** : certains tags n'apparaissent que sur rouge ou vert.
-- **Compteurs en temps réel** par bouton et par arbitre.
-- **Tableau des observations** avec tri par heure, catégorie, arbitre ou type.
+- **Compteurs en temps réel** par catégorie et par arbitre (noms réels), plus le nombre d'observations à revoir (⚑).
+- **Tableau des observations** avec tri par heure, catégorie, arbitre ou type, colonne ⚑ et filtre « À revoir ».
 
 ### Écran de fin de match (Synthèse)
 - Score final avec rappel du score à la mi-temps.

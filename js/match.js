@@ -115,7 +115,7 @@ function _showMatchParamsPopup() {
 
   function render() {
     const box = document.createElement('div');
-    box.style.cssText = 'background:var(--bg-card,#fff);border-radius:14px;padding:24px 20px 20px;max-width:340px;width:92%;box-shadow:0 8px 32px rgba(0,0,0,.25);';
+    box.style.cssText = 'background:var(--bg-card,#fff);border-radius:14px;padding:24px 20px 20px;max-width:340px;width:92%;box-shadow:0 8px 32px rgba(0,0,0,.25);max-height:94vh;max-height:94dvh;overflow-y:auto;overscroll-behavior:contain;';
     box.innerHTML =
       '<div style="font-size:16px;font-weight:700;margin-bottom:4px;color:var(--text-main);">Paramètres du match</div>' +
       '<div style="font-size:12px;color:var(--text-hint);margin-bottom:18px;">Règlement de la compétition</div>' +
