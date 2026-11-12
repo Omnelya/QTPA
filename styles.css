@@ -1559,3 +1559,86 @@ body.dark .edit-ctrl-green.edit-ctrl-active{ background: #1a6b35; border-color: 
   .home-filters input,
   .home-filters select { font-size: 14px; }
 }
+
+/* ═══ DÉBRIEF v1.6.0 — écran de fin de match ═════════════════════════════ */
+.db-score-card .db-score { display: flex; align-items: flex-end; gap: 28px; flex-wrap: wrap; }
+.db-score-lab { font-size: 11px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; color: var(--text-muted); }
+.db-score-main { font-size: 34px; font-weight: 700; color: var(--score-color); line-height: 1.1; }
+.db-score-ht { display: flex; gap: 22px; border-left: 2px dashed var(--border-input); padding-left: 22px; }
+.db-score-sub { font-size: 22px; font-weight: 800; color: var(--blue-main); line-height: 1.2; }
+.db-sub-title { font-size: 11px; font-weight: 600; text-transform: none; letter-spacing: 0; color: var(--text-hint); margin-left: 8px; }
+
+.db-filters { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-bottom: 8px; }
+.db-flab { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); }
+.db-seg { display: inline-flex; border: 1.5px solid var(--border-input); border-radius: 10px; overflow: hidden; }
+.db-seg-b {
+  min-height: 36px; padding: 0 12px; border: 0; background: var(--bg-card); color: var(--text-main);
+  font-size: 13px; font-weight: 700; font-family: inherit; cursor: pointer;
+  touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+}
+.db-seg-b + .db-seg-b { border-left: 1px solid var(--border-input); }
+.db-seg-b.on { background: var(--blue-main); color: #fff; }
+.db-empty, .db-hint { font-size: 13px; color: var(--text-hint); padding: 8px 2px; }
+
+.db-row {
+  display: grid; grid-template-columns: 26px 96px auto minmax(90px, 150px) 34px 1fr; gap: 8px; align-items: center;
+  padding: 8px 6px; border-top: 1px solid var(--border); font-size: 14px; cursor: pointer; min-width: 0;
+}
+.db-row.db-nocat { grid-template-columns: 26px 96px auto 34px 1fr; }
+.db-row.db-flag { background: var(--flag-bg); border-radius: 8px; border-top-color: transparent; }
+.db-ico { color: var(--flag-main); font-weight: 800; text-align: center; }
+.db-tm { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.db-tm i { font-style: normal; color: var(--text-muted); font-size: 12px; }
+.db-who { display: flex; gap: 4px; flex-wrap: wrap; }
+.db-cat { font-weight: 700; }
+.db-note { color: var(--text-muted); min-width: 0; overflow-wrap: anywhere; }
+.db-arb { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 10px; border: 1px solid transparent; white-space: nowrap; }
+.db-arb-a1 { background: var(--a1-bg); color: var(--a1-text); border-color: var(--a1-border); }
+.db-arb-a2 { background: var(--a2-bg); color: var(--a2-text); border-color: var(--a2-border); }
+.db-type { font-weight: 800; text-align: center; border-radius: 8px; padding: 2px 0; }
+.db-type-n { background: var(--red-bg); color: var(--red-dark); }
+.db-type-o { background: var(--green-bg); color: var(--green-dark); }
+
+.db-grp { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: var(--text-muted); margin: 10px 0 2px; }
+.db-crow {
+  display: grid; grid-template-columns: minmax(110px, 180px) 1fr 170px 20px; gap: 10px; align-items: center;
+  padding: 9px 4px; border-top: 1px solid var(--border); cursor: pointer; min-height: 44px;
+}
+.db-cname { font-weight: 700; font-size: 15px; }
+.db-bar { height: 10px; border-radius: 6px; overflow: hidden; background: var(--bg-input); }
+.db-bar i { display: block; height: 100%; }
+.db-bar-n i { background: #E57B7B; }
+.db-bar-o i { background: #8CC46A; }
+.db-cnt { font-size: 13px; white-space: nowrap; }
+.db-n { color: var(--red-dark); } .db-o { color: var(--green-dark); }
+.db-chev { color: var(--text-muted); }
+.db-sub { background: var(--qn-fam-bg, var(--bg-input)); border-radius: 8px; margin: 2px 0 6px 12px; padding: 2px 8px; }
+
+.db-tl { display: flex; align-items: flex-start; gap: 10px; margin-top: 8px; }
+.db-tl-lab { width: 64px; flex: none; display: flex; flex-direction: column; font-size: 11px; color: var(--text-muted); }
+.db-tl-lab b { font-size: 15px; color: var(--text-main); }
+.db-axis { position: relative; flex: 1; border-bottom: 3px solid var(--border-input); margin-right: 14px; }
+.db-ticks { display: flex; justify-content: space-between; margin: 2px 14px 10px 74px; font-size: 11px; color: var(--text-muted); }
+.db-mk {
+  position: absolute; width: 28px; height: 28px; margin-left: -14px; padding: 0; border-radius: 9px; border: 1.5px solid;
+  font-size: 14px; font-weight: 800; font-family: inherit; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+}
+.db-mk-n { background: var(--red-bg); color: var(--red-dark); border-color: var(--red-border); }
+.db-mk-o { background: var(--green-bg); color: var(--green-dark); border-color: var(--green-border); }
+.db-mk-fl { background: var(--flag-bg); color: var(--flag-main); border-color: var(--flag-border); }
+.db-mk.sel { outline: 3px solid var(--text-main); outline-offset: 1px; z-index: 2; }
+.db-bubble { background: var(--flag-bg); border: 1px solid var(--flag-border); border-radius: 10px; padding: 2px 8px; margin-top: 6px; }
+.db-bubble .db-row { border-top: 0; }
+
+@media (max-width: 767px) {
+  .db-row { grid-template-columns: 24px 1fr auto; grid-template-areas: "i t w" "c c y" "n n n"; row-gap: 4px; }
+  .db-ico { grid-area: i; } .db-tm { grid-area: t; } .db-who { grid-area: w; justify-content: flex-end; }
+  .db-row.db-nocat { grid-template-areas: "i t w" "y y y" "n n n"; }
+  .db-cat { grid-area: c; } .db-type { grid-area: y; width: 34px; } .db-note { grid-area: n; }
+  .db-crow { grid-template-columns: 1fr 20px; grid-template-areas: "n c" "b b" "s s"; row-gap: 4px; }
+  .db-cname { grid-area: n; } .db-chev { grid-area: c; } .db-bar { grid-area: b; } .db-cnt { grid-area: s; }
+  .db-score-ht { border-left: 0; padding-left: 0; }
+  .db-tl { flex-direction: column; gap: 4px; } .db-tl-lab { flex-direction: row; gap: 8px; align-items: baseline; width: auto; }
+  .db-axis { margin-right: 14px; margin-left: 14px; width: calc(100% - 28px); flex: none; } .db-ticks { margin-left: 14px; }
+}
