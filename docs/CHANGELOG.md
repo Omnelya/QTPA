@@ -60,6 +60,14 @@ Quand une version corrige un bug ou un frag identifié dans l'audit, **toujours 
 
 ---
 
+## [1.6.1] — 2026-11-12
+
+### Modifié
+- Boutons d'observation : ✘ et ✔ sont des icônes SVG de même taille (`_SVG_CROSS`, `_SVG_CHECK`, `.qn-ico` 18 px) au lieu de caractères de police, pour que la coche ne paraisse plus plus haute que la croix.
+- iPad / bureau : groupe B (SPP / SPA) aligné sur les deux lignes de tuiles du groupe A (titre de bloc masqué mais conservant sa hauteur).
+
+---
+
 ## [1.6.0] — 2026-11-12
 
 ### Ajouté
