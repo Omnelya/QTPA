@@ -8,6 +8,7 @@ import { updateCD, toggleChrono, resumeTme, tickC, advPeriod, activerProlong, re
 import { chgScore, buildTme, refreshTme, addTme, deleteTme, tmeVal } from './score.js';
 import { buildQuickNotes, closeDetail, saveDetail, toggleDetailFlag, askUndo, cancelUndo, doUndo, redoObs, refreshCounters, renderTable, renderEndTable, sorted, onFilterChange, onFilterChangeE, resetFilters, resetFiltersE, editObservation, deleteObservation, confirmDelete, closeConfirm } from './observations.js';
 import { setSynFilter, buildSynTable } from './synthesis.js';
+import { dbFilter, dbToggle, dbBubble } from './debrief.js';
 import { exportPDF } from './pdf.js';
 import { autosave, autosaveDebounced, flushAutosave, checkResume, resumeMatch, discardMatch, saveToHistory, openHistory, closeHistory, renderHistory, deleteHistory, deleteHistoryRemote, reexportPDF, reexportPDFRemote, setAdminFilter, setHistFilters, startSafetyAutosave, stopSafetyAutosave } from './storage.js';
 import { startMatch, endMatch, backMatch, goHome, goHomeFromEnd } from './match.js';
@@ -53,6 +54,9 @@ window.chgScore            = chgScore;
 window.addTme              = (t, i) => window.App.addTme(t, i);
 window.deleteTme           = (t, i) => window.App.deleteTme(t, i);
 window.setSynFilter        = setSynFilter;
+window.dbFilter            = dbFilter;
+window.dbToggle            = dbToggle;
+window.dbBubble            = dbBubble;
 window.exportPDF           = exportPDF;
 window.resumeMatch         = resumeMatch;
 window.discardMatch        = discardMatch;
@@ -498,6 +502,7 @@ async function _renderLastMatchCard() {
    CHANGELOG / BADGE VERSION (v1.4.8)
 ════════════════════════════════════════ */
 const CHANGELOG = [
+  { v: '1.6.0', items: ['Nouvel écran de débrief en fin de match : score (mi-temps ou 1TT / 2TT), actions à revoir et notes libres en premier, catégories à travailler, points forts, frise chronologique','Chaque bloc a ses propres filtres par arbitre et par période','Un clic sur une catégorie déplie ses observations et leurs notes ; un clic sur un repère de la frise affiche son détail','Le radar est supprimé de l\'écran (le PDF reste inchangé)'] },
   { v: '1.5.1', items: ['Observations rapides réorganisées en trois groupes : A Protection du jeu (A1 duels, A2 continuité), B Protection des joueurs, C Savoir être (C1 technique, C2 pouvoir décisionnel)','Nouvelle catégorie « Gestuelle » ; « Gestion du sifflet » passe dans C2','Boutons ✘ / ✔ carrés aux bords arrondis, cartes alignées ; au moins 3 lignes du tableau visibles sur iPad'] },
   { v: '1.5.0', items: ['Nouvelle grille d\'observations rapides : catégories rangées par familles, un seul jeu de boutons ✘ / ✔', 'Le choix de l\'arbitre se fait dans la fenêtre d\'observation (boutons à son nom, ou « Les deux »)', 'Nouveau drapeau « à revoir avec l\'arbitre » dans la fenêtre, colonne ⚑ et filtre dans les tableaux', 'Boutons Annuler (avec confirmation, plusieurs observations de suite) et Rétablir', 'Tags classés du plus au moins fréquent selon vos suivis précédents', 'Compatible iPad et iPhone ; plus aucun retour lumineux ou vibratoire à l\'enregistrement', 'Correction : le fond reste blanc en mode clair quand l\'appareil est en mode sombre'] },
   { v: '1.4.33', items: ['Sécurité : un administrateur ne peut plus modifier son propre rôle ni supprimer son propre compte', 'Sécurité : validation des rôles, emails et mots de passe côté serveur', 'Administration : la liste des utilisateurs n\'est plus limitée à 50'] },

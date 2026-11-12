@@ -346,10 +346,12 @@
       <button class="btn-act prim" id="BExp" onclick="exportPDF()">Exporter PDF…</button>
     </div>
   </div>
-  <div class="card" style="text-align:center;">
-    <div class="card-title">Score final</div>
-    <div id="EHtScore" style="font-size:13px;color:var(--text-hint);margin-bottom:4px;display:none;"></div>
-    <div style="font-size:32px;font-weight:700;padding:8px 0;color:var(--score-color);" id="ESc">0 : 0</div>
+  <div class="card db-score-card">
+    <div class="card-title">Score</div>
+    <div class="db-score">
+      <div><div class="db-score-lab">Score final</div><div class="db-score-main" id="ESc">0 : 0</div></div>
+      <div id="EHtScore" class="db-score-ht" style="display:none;"></div>
+    </div>
   </div>
   <div class="card">
     <div class="card-title">Contexte du match</div>
@@ -357,7 +359,8 @@
   </div>
   <div class="card"><div class="card-title">Évaluation générale du match</div><div id="QC"></div></div>
 
-  <div class="card" id="synCard">
+  <!-- Radar : masqué depuis 1.6.0 (conservé uniquement pour l'export PDF) -->
+  <div class="card" id="synCard" style="display:none;">
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
       <div class="card-title" style="margin-bottom:0;">Synthèse par catégorie</div>
     </div>
@@ -386,9 +389,15 @@
     </div>
   </div>
 
+  <!-- ═══ DÉBRIEF v1.6.0 ═══ -->
+  <div class="card"><div class="card-title">À revoir et notes <span class="db-sub-title">⚑ d'abord, puis les autres notes</span></div><div id="db-rev"></div></div>
+  <div class="card"><div class="card-title">À travailler</div><div id="db-work"></div></div>
+  <div class="card"><div class="card-title">Points forts</div><div id="db-strong"></div></div>
+  <div class="card"><div class="card-title">Frise chronologique</div><div id="db-frise"></div></div>
+
   <div class="card" style="overflow-y:auto;">
     <div class="flt-bar">
-      <div class="card-title flt-title">Toutes les observations</div>
+      <div class="card-title flt-title">Observations</div>
       <select id="sortSelE" onchange="renderEndTable()" title="Tri">
         <option value="time_desc">⇅ Heure (récent en haut)</option>
         <option value="time_asc">⇅ Heure (ancien en haut)</option>

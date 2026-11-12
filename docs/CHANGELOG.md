@@ -60,6 +60,29 @@ Quand une version corrige un bug ou un frag identifié dans l'audit, **toujours 
 
 ---
 
+## [1.6.0] — 2026-11-12
+
+### Ajouté
+- `js/debrief.js` : nouvel écran de débrief en fin de match, calculé à partir de `S.obs` (aucune donnée modifiée). Blocs : **À revoir et notes** (⚑ d'abord, puis les autres observations ayant une note, en ordre chronologique), **À travailler** (catégories avec au moins un ✘ ; groupe « Récurrent » = 2 ✘ ou plus, classé par % de ✘ puis nombre de ✘ ; groupe « Un seul ✘ » ; aucune catégorie n'est masquée), **Points forts** (catégories avec au moins un ✔, classées par % de ✔), **Frise chronologique** (une ligne par période, repères ✔ / ✘ / ⚑ répartis sur des couloirs pour éviter les chevauchements, détail au clic).
+- Chaque bloc a ses propres filtres Arbitre (noms réels) et Période (MT1, MT2, MT3, prolongations), indépendants des autres blocs.
+- Un clic sur une catégorie déplie ses observations avec leurs notes ; un clic sur une ligne ouvre la fenêtre de modification de l'observation.
+
+### Modifié
+- Carte Score : score final, puis mi-temps (2 MT) ou 1TT / 2TT (3 MT) (`js/match.js`).
+- Le tableau « Observations » et le « Commentaire global » sont conservés tels quels, sous les nouveaux blocs. `renderEndTable()` rafraîchit aussi le débrief après toute modification.
+
+### Retiré
+- Le radar de synthèse n'est plus affiché. Son conteneur reste dans la page, masqué, uniquement parce que l'export PDF y capture le radar (`js/pdf.js`) : le PDF est inchangé.
+
+### Maintenance
+- `js/version.js` — `1.6.0`. `sw.js` — cache `arbitres-hb-v1.6.0`. `js/main.js` — entrée `1.6.0` dans « Nouveautés ».
+
+### Validation effectuée avant livraison
+- Tests navigateur (Chromium : iPad paysage et portrait, iPhone portrait et paysage ; matchs à 2 et 3 MT) : ordre des blocs, classement, filtres indépendants, dépli, bulle de la frise, échappement HTML des notes, absence de débordement, aucune erreur JS ; tests de la version 1.5.1 rejoués sans régression. Non testé : vrai Safari/WebKit ; export PDF avec radar masqué (à vérifier à la main).
+- Pas encore fait : bouton ⓘ d'antériorité (étape suivante) ; écran de mi-temps.
+
+---
+
 ## [1.5.1] — 2026-11-12
 
 ### Modifié

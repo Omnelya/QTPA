@@ -8,6 +8,7 @@
 import { S, CA, CP, CAU, CAT_TAGS, TAGS_GENERAUX, FAMILIES, KEY_HISTORY } from './state.js';
 import { fmt, escapeHtml } from './utils.js';
 import { log } from './logger.js';
+import { renderDebrief } from './debrief.js';
 
 /* Observations annulées, rétablissables (vidé au démarrage/reprise d'un match
    et à chaque nouvelle observation). Volontairement hors de S : non sauvegardé. */
@@ -720,4 +721,5 @@ export function renderEndTable() {
   }
 
   _syncFilterBadge('es');
+  renderDebrief(); /* v1.6.0 : les blocs du débrief suivent toute modification */
 }
