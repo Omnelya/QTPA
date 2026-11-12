@@ -11,7 +11,7 @@ import { buildQuickNotes, closeDetail, saveDetail, toggleDetailFlag, toggleDetai
 import { setSynFilter, buildSynTable } from './synthesis.js';
 import { dbFilter, dbToggle, dbBubble } from './debrief.js';
 import { exportPDF } from './pdf.js';
-import { autosave, autosaveDebounced, flushAutosave, checkResume, resumeMatch, discardMatch, saveToHistory, openHistory, closeHistory, renderHistory, deleteHistory, deleteHistoryRemote, reexportPDF, reexportPDFRemote, setAdminFilter, setHistFilters, startSafetyAutosave, stopSafetyAutosave } from './storage.js';
+import { openMatchFromHome, autosave, autosaveDebounced, flushAutosave, checkResume, resumeMatch, discardMatch, saveToHistory, openHistory, closeHistory, renderHistory, deleteHistory, deleteHistoryRemote, reexportPDF, reexportPDFRemote, setAdminFilter, setHistFilters, startSafetyAutosave, stopSafetyAutosave } from './storage.js';
 import { startMatch, endMatch, backMatch, goHome, goHomeFromEnd } from './match.js';
 import { pad, escapeHtml } from './utils.js';
 import { S } from './state.js';
@@ -33,7 +33,7 @@ window.App = {
   setSynFilter, buildSynTable,
   exportPDF,
   autosave, autosaveDebounced, checkResume, resumeMatch, discardMatch, saveToHistory,
-  openHistory, closeHistory, renderHistory, deleteHistory, deleteHistoryRemote, reexportPDF, reexportPDFRemote, setAdminFilter,
+  openMatchFromHome, openHistory, closeHistory, renderHistory, deleteHistory, deleteHistoryRemote, reexportPDF, reexportPDFRemote, setAdminFilter,
   startSafetyAutosave, stopSafetyAutosave,
   startMatch, endMatch, backMatch, goHome, goHomeFromEnd,
   exportLogs, isLoggedIn, isAdmin, getEmail, getRole, getDisplayName, logout,
@@ -401,7 +401,7 @@ async function renderHomeScreen() {
     const date  = m.date_match ? m.date_match.split('-').reverse().join('/') : '';
     const comp  = escapeHtml(m.competition || '');
     const arbs  = [m.arbitre1, m.arbitre2].filter(Boolean).map(escapeHtml).join(' & ');
-    return '<div class="home-match-card">' +
+    return '<div class="home-match-card home-match-open" role="button" tabindex="0" title="Ouvrir ce match" onclick="window.App.openMatchFromHome(\'' + id + '\', ' + (isLoc ? 'true' : 'false') + ')">' +
       '<div class="home-match-main">' +
         '<div class="home-match-teams">' + eA + ' <span style="color:var(--text-hint);">vs</span> ' + eB + '</div>' +
         '<div class="home-match-score">' + (m.score_a||0) + ' : ' + (m.score_b||0) + '</div>' +
@@ -412,8 +412,8 @@ async function renderHomeScreen() {
         (arbs ? '<span style="color:var(--text-hint);">' + arbs + '</span>' : '') +
       '</div>' +
       '<div class="home-match-actions">' +
-        '<button class="btn-act prim" onclick="' + (isLoc ? 'window.App.reexportPDF(' + id + ')' : 'window.App.reexportPDFRemote(\'' + id + '\')') + '">PDF</button>' +
-        '<button class="btn-act" onclick="' + (isLoc ? 'window.App.deleteHistory(' + id + ')' : 'window.App.deleteHistoryRemote(\'' + id + '\')') + '">Supprimer</button>' +
+        '<button class="btn-act prim" onclick="event.stopPropagation();' + (isLoc ? 'window.App.reexportPDF(' + id + ')' : 'window.App.reexportPDFRemote(\'' + id + '\')') + '">PDF</button>' +
+        '<button class="btn-act" onclick="event.stopPropagation();' + (isLoc ? 'window.App.deleteHistory(' + id + ')' : 'window.App.deleteHistoryRemote(\'' + id + '\')') + '">Supprimer</button>' +
       '</div>' +
     '</div>';
   }).join('');
@@ -505,6 +505,7 @@ async function _renderLastMatchCard() {
    CHANGELOG / BADGE VERSION (v1.4.8)
 ════════════════════════════════════════ */
 const CHANGELOG = [
+  { v: '1.8.0', items: ['Un clic sur un match de « Matchs récents » le rouvre sur l\'écran de fin de match (débrief), pour relire, modifier les notes et ré-exporter le PDF','Matchs enregistrés sur cet appareil : état complet restauré. Matchs Supabase : score, observations, notes et évaluation (mi-temps/période déduites des observations)'] },
   { v: '1.7.2', items: ['Équipe + numéro : le commentaire n\'affiche plus que « Équipe n°3 » (nom d\'équipe une seule fois)','Match à 3 tiers-temps : MT1 / MT2 / MT3 s\'affichent TT1 / TT2 / TT3 partout (écran, filtres, tableaux, débrief, PDF)','Match à 3 tiers-temps : le bouton « Mi-temps » devient « Tiers-temps » et ouvre le même écran de pause pour TT1 puis TT2, avec une note « à dire à la pause » pour chacun'] },
   { v: '1.7.1', items: ['Boutons Annuler / Rétablir remplacés par les seules flèches ↶ ↷','Équipes séparées des autres tags : un clic sur l\'équipe affiche ses numéros de joueurs (saisie facultative à la préparation du match)','Bouton « Mi-temps » au même style que « Fin de match »'] },
   { v: '1.7.0', items: ['Nouveau bouton « Mi-temps » : score, 3 points les moins réussis, 3 les mieux réussis (MT1), observations ⚑ à revoir, filtre par arbitre','Bouton ✎ « À compléter plus tard » dans la fenêtre d\'observation','Champ « À dire à la pause » repris sur l\'écran de fin de match à titre indicatif'] },

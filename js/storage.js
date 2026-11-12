@@ -875,3 +875,65 @@ function _loadHistory() {
     return [];
   }
 }
+
+/* ═══ Rouvrir un match depuis « Matchs récents » — v1.8.0 ═════════════════
+   Ouvre l'écran de fin de match (débrief). Local : état complet (S).
+   Supabase : reconstruit S depuis les colonnes + `etat` (si présent) ;
+   à défaut, nbMT / période sont déduits des observations.                  */
+function _fromRemote(m) {
+  const obs = Array.isArray(m.observations) ? m.observations : [];
+  const has = p => obs.some(o => o.period === p);
+  const nb = has('MT3') ? 3 : 2;
+  const s = {
+    tA: m.equipe_a || 'Equipe A', tB: m.equipe_b || 'Equipe B', a1: m.arbitre1 || '', a2: m.arbitre2 || '',
+    mDate: m.date_match || '', mTime: m.heure_match || '', mComp: m.competition || '',
+    sA: m.score_a || 0, sB: m.score_b || 0, obs,
+    nbMT: nb, dureesMT: nb === 3 ? [900, 900, 900] : [1800, 1800],
+    period: obs.length ? obs[obs.length - 1].period : 'MT2'
+  };
+  Object.assign(s, m.etat && typeof m.etat === 'object' ? m.etat : {});
+  return { S: s, ans: m.evaluation || {}, ctx: m.contexte || '', gc: m.commentaire_global || '', remoteId: m.id };
+}
+
+export async function openMatchFromHome(id, local) {
+  if (localStorage.getItem(KEY_CURRENT)) {
+    window.App.showAlert('Un suivi interrompu est en attente : reprends-le (bouton « Reprendre ») ou supprime-le avant d’ouvrir un autre match.');
+    return;
+  }
+  let src = null;
+  try {
+    if (local) {
+      const e = _loadHistory().find(x => String(x.id) === String(id));
+      if (e) src = { S: JSON.parse(JSON.stringify(e.S)), ans: e.ans || {}, ctx: e.ctx || '', gc: e.gc || '', histId: e.id, remoteId: e.remoteId || null };
+    } else {
+      let m = null;
+      if (isAdmin()) { const r = await fetchMatchById(id); m = r.ok ? r.match : null; }
+      else { const r = await fetchMatches(); m = r.ok ? (r.matches || []).find(x => x.id === id) : null; }
+      if (m) src = _fromRemote(m);
+    }
+  } catch (err) { log.error('LIFECYCLE', 'ouverture_match_erreur', { message: err.message }); }
+  if (!src) { window.App.showAlert('Match introuvable ou impossible à charger.'); return; }
+
+  log.info('LIFECYCLE', 'match_rouvert', { id: String(id), local: !!local });
+  Object.assign(S, src.S, { run: false, histId: src.histId || null, remoteId: src.remoteId || null });
+  S.pauseNote = S.pauseNote || ''; S.pauseNote2 = S.pauseNote2 || ''; S.numA = S.numA || ''; S.numB = S.numB || '';
+  S.obs.forEach(o => {
+    if (!Array.isArray(o.arb)) o.arb = o.arb ? [o.arb] : [];
+    if (!o.cats) o.cats = [o.cat];
+  });
+  Object.keys(src.ans).forEach(k => { ans[k] = src.ans[k]; });
+  document.getElementById('ctxTA').value = src.ctx;
+  document.getElementById('GC').value = src.gc;
+  document.getElementById('sTA').textContent = S.tA;
+  document.getElementById('sTB').textContent = S.tB;
+  document.getElementById('thA').textContent = S.tA;
+  document.getElementById('thB').textContent = S.tB;
+  document.getElementById('topInfo').innerHTML = '<strong>' + escapeHtml(S.tA) + '</strong> vs <strong>' + escapeHtml(S.tB) + '</strong> | ' + escapeHtml(S.a1) + ' & ' + escapeHtml(S.a2);
+  document.getElementById('sA').textContent = S.sA;
+  document.getElementById('sB').textContent = S.sB;
+  window.App.buildQuickNotes(); window.App.buildTme(); window.App.buildQs();
+  Object.keys(ans).forEach(k => { if (ans[k]) window.App.setAns(k, ans[k]); });
+  window.App.renderTable();
+  document.getElementById('HomeS').style.display = 'none';
+  window.App.endMatch();
+}

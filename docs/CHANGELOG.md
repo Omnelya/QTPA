@@ -60,6 +60,15 @@ Quand une version corrige un bug ou un frag identifié dans l'audit, **toujours 
 
 ---
 
+## [1.8.0] — 2026-11-12
+
+### Ajouté
+- `openMatchFromHome()` (`js/storage.js`) : un clic sur la carte d'un match de « Matchs récents » (boutons PDF / Supprimer exclus) le rouvre sur l'écran de fin de match. Refusé tant qu'un suivi interrompu est en attente (évite d'écraser sa sauvegarde).
+- Match local : `S` complet restauré. Match Supabase : reconstruit depuis les colonnes ; `nbMT` et `period` déduits des observations ; si une colonne `etat` (jsonb) existe, elle est fusionnée dans `S`.
+- `supabase/migrations/20261112210000_matches_add_etat.sql` : colonne `etat jsonb` (NON appliquée en production : en attente d'accord). Tant qu'elle n'existe pas, l'app n'écrit pas `etat`.
+
+---
+
 ## [1.7.2] — 2026-11-12
 
 ### Modifié
