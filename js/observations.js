@@ -74,12 +74,15 @@ export function buildQuickNotes() {
 /* ═══ Bouton tap — ouvre TOUJOURS la popup ═════════════════════════════
    Uniquement « click » : touch-action:manipulation (CSS) supprime le délai
    iOS, et on ne bloque plus le défilement de la page (iPhone). */
+const _SVG_CROSS = '<svg class="qn-ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M5.5 5.5l9 9M14.5 5.5l-9 9"/></svg>';
+const _SVG_CHECK = '<svg class="qn-ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M4.5 10.5l4 4 7-8.5"/></svg>';
 function _makeTapBtn(cat, col) {
   const btn = document.createElement('button');
   btn.type = 'button';
   btn.className = 'qn-tap ' + col;
   btn.setAttribute('aria-label', cat + (col === 'red' ? ' non conforme' : ' conforme'));
-  btn.innerHTML = (col === 'red' ? '✘' : '✔') +
+  /* v1.6.1 : icônes SVG (hauteur identique pour ✘ et ✔, quelle que soit la police de l'appareil) */
+  btn.innerHTML = (col === 'red' ? _SVG_CROSS : _SVG_CHECK) +
     '<span class="qn-count" id="' + _cntId(cat, col) + '"></span>';
   btn.addEventListener('click', e => {
     e.preventDefault();
