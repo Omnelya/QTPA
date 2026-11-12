@@ -204,6 +204,18 @@ function _renderFrise() {
   return h;
 }
 
+export { _stats as dbStats, _pct as dbPct, _chrono as dbChrono, _obsLine as dbObsLine, _arbChips as dbArbChips };
+
+/* ── Bloc « À dire à la pause » (indicatif, saisi à la mi-temps) ───── */
+function _renderPause() {
+  const el = document.getElementById('db-pause');
+  if (!el) return;
+  const t = (S.pauseNote || '').trim();
+  el.style.display = t ? '' : 'none';
+  const b = el.querySelector('.db-pause-txt');
+  if (b) b.textContent = t;
+}
+
 /* ── Rendu ───────────────────────────────────────────────────────────── */
 const RENDER = { rev: _renderRev, work: _renderWork, strong: _renderStrong, frise: _renderFrise };
 export function renderBlock(block) {
@@ -215,4 +227,5 @@ export function renderDebrief() {
   const per = periods();
   BLOCKS.forEach(b => { if (_F[b].per !== 'all' && !per.includes(_F[b].per)) _F[b].per = 'all'; });
   BLOCKS.forEach(renderBlock);
+  _renderPause();
 }

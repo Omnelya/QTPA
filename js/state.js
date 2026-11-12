@@ -171,6 +171,7 @@ export const S = {
   obs: [],
   detailPending: null,
   pauseTme: false,
+  pauseNote: '',   /* v1.7.0 : « à dire à la pause » (écran mi-temps) */
 
   /* v0.3.31 (BUG-5) : flag indiquant qu'une action réelle a été effectuée
      dans l'écran match (chrono, score, TME, observation, contexte).

@@ -6,7 +6,8 @@
 import { applyTheme, toggleTheme, showAlert, closeAlert, buildQs, setAns } from './ui.js';
 import { updateCD, toggleChrono, resumeTme, tickC, advPeriod, activerProlong, resetChrono, applyRecal } from './timer.js';
 import { chgScore, buildTme, refreshTme, addTme, deleteTme, tmeVal } from './score.js';
-import { buildQuickNotes, closeDetail, saveDetail, toggleDetailFlag, askUndo, cancelUndo, doUndo, redoObs, refreshCounters, renderTable, renderEndTable, sorted, onFilterChange, onFilterChangeE, resetFilters, resetFiltersE, editObservation, deleteObservation, confirmDelete, closeConfirm } from './observations.js';
+import { mtOpen, mtClose, mtArb, mtNote, mtRender } from './midtime.js';
+import { buildQuickNotes, closeDetail, saveDetail, toggleDetailFlag, toggleDetailTodo, askUndo, cancelUndo, doUndo, redoObs, refreshCounters, renderTable, renderEndTable, sorted, onFilterChange, onFilterChangeE, resetFilters, resetFiltersE, editObservation, deleteObservation, confirmDelete, closeConfirm } from './observations.js';
 import { setSynFilter, buildSynTable } from './synthesis.js';
 import { dbFilter, dbToggle, dbBubble } from './debrief.js';
 import { exportPDF } from './pdf.js';
@@ -84,6 +85,8 @@ window.renderEndTable      = renderEndTable;
 window.closeDetail         = closeDetail;
 window.saveDetail          = saveDetail;
 window.toggleDetailFlag    = toggleDetailFlag;
+window.toggleDetailTodo    = toggleDetailTodo;
+window.mtOpen = mtOpen; window.mtClose = mtClose; window.mtArb = mtArb; window.mtNote = mtNote; window.mtRefresh = mtRender;
 window.askUndo             = askUndo;
 window.cancelUndo          = cancelUndo;
 window.doUndo              = doUndo;
@@ -502,6 +505,7 @@ async function _renderLastMatchCard() {
    CHANGELOG / BADGE VERSION (v1.4.8)
 ════════════════════════════════════════ */
 const CHANGELOG = [
+  { v: '1.7.0', items: ['Nouveau bouton « Mi-temps » : score, 3 points les moins réussis, 3 les mieux réussis (MT1), observations ⚑ à revoir, filtre par arbitre','Bouton ✎ « À compléter plus tard » dans la fenêtre d\'observation','Champ « À dire à la pause » repris sur l\'écran de fin de match à titre indicatif'] },
   { v: '1.6.1', items: ['Observations rapides : la coche verte et la croix rouge ont maintenant la même taille (icônes dessinées), le comptage se lit d\'un coup d\'œil','Sur iPad, SPP est sur la 1re ligne et SPA sur la 2e, à la même hauteur que les items du A'] },
   { v: '1.6.0', items: ['Nouvel écran de débrief en fin de match : score (mi-temps ou 1TT / 2TT), actions à revoir et notes libres en premier, catégories à travailler, points forts, frise chronologique','Chaque bloc a ses propres filtres par arbitre et par période','Un clic sur une catégorie déplie ses observations et leurs notes ; un clic sur un repère de la frise affiche son détail','Le radar est supprimé de l\'écran (le PDF reste inchangé)'] },
   { v: '1.5.1', items: ['Observations rapides réorganisées en trois groupes : A Protection du jeu (A1 duels, A2 continuité), B Protection des joueurs, C Savoir être (C1 technique, C2 pouvoir décisionnel)','Nouvelle catégorie « Gestuelle » ; « Gestion du sifflet » passe dans C2','Boutons ✘ / ✔ carrés aux bords arrondis, cartes alignées ; au moins 3 lignes du tableau visibles sur iPad'] },

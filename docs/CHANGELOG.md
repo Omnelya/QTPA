@@ -60,6 +60,15 @@ Quand une version corrige un bug ou un frag identifié dans l'audit, **toujours 
 
 ---
 
+## [1.7.0] — 2026-11-12
+
+### Ajouté
+- `js/midtime.js` : écran « Mi-temps » ouvert par le bouton **Mi-temps** de l'écran de match (jamais automatiquement). Contenu : score (actuel, ou score à la mi-temps une fois MT2 lancée), observations ⚑ à revoir de MT1, 3 catégories les moins réussies (% de ✘) et 3 les mieux réussies (% de ✔), liste « À compléter plus tard », filtre Arbitre. Lecture seule sur `S.obs`.
+- Bouton ✎ « À compléter plus tard » dans la fenêtre d'observation (nouveau champ booleen `todo` sur l'observation ; icône ✎ dans le tableau).
+- Champ « À dire à la pause » (`S.pauseNote`), sauvegardé avec le match et affiché sur l'écran de fin de match à titre indicatif.
+
+---
+
 ## [1.6.1] — 2026-11-12
 
 ### Modifié

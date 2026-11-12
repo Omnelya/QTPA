@@ -1643,3 +1643,20 @@ body.dark .edit-ctrl-green.edit-ctrl-active{ background: #1a6b35; border-color: 
   .db-tl { flex-direction: column; gap: 4px; } .db-tl-lab { flex-direction: row; gap: 8px; align-items: baseline; width: auto; }
   .db-axis { margin-right: 14px; margin-left: 14px; width: calc(100% - 28px); flex: none; } .db-ticks { margin-left: 14px; }
 }
+
+/* ═══ Mi-temps — v1.7.0 ═══════════════════════════════════════════════ */
+.btn-mt { padding: 8px 14px; margin-right: 8px; border-radius: 10px; border: 1.5px solid rgba(255,255,255,.7); background: transparent; color: #fff; font: inherit; font-weight: 700; cursor: pointer; touch-action: manipulation; }
+#mtOverlay { z-index: 190; }
+.mt-sheet { max-width: 900px; }
+.mt-close { width: auto; padding: 8px 16px; }
+.mt-score { font-size: 17px; margin: 0 0 10px; }
+.mt-score b { font-size: 24px; color: var(--navy, #1e3a7a); }
+.mt-sc-lab { font-size: 12px; text-transform: uppercase; color: var(--text-sub, #666); font-weight: 700; }
+.mt-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.mt-rk { display: grid; grid-template-columns: 1fr 70px; gap: 4px 8px; align-items: center; padding: 6px 0; }
+.mt-rk .db-cnt { grid-column: 1 / -1; }
+@media (max-width: 767px) { .mt-cols { grid-template-columns: 1fr; } }
+.qn-todo-btn { border-color: #5B4B8A; background: transparent; color: #5B4B8A; }
+.qn-todo-btn.on { background: #5B4B8A; color: #fff; }
+.db-pause-hint { font-weight: 400; text-transform: none; opacity: .7; }
+.db-pause-txt { white-space: pre-wrap; font-size: 15px; }

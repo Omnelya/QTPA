@@ -172,6 +172,22 @@ function _syncFlagBtn() {
   if (lbl) lbl.textContent = on ? 'À revoir avec l’arbitre : activé' : 'Marquer à revoir avec l’arbitre';
 }
 
+function _syncTodoBtn() {
+  const btn = document.getElementById('detailTodo');
+  if (!btn || !S.detailPending) return;
+  const on = !!S.detailPending.todo;
+  btn.classList.toggle('on', on);
+  btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  const lbl = btn.querySelector('.qn-flag-label');
+  if (lbl) lbl.textContent = on ? 'À compléter plus tard : activé' : 'À compléter plus tard';
+}
+
+export function toggleDetailTodo() {
+  if (!S.detailPending) return;
+  S.detailPending.todo = !S.detailPending.todo;
+  _syncTodoBtn();
+}
+
 export function toggleDetailFlag() {
   if (!S.detailPending) return;
   S.detailPending.flag = !S.detailPending.flag;
@@ -187,6 +203,7 @@ function _openDetail(cat, col, prefill) {
     arb:       isEdit ? [...prefill.arb] : [],
     cat, col,
     flag:      isEdit ? !!prefill.flag : false,
+    todo:      isEdit ? !!prefill.todo : false,
     time:      isEdit ? prefill.time   : fmt(S.elapsed),
     el:        isEdit ? prefill.el     : S.elapsed,
     period:    isEdit ? prefill.period : S.period,
@@ -248,6 +265,7 @@ function _openDetail(cat, col, prefill) {
   /* ── Tags, drapeau, note ── */
   _rebuildTags(cat, col, isEdit ? (prefill.tags || []) : []);
   _syncFlagBtn();
+  _syncTodoBtn();
   document.getElementById('detailNote').value = isEdit ? (prefill.cmt || '') : '';
   const ov = document.getElementById('detailOverlay');
   ov.classList.add('on');
@@ -285,6 +303,7 @@ export function saveDetail(sel) {
     cats: [d.cat],
     col: d.col,
     flag: !!d.flag,
+    todo: !!d.todo,
     tags: selectedTags,
     cmt: cmt
   };
@@ -322,6 +341,7 @@ export function saveDetail(sel) {
 
 function _afterObsChange() {
   refreshCounters();
+  if (window.mtRefresh) window.mtRefresh();
   renderTable();
   renderEndTable();
   _refreshSynthesisIfVisible(); /* v0.4.10 */
@@ -376,6 +396,7 @@ export function editObservation(idx) {
     tags:      o.tags || [],
     cmt:       o.cmt  || '',
     flag:      !!o.flag,
+    todo:      !!o.todo,
     time:      o.time,
     el:        o.el,
     period:    o.period,
@@ -432,6 +453,7 @@ export function confirmDelete() {
   renderTable();
   renderEndTable();
   _refreshSynthesisIfVisible(); /* v0.4.10 */
+  if (window.mtRefresh) window.mtRefresh();
   window.App.autosave();
 }
 
@@ -658,7 +680,7 @@ export function oRow(o, idx) {
     '<td><span class="badge ba">' + escapeHtml(o.an) + '</span></td>' +
     '<td style="font-weight:700;white-space:nowrap;">' + escapeHtml(o.cat) + '</td>' +
     '<td><span class="lc">' + tl + '</span></td>' +
-    '<td class="obs-flag">' + (o.flag ? '<span role="img" aria-label="À revoir">⚑</span>' : '') + '</td>' +
+    '<td class="obs-flag">' + (o.flag ? '<span role="img" aria-label="À revoir">⚑</span>' : '') + (o.todo ? '<span role="img" aria-label="À compléter" title="À compléter">✎</span>' : '') + '</td>' +
     '<td>' + escapeHtml(cmtText) + '</td>' +
     '<td class="obs-actions"><div class="obs-actions-inner">' +
       '<button class="obs-btn-edit" onclick="editObservation(' + idx + ')" title="Modifier">' +
