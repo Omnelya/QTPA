@@ -1645,7 +1645,6 @@ body.dark .edit-ctrl-green.edit-ctrl-active{ background: #1a6b35; border-color: 
 }
 
 /* ═══ Mi-temps — v1.7.0 ═══════════════════════════════════════════════ */
-.btn-mt { padding: 8px 14px; margin-right: 8px; border-radius: 10px; border: 1.5px solid rgba(255,255,255,.7); background: transparent; color: #fff; font: inherit; font-weight: 700; cursor: pointer; touch-action: manipulation; }
 #mtOverlay { z-index: 190; }
 .mt-sheet { max-width: 900px; }
 .mt-close { width: auto; padding: 8px 16px; }
@@ -1660,3 +1659,10 @@ body.dark .edit-ctrl-green.edit-ctrl-active{ background: #1a6b35; border-color: 
 .qn-todo-btn.on { background: #5B4B8A; color: #fff; }
 .db-pause-hint { font-weight: 400; text-transform: none; opacity: .7; }
 .db-pause-txt { white-space: pre-wrap; font-size: 15px; }
+
+/* ═══ Équipes et numéros — v1.7.1 ═════════════════════════════════════ */
+.qn-teams { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-bottom: 6px; }
+.qn-team { display: flex; flex-direction: column; gap: 6px; }
+.qn-nums { display: flex; flex-wrap: wrap; gap: 6px; max-width: 320px; }
+.qn-num { min-height: 36px; min-width: 40px; padding: 4px 8px; font-size: 13px; border-radius: 12px; }
+.qn-hbtn { min-width: 48px; font-size: 20px; }

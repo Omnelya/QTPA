@@ -131,6 +131,38 @@ function _addTag(wrap, t, selected) {
   wrap.appendChild(tag);
 }
 
+/* ── Équipes + numéros de joueurs (v1.7.1) ────────────────────────────
+   Un bouton par équipe (tag = nom de l'équipe) ; une fois choisie, ses
+   numéros apparaissent en petit (tag = « Équipe n°7 »).                   */
+const _nums = raw => [...new Set(String(raw || '').split(/[^0-9]+/).filter(Boolean))];
+const _numTag = (team, n) => team + ' n°' + n;
+function _teamDefs() { return [[S.tA, _nums(S.numA)], [S.tB, _nums(S.numB)]].filter(d => d[0]); }
+
+function _buildTeams(keepTags) {
+  const box = document.getElementById('detailTeams');
+  box.innerHTML = '';
+  _teamDefs().forEach(([team, nums]) => {
+    const row = document.createElement('div');
+    row.className = 'qn-team';
+    const numWrap = document.createElement('div');
+    numWrap.className = 'qn-nums';
+    const on = keepTags.includes(team) || nums.some(n => keepTags.includes(_numTag(team, n)));
+    _addTag(row, team, on);
+    const btn = row.firstChild;
+    nums.forEach(n => { _addTag(numWrap, _numTag(team, n), keepTags.includes(_numTag(team, n))); numWrap.lastChild.textContent = n; numWrap.lastChild.classList.add('qn-num'); });
+    numWrap.style.display = on && nums.length ? '' : 'none';
+    const base = btn.onclick;
+    btn.onclick = () => {
+      base();
+      const sel = btn.classList.contains('selected');
+      numWrap.style.display = sel && nums.length ? '' : 'none';
+      if (!sel) numWrap.querySelectorAll('.qn-tag.selected').forEach(b => { b.classList.remove('selected'); b.setAttribute('aria-pressed', 'false'); });
+    };
+    row.appendChild(numWrap);
+    box.appendChild(row);
+  });
+}
+
 /**
  * Reconstruit la zone de tags dans la popup.
  * @param {string}   cat       catégorie de l'observation
@@ -158,7 +190,8 @@ function _rebuildTags(cat, col, keepTags) {
   }
 
   /* ── Tags généraux : équipes d'abord, puis généraux par fréquence ── */
-  [S.tA, S.tB].filter(Boolean).concat(_byFreq(TAGS_GENERAUX, freq))
+  _buildTeams(keepTags);
+  _byFreq(TAGS_GENERAUX, freq)
     .forEach(t => _addTag(tagsWrap, t, keepTags.includes(t)));
 }
 
@@ -248,7 +281,7 @@ function _openDetail(cat, col, prefill) {
           /* Conserver uniquement les tags both + généraux sélectionnés */
           const catDef = CAT_TAGS[cat];
           const bothTags  = catDef ? catDef.both : [];
-          const genTags   = [S.tA, S.tB].filter(Boolean).concat(TAGS_GENERAUX);
+          const genTags   = _teamDefs().flatMap(([t, ns]) => [t, ...ns.map(n => _numTag(t, n))]).concat(TAGS_GENERAUX);
           const keepable  = [...bothTags, ...genTags];
           const keepTags  = _getSelectedTags().filter(t => keepable.includes(t));
 
@@ -275,7 +308,7 @@ function _openDetail(cat, col, prefill) {
 
 /** Lit les tags actuellement sélectionnés dans la popup. */
 function _getSelectedTags() {
-  return [...document.querySelectorAll('#detailTags .qn-tag.selected')].map(t => t.dataset.tag);
+  return [...document.querySelectorAll('#detailTeams .qn-tag.selected, #detailTags .qn-tag.selected')].map(t => t.dataset.tag);
 }
 
 export function closeDetail() {

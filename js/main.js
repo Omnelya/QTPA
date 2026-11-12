@@ -505,6 +505,7 @@ async function _renderLastMatchCard() {
    CHANGELOG / BADGE VERSION (v1.4.8)
 ════════════════════════════════════════ */
 const CHANGELOG = [
+  { v: '1.7.1', items: ['Boutons Annuler / Rétablir remplacés par les seules flèches ↶ ↷','Équipes séparées des autres tags : un clic sur l\'équipe affiche ses numéros de joueurs (saisie facultative à la préparation du match)','Bouton « Mi-temps » au même style que « Fin de match »'] },
   { v: '1.7.0', items: ['Nouveau bouton « Mi-temps » : score, 3 points les moins réussis, 3 les mieux réussis (MT1), observations ⚑ à revoir, filtre par arbitre','Bouton ✎ « À compléter plus tard » dans la fenêtre d\'observation','Champ « À dire à la pause » repris sur l\'écran de fin de match à titre indicatif'] },
   { v: '1.6.1', items: ['Observations rapides : la coche verte et la croix rouge ont maintenant la même taille (icônes dessinées), le comptage se lit d\'un coup d\'œil','Sur iPad, SPP est sur la 1re ligne et SPA sur la 2e, à la même hauteur que les items du A'] },
   { v: '1.6.0', items: ['Nouvel écran de débrief en fin de match : score (mi-temps ou 1TT / 2TT), actions à revoir et notes libres en premier, catégories à travailler, points forts, frise chronologique','Chaque bloc a ses propres filtres par arbitre et par période','Un clic sur une catégorie déplie ses observations et leurs notes ; un clic sur un repère de la frise affiche son détail','Le radar est supprimé de l\'écran (le PDF reste inchangé)'] },

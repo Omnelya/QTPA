@@ -127,6 +127,10 @@
         <div class="sf"><label>Équipe A (domicile)</label><input type="text" id="tA" placeholder="Équipe A" autocomplete="off"></div>
         <div class="sf"><label>Équipe B (visiteur)</label><input type="text" id="tB" placeholder="Équipe B" autocomplete="off"></div>
       </div>
+      <div class="g2">
+        <div class="sf"><label>N° joueurs A (facultatif)</label><input type="text" id="nA" placeholder="ex : 1, 4, 7, 10" inputmode="numeric" autocomplete="off"></div>
+        <div class="sf"><label>N° joueurs B (facultatif)</label><input type="text" id="nB" placeholder="ex : 2, 5, 8, 11" inputmode="numeric" autocomplete="off"></div>
+      </div>
     </div>
 
     <!-- Card : Arbitres -->
@@ -172,7 +176,7 @@
       <div class="btn-theme-icon" id="themeIcon"></div>
       
     </button>
-    <button class="btn-mt" onclick="mtOpen()" title="Point à la mi-temps">Mi-temps</button>
+    <button class="btn-end" onclick="mtOpen()" title="Point à la mi-temps">Mi-temps</button>
     <button class="btn-end" onclick="endMatch()">Fin de match</button>
   </div>
   <div class="prolong-banner" id="PB">
@@ -228,8 +232,8 @@
         <span class="qn-chip qn-chip-a1" id="qnStats_A1"></span>
         <span class="qn-chip qn-chip-a2" id="qnStats_A2"></span>
         <span class="qn-chip qn-chip-flag" id="qnFlags" title="Observations à revoir">⚑ 0</span>
-        <button type="button" class="qn-hbtn" id="btnUndo" onclick="askUndo()" disabled>↶ Annuler</button>
-        <button type="button" class="qn-hbtn" id="btnRedo" onclick="redoObs()" disabled>Rétablir ↷</button>
+        <button type="button" class="qn-hbtn" id="btnUndo" onclick="askUndo()" disabled title="Annuler la dernière observation" aria-label="Annuler la dernière observation">↶</button>
+        <button type="button" class="qn-hbtn" id="btnRedo" onclick="redoObs()" disabled title="Rétablir" aria-label="Rétablir">↷</button>
       </div>
       <div id="quickNotesWrap"></div>
     </div>
@@ -289,6 +293,8 @@
     </div>
     <button type="button" class="qn-flag-btn" id="detailFlag" aria-pressed="false" onclick="toggleDetailFlag()"><span aria-hidden="true">⚑</span> <span class="qn-flag-label">Marquer à revoir avec l’arbitre</span></button>
     <button type="button" class="qn-flag-btn qn-todo-btn" id="detailTodo" aria-pressed="false" onclick="toggleDetailTodo()"><span aria-hidden="true">✎</span> <span class="qn-flag-label">À compléter plus tard</span></button>
+    <div class="qn-detail-label">Équipe · touchez pour choisir un numéro</div>
+    <div class="qn-teams" id="detailTeams"></div>
     <div class="qn-detail-label">Tags rapides · les plus fréquents d’abord</div>
     <div class="qn-tags-wrap" id="detailTags"></div>
     <div class="qn-detail-label">Note libre</div>
