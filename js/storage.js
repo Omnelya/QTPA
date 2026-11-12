@@ -1,5 +1,5 @@
 /* ═══ STORAGE — Persistance locale + synchronisation backend ════════════ */
-import { S, ans, KEY_CURRENT, KEY_HISTORY } from './state.js';
+import { S, ans, KEY_CURRENT, KEY_HISTORY, pl, applyPeriodLabels } from './state.js';
 import { fmtDate, escapeHtml } from './utils.js';
 import { log } from './logger.js';
 import { isLoggedIn, isAdmin, getUserId, saveMatchRemote, fetchMatches, fetchMatchesAdmin, fetchMatchById, deleteMatchRemote } from './auth.js';
@@ -414,7 +414,8 @@ export function resumeMatch() {
     if (S.mComp) mp.push(S.mComp);
     document.getElementById('topMeta').textContent = mp.join(' · ');
     const pb = document.getElementById('PBadge');
-    pb.textContent = S.period;
+    pb.textContent = pl(S.period);
+    applyPeriodLabels();
     if      (S.period === 'MT1') pb.className = 'period-badge p-mt1';
     else if (S.period === 'MT2') pb.className = 'period-badge p-mt2';
     else if (S.period === 'MT3') pb.className = 'period-badge p-mt3'; /* v1.4.31 (BUG-MT3) */
@@ -843,7 +844,7 @@ export function reexportPDF(id) {
   const savedCtx = document.getElementById('ctxTA')?.value || '';
   const savedGC  = document.getElementById('GC')?.value    || '';
   Object.keys(entry.S).forEach(k   => { S[k]   = entry.S[k];   });
-  S.pauseNote = entry.S.pauseNote || '';
+  S.pauseNote = entry.S.pauseNote || ''; S.pauseNote2 = entry.S.pauseNote2 || '';
   Object.keys(entry.ans).forEach(k => { ans[k]  = entry.ans[k]; });
 
   // v0.3.22 (FRAG-7) : compat selArb/selCat retirée (code mort, cf. resumeMatch).

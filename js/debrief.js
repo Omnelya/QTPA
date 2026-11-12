@@ -4,7 +4,7 @@
    Arbitre / Période (indépendants). Aucune donnée n'est modifiée ici :
    tout est calculé à partir de S.obs.
 ════════════════════════════════════════════════════════════════════════════ */
-import { S } from './state.js';
+import { S, pl } from './state.js';
 import { fmt, escapeHtml } from './utils.js';
 
 const BLOCKS = ['rev', 'work', 'strong', 'frise'];
@@ -64,7 +64,7 @@ function _seg(block, key, items) {
 function _filterBar(block) {
   return '<div class="db-filters">' +
     '<span class="db-flab">Arbitre</span>' + _seg(block, 'arb', [['all', 'Tous'], ['A1', S.a1], ['A2', S.a2]]) +
-    '<span class="db-flab">Période</span>' + _seg(block, 'per', [['all', 'Tous'], ...periods().map(p => [p, p])]) +
+    '<span class="db-flab">Période</span>' + _seg(block, 'per', [['all', 'Tous'], ...periods().map(p => [p, pl(p)])]) +
     '</div>';
 }
 
@@ -91,7 +91,7 @@ function _obsLine(o, withCat) {
   const note = _noteText(o);
   return '<div class="db-row' + (o.flag ? ' db-flag' : '') + (withCat ? '' : ' db-nocat') + '" onclick="editObservation(' + idx + ')" title="Modifier cette observation">' +
     '<span class="db-ico">' + (o.flag ? '⚑' : (note ? '💬' : '')) + '</span>' +
-    '<span class="db-tm">' + escapeHtml(o.time || '') + ' <i>' + escapeHtml(o.period || '') + '</i></span>' +
+    '<span class="db-tm">' + escapeHtml(o.time || '') + ' <i>' + escapeHtml(pl(o.period || '')) + '</i></span>' +
     '<span class="db-who">' + _arbChips(o) + '</span>' +
     (withCat ? '<span class="db-cat">' + escapeHtml(o.cat) + '</span>' : '') +
     _typeChip(o) +
@@ -188,7 +188,7 @@ function _renderFrise() {
       return { o, pos, lane };
     });
     const nl = Math.max(1, lanes.length);
-    h += '<div class="db-tl"><div class="db-tl-lab"><b>' + escapeHtml(p) + '</b><span>' + nR + ' ✘ / ' + (list.length - nR) + ' ✔</span></div>' +
+    h += '<div class="db-tl"><div class="db-tl-lab"><b>' + escapeHtml(pl(p)) + '</b><span>' + nR + ' ✘ / ' + (list.length - nR) + ' ✔</span></div>' +
       '<div class="db-axis" style="height:' + (nl * 30 + 8) + 'px">' +
       marks.map(m => {
         const idx = S.obs.indexOf(m.o);
@@ -210,7 +210,8 @@ export { _stats as dbStats, _pct as dbPct, _chrono as dbChrono, _obsLine as dbOb
 function _renderPause() {
   const el = document.getElementById('db-pause');
   if (!el) return;
-  const t = (S.pauseNote || '').trim();
+  const n = [(S.pauseNote || '').trim(), (S.pauseNote2 || '').trim()];
+  const t = S.nbMT === 3 ? n.map((x, i) => x && pl('MT' + (i + 1)) + ' : ' + x).filter(Boolean).join('\n') : n[0];
   el.style.display = t ? '' : 'none';
   const b = el.querySelector('.db-pause-txt');
   if (b) b.textContent = t;

@@ -5,7 +5,7 @@
    • Annuler (avec confirmation) / Rétablir (sans confirmation)
    • Aucun retour sonore, vibratoire ou lumineux à l'enregistrement
 ════════════════════════════════════════════════════════════════════════════ */
-import { S, CA, CP, CAU, CAT_TAGS, TAGS_GENERAUX, FAMILIES, KEY_HISTORY } from './state.js';
+import { S, pl, applyPeriodLabels, CA, CP, CAU, CAT_TAGS, TAGS_GENERAUX, FAMILIES, KEY_HISTORY } from './state.js';
 import { fmt, escapeHtml } from './utils.js';
 import { log } from './logger.js';
 import { renderDebrief } from './debrief.js';
@@ -248,7 +248,7 @@ function _openDetail(cat, col, prefill) {
   document.getElementById('detailTitle').textContent =
     (isEdit ? '✎ Modifier — ' : '') + cat + ' — ' + colLabel;
   document.getElementById('detailMeta').textContent =
-    S.detailPending.time + ' · ' + S.detailPending.period;
+    S.detailPending.time + ' · ' + pl(S.detailPending.period);
 
   /* ── Boutons d'enregistrement = choix de l'arbitre ── */
   const cur = S.detailPending.arb;
@@ -323,7 +323,9 @@ export function saveDetail(sel) {
   if (sel !== 'A1' && sel !== 'A2' && sel !== 'both') return; /* choix d'arbitre obligatoire */
   S.matchActif = true; /* v0.3.31 (BUG-5) */
 
-  const selectedTags = _getSelectedTags();
+  let selectedTags = _getSelectedTags();
+  /* « Équipe » + « Équipe n°3 » → seulement « Équipe n°3 » */
+  selectedTags = selectedTags.filter(t => !selectedTags.some(u => u.startsWith(t + ' n°')));
   const cmt = document.getElementById('detailNote').value.trim();
   const arb = sel === 'both' ? ['A1', 'A2'] : [sel];
   const arbNames = arb.map(a => a === 'A1' ? S.a1 : S.a2);
@@ -383,7 +385,7 @@ function _afterObsChange() {
 
 /* ═══ Annuler (avec confirmation) / Rétablir (sans confirmation) ═══════ */
 function _resume(o) {
-  return o.time + ' · ' + o.period + ' · ' + o.an + ' · ' + o.cat +
+  return o.time + ' · ' + pl(o.period) + ' · ' + o.an + ' · ' + o.cat +
     ' ' + (o.col === 'red' ? '✘' : '✔') + (o.flag ? ' ⚑' : '') +
     (o.cmt ? ' — ' + o.cmt : '');
 }
@@ -450,7 +452,7 @@ export function deleteObservation(idx) {
   const cmtParts = [];
   if (o.tags && o.tags.length) cmtParts.push(o.tags.join(', '));
   if (o.cmt) cmtParts.push(o.cmt);
-  const resume = o.time + ' · ' + o.period + ' · ' + o.an + ' · ' + o.cat +
+  const resume = o.time + ' · ' + pl(o.period) + ' · ' + o.an + ' · ' + o.cat +
     (cmtParts.length ? ' · ' + cmtParts.join(' / ') : '');
 
   const summaryEl = document.getElementById('confirmObsSummary');
@@ -497,6 +499,7 @@ export function closeConfirm() {
 
 /* ═══ Compteurs ════════════════════════════════════════════════════════ */
 export function refreshCounters() {
+  applyPeriodLabels();
   /* Compteur par bouton : toutes observations de la catégorie, tous arbitres confondus */
   [...CA, ...CP, CAU].forEach(cat => {
     ['red', 'green'].forEach(col => {
@@ -709,7 +712,7 @@ export function oRow(o, idx) {
   /* v0.4.9 : ajout colonne Actions (crayon + croix) avec data-idx */
   return '<tr class="' + rc + '" data-idx="' + idx + '">' +
     '<td style="white-space:nowrap;font-variant-numeric:tabular-nums;">' + o.time + '</td>' +
-    '<td style="white-space:nowrap;">' + o.period + '</td>' +
+    '<td style="white-space:nowrap;">' + pl(o.period) + '</td>' +
     '<td><span class="badge ba">' + escapeHtml(o.an) + '</span></td>' +
     '<td style="font-weight:700;white-space:nowrap;">' + escapeHtml(o.cat) + '</td>' +
     '<td><span class="lc">' + tl + '</span></td>' +
@@ -761,6 +764,7 @@ export function renderTable() {
 }
 
 export function renderEndTable() {
+  applyPeriodLabels();
   _syncFilterOptions('es');
 
   const sel = document.getElementById('sortSelE');

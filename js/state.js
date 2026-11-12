@@ -172,7 +172,7 @@ export const S = {
   detailPending: null,
   pauseTme: false,
   numA: '', numB: '',   /* v1.7.1 : n° de joueurs facultatifs saisis à la préparation (ex « 1, 4, 7 ») */
-  pauseNote: '',   /* v1.7.0 : « à dire à la pause » (écran mi-temps) */
+  pauseNote: '', pauseNote2: '',   /* note de la 1re pause ; pauseNote2 = 2e pause (3 tiers-temps) */   /* v1.7.0 : « à dire à la pause » (écran mi-temps) */
 
   /* v0.3.31 (BUG-5) : flag indiquant qu'une action réelle a été effectuée
      dans l'écran match (chrono, score, TME, observation, contexte).
@@ -189,3 +189,23 @@ export const S = {
   histId: null,
   remoteId: null
 };
+
+/* ═══ Libellés de période — v1.7.2 ═══════════════════════════════════════
+   Les valeurs internes restent 'MT1' 'MT2' 'MT3' (sauvegardes, PDF, filtres) ;
+   seul l'affichage devient TT1 TT2 TT3 quand le match a 3 tiers-temps.     */
+export const pl = p => (S.nbMT === 3 && typeof p === 'string' && /^MT\d$/.test(p)) ? 'TT' + p.slice(2) : p;
+export const mtWord = () => (S.nbMT === 3 ? 'TT' : 'MT');
+
+/* Met à jour les libellés fixes de la page (badge, filtres, colonnes, bouton). Idempotent. */
+export function applyPeriodLabels() {
+  const w = mtWord();
+  const pb = document.getElementById('PBadge');
+  if (pb) pb.textContent = pl(S.period);
+  document.querySelectorAll('#fltMT option, #fltMTE option').forEach(o => {
+    o.textContent = o.value === 'all' ? 'Toutes ' + w : pl(o.value);
+  });
+  document.querySelectorAll('.olist thead th:nth-child(2)').forEach(t => { t.textContent = w; });
+  ['MT1', 'MT2', 'MT3'].forEach(p => { const b = document.getElementById('sfPer-' + p); if (b) b.textContent = pl(p); });
+  const bt = document.getElementById('btnMT');
+  if (bt) bt.textContent = S.nbMT === 3 ? 'Tiers-temps' : 'Mi-temps';
+}

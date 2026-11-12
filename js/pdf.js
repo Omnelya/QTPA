@@ -9,7 +9,7 @@
      doc.save() n'est appelé qu'après résolution de toutes les sections.
    - _onExportClick() utilise désormais await _generatePDF(selection).
 ════════════════════════════════════════════════════════════════════════════ */
-import { S, ans, QS } from './state.js';
+import { S, ans, QS, pl, mtWord } from './state.js';
 import { fmt, fmtDate } from './utils.js';
 import { log, startTimer, endTimer } from './logger.js';
 
@@ -472,9 +472,9 @@ async function _generatePDF(selection) {
       doc.setFontSize(8); doc.setFont('helvetica', 'normal');
       doc.setTextColor(...C.gray);
       /* v1.4.19 : affichage multi-mi-temps si nbMT=3 */
-      let htTxt = 'MT1 : ' + S.htA + ' - ' + S.htB;
+      let htTxt = pl('MT1') + ' : ' + S.htA + ' - ' + S.htB;
       if (S.nbMT === 3 && S.ht2A !== null && S.ht2A !== undefined) {
-        htTxt += '   |   MT2 : ' + S.ht2A + ' - ' + S.ht2B;
+        htTxt += '   |   ' + pl('MT2') + ' : ' + S.ht2A + ' - ' + S.ht2B;
       }
       doc.text(htTxt, midX, y + 15.5, { align: 'center' });
     }
@@ -590,7 +590,7 @@ async function _generatePDF(selection) {
       margin: { left: M, right: M },
       headStyles: { fillColor: C.tableHd, textColor: C.white, fontSize: 8, fontStyle: 'bold' },
       bodyStyles: { fontSize: 7.5, textColor: C.black },
-      head: [['Heure', 'MT', 'Arbitre', 'Cat\u00e9gorie', 'Type', 'Commentaire']],
+      head: [['Heure', mtWord(), 'Arbitre', 'Cat\u00e9gorie', 'Type', 'Commentaire']],
       body: S.obs.map(function(o) {
         var parts = [];
         if (o.flag) parts.push('[\u00c0 revoir]');
@@ -599,7 +599,7 @@ async function _generatePDF(selection) {
         var arbLabel = o.an || (Array.isArray(o.arb)
           ? o.arb.map(function(a) { return a === 'A1' ? S.a1 : S.a2; }).join(' + ')
           : o.arb);
-        return [o.time, o.period, arbLabel, o.cat, o.col === 'red' ? 'Non conf.' : 'Conforme', parts.join(' \u00b7 ')];
+        return [o.time, pl(o.period), arbLabel, o.cat, o.col === 'red' ? 'Non conf.' : 'Conforme', parts.join(' \u00b7 ')];
       }),
       columnStyles: {
         0: { cellWidth: 14 },

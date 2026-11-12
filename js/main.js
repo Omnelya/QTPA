@@ -6,7 +6,7 @@
 import { applyTheme, toggleTheme, showAlert, closeAlert, buildQs, setAns } from './ui.js';
 import { updateCD, toggleChrono, resumeTme, tickC, advPeriod, activerProlong, resetChrono, applyRecal } from './timer.js';
 import { chgScore, buildTme, refreshTme, addTme, deleteTme, tmeVal } from './score.js';
-import { mtOpen, mtClose, mtArb, mtNote, mtRender } from './midtime.js';
+import { mtOpen, mtClose, mtArb, mtNote, mtRender, mtPer } from './midtime.js';
 import { buildQuickNotes, closeDetail, saveDetail, toggleDetailFlag, toggleDetailTodo, askUndo, cancelUndo, doUndo, redoObs, refreshCounters, renderTable, renderEndTable, sorted, onFilterChange, onFilterChangeE, resetFilters, resetFiltersE, editObservation, deleteObservation, confirmDelete, closeConfirm } from './observations.js';
 import { setSynFilter, buildSynTable } from './synthesis.js';
 import { dbFilter, dbToggle, dbBubble } from './debrief.js';
@@ -86,7 +86,7 @@ window.closeDetail         = closeDetail;
 window.saveDetail          = saveDetail;
 window.toggleDetailFlag    = toggleDetailFlag;
 window.toggleDetailTodo    = toggleDetailTodo;
-window.mtOpen = mtOpen; window.mtClose = mtClose; window.mtArb = mtArb; window.mtNote = mtNote; window.mtRefresh = mtRender;
+window.mtOpen = mtOpen; window.mtClose = mtClose; window.mtArb = mtArb; window.mtPer = mtPer; window.mtNote = mtNote; window.mtRefresh = mtRender;
 window.askUndo             = askUndo;
 window.cancelUndo          = cancelUndo;
 window.doUndo              = doUndo;
@@ -505,6 +505,7 @@ async function _renderLastMatchCard() {
    CHANGELOG / BADGE VERSION (v1.4.8)
 ════════════════════════════════════════ */
 const CHANGELOG = [
+  { v: '1.7.2', items: ['Équipe + numéro : le commentaire n\'affiche plus que « Équipe n°3 » (nom d\'équipe une seule fois)','Match à 3 tiers-temps : MT1 / MT2 / MT3 s\'affichent TT1 / TT2 / TT3 partout (écran, filtres, tableaux, débrief, PDF)','Match à 3 tiers-temps : le bouton « Mi-temps » devient « Tiers-temps » et ouvre le même écran de pause pour TT1 puis TT2, avec une note « à dire à la pause » pour chacun'] },
   { v: '1.7.1', items: ['Boutons Annuler / Rétablir remplacés par les seules flèches ↶ ↷','Équipes séparées des autres tags : un clic sur l\'équipe affiche ses numéros de joueurs (saisie facultative à la préparation du match)','Bouton « Mi-temps » au même style que « Fin de match »'] },
   { v: '1.7.0', items: ['Nouveau bouton « Mi-temps » : score, 3 points les moins réussis, 3 les mieux réussis (MT1), observations ⚑ à revoir, filtre par arbitre','Bouton ✎ « À compléter plus tard » dans la fenêtre d\'observation','Champ « À dire à la pause » repris sur l\'écran de fin de match à titre indicatif'] },
   { v: '1.6.1', items: ['Observations rapides : la coche verte et la croix rouge ont maintenant la même taille (icônes dessinées), le comptage se lit d\'un coup d\'œil','Sur iPad, SPP est sur la 1re ligne et SPA sur la 2e, à la même hauteur que les items du A'] },

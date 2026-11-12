@@ -1,5 +1,5 @@
 /* === SYNTHESIS v0.3.7 - Radar SVG + panneau detail === */
-import { S, synFilters } from './state.js';
+import { S, synFilters, pl } from './state.js';
 import { escapeHtml } from './utils.js';
 
 const SHORT = {
@@ -137,8 +137,8 @@ export function buildSynTable(){
   rEl.innerHTML=svg;
 
   /* === Panneau detail - histogrammes chiffres integres === */
-  var mtList=Array.from({length:S.nbMT},function(_,i){return'MT'+(i+1);});
-  var pLbl=synFilters.per==='all'?mtList.join(' + '):synFilters.per;
+  var mtList=Array.from({length:S.nbMT},function(_,i){return pl('MT'+(i+1));});
+  var pLbl=synFilters.per==='all'?mtList.join(' + '):pl(synFilters.per);
   var cb={};
   cats.forEach(function(c){var a1=sA1[c]||{r:0,g:0,total:0},a2=sA2[c]||{r:0,g:0,total:0};cb[c]={r:a1.r+a2.r,g:a1.g+a2.g,total:a1.total+a2.total};});
 

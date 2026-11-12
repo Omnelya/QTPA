@@ -60,6 +60,15 @@ Quand une version corrige un bug ou un frag identifié dans l'audit, **toujours 
 
 ---
 
+## [1.7.2] — 2026-11-12
+
+### Modifié
+- Tags : si un numéro de joueur est choisi, seul « Équipe n°N » est enregistré (le tag « Équipe » seul est retiré).
+- Match à 3 tiers-temps : `pl()` / `mtWord()` / `applyPeriodLabels()` (`js/state.js`) affichent TT1/TT2/TT3 à la place de MT1/MT2/MT3 (badge, filtres, colonne, popup, débrief, frise, synthèse, PDF). Les valeurs internes restent `MT1…MT3` (sauvegardes et filtres inchangés).
+- Bouton « Mi-temps » → « Tiers-temps » (3 TT). L'écran de pause (`js/midtime.js`) propose TT1 puis TT2 (score à la fin du TT, observations du TT, note « à dire à la pause » propre à chaque TT : `S.pauseNote`, `S.pauseNote2`), repris sur l'écran de fin de match.
+
+---
+
 ## [1.7.1] — 2026-11-12
 
 ### Modifié

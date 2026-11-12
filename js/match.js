@@ -1,5 +1,5 @@
 /* ═══ MATCH — Cycle de vie du match v0.3.5 (sans auth, Quick Notes) ═══ */
-import { S, ans, synFilters, KEY_CURRENT } from './state.js';
+import { S, ans, synFilters, KEY_CURRENT, applyPeriodLabels } from './state.js';
 import { resetDebrief } from './debrief.js';
 import { fmtDate, pad, escapeHtml } from './utils.js';
 import { log } from './logger.js';
@@ -125,7 +125,7 @@ function _showMatchParamsPopup() {
       '<div style="font-size:12px;font-weight:600;color:var(--text-hint);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Nombre de mi-temps</div>' +
       '<div style="display:flex;gap:8px;margin-bottom:20px;">' +
         '<button id="_nb2" style="' + _bs(S.nbMT===2) + '">2 MT</button>' +
-        '<button id="_nb3" style="' + _bs(S.nbMT===3) + '">3 MT</button>' +
+        '<button id="_nb3" style="' + _bs(S.nbMT===3) + '">3 TT</button>' +
       '</div>' +
       '<div style="font-size:12px;font-weight:600;color:var(--text-hint);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Durée des mi-temps</div>' +
       '<div id="_mtRow" style="display:flex;gap:16px;justify-content:center;margin-bottom:20px;"></div>' +
@@ -195,6 +195,7 @@ function _launchMatchScreen() {
   /* v1.4.19 : reset état période pour cohérence si relance */
   document.getElementById('PBadge').textContent = 'MT1';
   document.getElementById('PBadge').className = 'period-badge p-mt1';
+  applyPeriodLabels();
   /* v0.3.24 (FRAG-3) : noms d'équipes et d'arbitres échappés avant injection HTML */
   document.getElementById('topInfo').innerHTML = '<strong>' + escapeHtml(S.tA) + '</strong> vs <strong>' + escapeHtml(S.tB) + '</strong> | ' + escapeHtml(S.a1) + ' & ' + escapeHtml(S.a2);
   const mp = [];
@@ -288,7 +289,7 @@ function _doGoHome() {
   stopSafetyAutosave(); /* également appelé depuis goHomeFromEnd avant saveToHistory */
   clearInterval(S.timer);
   /* v1.4.19 : reset inclut les nouveaux paramètres réglementaires */
-  Object.assign(S, { tA: 'Equipe A', tB: 'Equipe B', a1: 'Arb 1', a2: 'Arb 2', mDate: '', mTime: '', mComp: '', run: false, elapsed: 0, period: 'MT1', timer: null, tick: null, sA: 0, sB: 0, htA: null, htB: null, tme: { A: { MT1:[null,null], MT2:[null,null], MT3:[null,null] }, B: { MT1:[null,null], MT2:[null,null], MT3:[null,null] } }, tmeLocked: { A: false, B: false }, obs: [], detailPending: null, pauseTme: false, pauseNote: '', numA: '', numB: '', nbMT: 2, dureesMT: [30*60, 30*60], dureeProl: 5*60, ht2A: null, ht2B: null, histId: null, remoteId: null });
+  Object.assign(S, { tA: 'Equipe A', tB: 'Equipe B', a1: 'Arb 1', a2: 'Arb 2', mDate: '', mTime: '', mComp: '', run: false, elapsed: 0, period: 'MT1', timer: null, tick: null, sA: 0, sB: 0, htA: null, htB: null, tme: { A: { MT1:[null,null], MT2:[null,null], MT3:[null,null] }, B: { MT1:[null,null], MT2:[null,null], MT3:[null,null] } }, tmeLocked: { A: false, B: false }, obs: [], detailPending: null, pauseTme: false, pauseNote: '', pauseNote2: '', numA: '', numB: '', nbMT: 2, dureesMT: [30*60, 30*60], dureeProl: 5*60, ht2A: null, ht2B: null, histId: null, remoteId: null });
   ans.esprit = null; ans.engage = null; ans.niveau = null;
   Object.assign(synFilters, { arb: 'all', per: 'all' });
   resetDebrief();

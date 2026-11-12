@@ -1,5 +1,5 @@
 /* ═══ TIMER — Chronomètre et gestion des périodes ════════════════════════ */
-import { S } from './state.js';
+import { S, pl } from './state.js';
 import { fmt } from './utils.js';
 import { log } from './logger.js';
 
@@ -96,17 +96,17 @@ export function advPeriod() {
     S.htA = S.sA; S.htB = S.sB; /* score fin MT1 */
     S.period  = 'MT2';
     S.elapsed = 0;
-    document.getElementById('PBadge').textContent = 'MT2';
+    document.getElementById('PBadge').textContent = pl('MT2');
     document.getElementById('PBadge').className   = 'period-badge p-mt2';
-    window.App.showAlert('Mi-temps ! Debut de la 2eme periode.');
+    window.App.showAlert((S.nbMT === 3 ? 'Tiers-temps' : 'Mi-temps') + ' ! Debut de la 2eme periode.');
   } else if (S.period === 'MT2') {
     if (S.nbMT === 3) {
       S.ht2A = S.sA; S.ht2B = S.sB; /* score fin MT2 */
       S.period  = 'MT3';
       S.elapsed = 0;
-      document.getElementById('PBadge').textContent = 'MT3';
+      document.getElementById('PBadge').textContent = pl('MT3');
       document.getElementById('PBadge').className   = 'period-badge p-mt3';
-      window.App.showAlert('Mi-temps ! Debut de la 3eme periode.');
+      window.App.showAlert((S.nbMT === 3 ? 'Tiers-temps' : 'Mi-temps') + ' ! Debut de la 3eme periode.');
     } else {
       document.getElementById('PB').classList.add('on');
       window.App.showAlert('Fin du temps reglementaire.');
