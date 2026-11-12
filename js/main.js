@@ -505,6 +505,7 @@ async function _renderLastMatchCard() {
    CHANGELOG / BADGE VERSION (v1.4.8)
 ════════════════════════════════════════ */
 const CHANGELOG = [
+  { v: '1.8.2', items: ['Frise chronologique : les ✔ ✘ ⚑ partent de la ligne de la frise et s\'empilent vers le haut quand ils sont trop proches'] },
   { v: '1.8.1', items: ['Les nouveaux matchs enregistrés sur Supabase gardent aussi mi-temps / tiers-temps, période, numéros de joueurs et notes de pause : ils se rouvrent complets'] },
   { v: '1.8.0', items: ['Un clic sur un match de « Matchs récents » le rouvre sur l\'écran de fin de match (débrief), pour relire, modifier les notes et ré-exporter le PDF','Matchs enregistrés sur cet appareil : état complet restauré. Matchs Supabase : score, observations, notes et évaluation (mi-temps/période déduites des observations)'] },
   { v: '1.7.2', items: ['Équipe + numéro : le commentaire n\'affiche plus que « Équipe n°3 » (nom d\'équipe une seule fois)','Match à 3 tiers-temps : MT1 / MT2 / MT3 s\'affichent TT1 / TT2 / TT3 partout (écran, filtres, tableaux, débrief, PDF)','Match à 3 tiers-temps : le bouton « Mi-temps » devient « Tiers-temps » et ouvre le même écran de pause pour TT1 puis TT2, avec une note « à dire à la pause » pour chacun'] },

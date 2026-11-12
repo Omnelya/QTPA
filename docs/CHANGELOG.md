@@ -60,6 +60,13 @@ Quand une version corrige un bug ou un frag identifié dans l'audit, **toujours 
 
 ---
 
+## [1.8.2] — 2026-11-12
+
+### Modifié
+- Frise chronologique (`js/debrief.js`) : repères positionnés depuis le bas (`bottom`) : le couloir 1 est posé sur la ligne, les suivants s'empilent vers le haut.
+
+---
+
 ## [1.8.1] — 2026-11-12
 
 ### Modifié

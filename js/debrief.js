@@ -193,7 +193,7 @@ function _renderFrise() {
       marks.map(m => {
         const idx = S.obs.indexOf(m.o);
         const cls = m.o.flag ? 'fl' : (m.o.col === 'red' ? 'n' : 'o');
-        return '<button type="button" class="db-mk db-mk-' + cls + (_bubble === idx ? ' sel' : '') + '" style="left:' + m.pos.toFixed(2) + '%;top:' + (m.lane * 30 + 2) + 'px" ' +
+        return '<button type="button" class="db-mk db-mk-' + cls + (_bubble === idx ? ' sel' : '') + '" style="left:' + m.pos.toFixed(2) + '%;bottom:' + (m.lane * 30 + 3) + 'px" ' +
           'aria-label="' + escapeHtml(m.o.time + ' ' + m.o.cat) + '" onclick="dbBubble(' + idx + ')">' + (m.o.flag ? '⚑' : (m.o.col === 'red' ? '✘' : '✔')) + '</button>';
       }).join('') +
       '</div></div>' +
