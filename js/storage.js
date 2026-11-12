@@ -545,7 +545,9 @@ async function _saveToHistoryNow() {
         observations: S.obs,
         evaluation: ans,
         contexte: ctx,
-        commentaire_global: gc
+        commentaire_global: gc,
+        /* v1.8.1 : état nécessaire pour rouvrir le match (colonne matches.etat) */
+        etat: Object.fromEntries(['nbMT','dureesMT','dureeProl','period','htA','htB','ht2A','ht2B','numA','numB','pauseNote','pauseNote2'].map(k => [k, S[k]]))
       };
       const result = await saveMatchRemote(matchData);
       if (result.ok) {

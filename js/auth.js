@@ -162,7 +162,8 @@ export async function saveMatchRemote(matchData) {
         observations:   matchData.observations,
         evaluation:     matchData.evaluation,
         contexte:       matchData.contexte,
-        commentaire_global: matchData.commentaire_global
+        commentaire_global: matchData.commentaire_global,
+        etat:           matchData.etat || {}
       })
       .select('id')
       .single();
@@ -184,7 +185,7 @@ export async function fetchMatches() {
        Admin → tous les matchs. Utilisateur → uniquement ses propres matchs (RLS). */
     const query = client
       .from('matches')
-      .select('id, user_id, arbitre1, arbitre2, equipe_a, equipe_b, date_match, heure_match, competition, score_a, score_b, observations, evaluation, contexte, commentaire_global, created_at')
+      .select('id, user_id, arbitre1, arbitre2, equipe_a, equipe_b, date_match, heure_match, competition, score_a, score_b, observations, evaluation, contexte, commentaire_global, etat, created_at')
       .order('created_at', { ascending: false });
     const { data, error } = await query;
     if (error) throw error;

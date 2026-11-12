@@ -60,6 +60,13 @@ Quand une version corrige un bug ou un frag identifié dans l'audit, **toujours 
 
 ---
 
+## [1.8.1] — 2026-11-12
+
+### Modifié
+- Migration `matches_add_etat` appliquée en production (colonne `etat jsonb`, défaut `{}`, additive). `saveMatchRemote` écrit `etat` (nbMT, dureesMT, dureeProl, period, htA/htB, ht2A/ht2B, numA/numB, pauseNote/pauseNote2) ; `fetchMatches` le lit ; réouverture complète des nouveaux matchs. Les anciens matchs gardent la déduction depuis les observations.
+
+---
+
 ## [1.8.0] — 2026-11-12
 
 ### Ajouté
