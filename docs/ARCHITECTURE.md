@@ -137,7 +137,10 @@ Gère les boutons +/- des scores et le tableau des TME. Pause automatique du chr
 
 ### `js/observations.js` — Quick Notes
 
-Le module le plus volumineux. Construit la grille d'observations rapides (boutons par catégorie), gère la popup de détail à chaque tap (tags spécifiques + tags généraux + note libre + ajout d'un second arbitre), enregistre les observations dans `S.obs`, met à jour les compteurs en temps réel et le tableau des observations. Échappe systématiquement les noms d'arbitres et commentaires injectés en HTML (FRAG-3, v0.3.24).
+Le module le plus volumineux. Construit la grille d'observations rapides par groupes A/B/C (`FAMILIES` de `state.js` : groupes → blocs → catégories), gère la popup de détail à chaque tap (drapeau « à revoir », tags spécifiques + généraux triés par fréquence, note libre, choix de l'arbitre = enregistrement), les boutons Annuler (confirmation) / Rétablir, enregistre les observations dans `S.obs`, met à jour les compteurs en temps réel et le tableau des observations. Échappe systématiquement les noms d'arbitres et commentaires injectés en HTML (FRAG-3, v0.3.24).
+
+### `js/debrief.js` — Écran de débrief (v1.6.0)
+Calcule et affiche les blocs « À revoir et notes », « À travailler », « Points forts » et « Frise chronologique » de l'écran de fin de match, à partir de `S.obs` (lecture seule). Chaque bloc garde ses propres filtres Arbitre / Période. Appelé par `renderEndTable()` (`observations.js`) ; réinitialisé au démarrage d'un match (`match.js`). Les fonctions `dbFilter`, `dbToggle`, `dbBubble` sont exposées sur `window` (`main.js`) pour les `onclick` du HTML généré.
 
 ### `js/synthesis.js` — Radar de synthèse
 

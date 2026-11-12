@@ -60,6 +60,100 @@ Quand une version corrige un bug ou un frag identifié dans l'audit, **toujours 
 
 ---
 
+## [1.7.0] — 2026-11-12
+
+### Ajouté
+- `js/midtime.js` : écran « Mi-temps » ouvert par le bouton **Mi-temps** de l'écran de match (jamais automatiquement). Contenu : score (actuel, ou score à la mi-temps une fois MT2 lancée), observations ⚑ à revoir de MT1, 3 catégories les moins réussies (% de ✘) et 3 les mieux réussies (% de ✔), liste « À compléter plus tard », filtre Arbitre. Lecture seule sur `S.obs`.
+- Bouton ✎ « À compléter plus tard » dans la fenêtre d'observation (nouveau champ booleen `todo` sur l'observation ; icône ✎ dans le tableau).
+- Champ « À dire à la pause » (`S.pauseNote`), sauvegardé avec le match et affiché sur l'écran de fin de match à titre indicatif.
+
+---
+
+## [1.6.1] — 2026-11-12
+
+### Modifié
+- Boutons d'observation : ✘ et ✔ sont des icônes SVG de même taille (`_SVG_CROSS`, `_SVG_CHECK`, `.qn-ico` 18 px) au lieu de caractères de police, pour que la coche ne paraisse plus plus haute que la croix.
+- iPad / bureau : groupe B (SPP / SPA) aligné sur les deux lignes de tuiles du groupe A (titre de bloc masqué mais conservant sa hauteur).
+
+---
+
+## [1.6.0] — 2026-11-12
+
+### Ajouté
+- `js/debrief.js` : nouvel écran de débrief en fin de match, calculé à partir de `S.obs` (aucune donnée modifiée). Blocs : **À revoir et notes** (⚑ d'abord, puis les autres observations ayant une note, en ordre chronologique), **À travailler** (catégories avec au moins un ✘ ; groupe « Récurrent » = 2 ✘ ou plus, classé par % de ✘ puis nombre de ✘ ; groupe « Un seul ✘ » ; aucune catégorie n'est masquée), **Points forts** (catégories avec au moins un ✔, classées par % de ✔), **Frise chronologique** (une ligne par période, repères ✔ / ✘ / ⚑ répartis sur des couloirs pour éviter les chevauchements, détail au clic).
+- Chaque bloc a ses propres filtres Arbitre (noms réels) et Période (MT1, MT2, MT3, prolongations), indépendants des autres blocs.
+- Un clic sur une catégorie déplie ses observations avec leurs notes ; un clic sur une ligne ouvre la fenêtre de modification de l'observation.
+
+### Modifié
+- Carte Score : score final, puis mi-temps (2 MT) ou 1TT / 2TT (3 MT) (`js/match.js`).
+- Le tableau « Observations » et le « Commentaire global » sont conservés tels quels, sous les nouveaux blocs. `renderEndTable()` rafraîchit aussi le débrief après toute modification.
+
+### Retiré
+- Le radar de synthèse n'est plus affiché. Son conteneur reste dans la page, masqué, uniquement parce que l'export PDF y capture le radar (`js/pdf.js`) : le PDF est inchangé.
+
+### Maintenance
+- `js/version.js` — `1.6.0`. `sw.js` — cache `arbitres-hb-v1.6.0`. `js/main.js` — entrée `1.6.0` dans « Nouveautés ».
+
+### Validation effectuée avant livraison
+- Tests navigateur (Chromium : iPad paysage et portrait, iPhone portrait et paysage ; matchs à 2 et 3 MT) : ordre des blocs, classement, filtres indépendants, dépli, bulle de la frise, échappement HTML des notes, absence de débordement, aucune erreur JS ; tests de la version 1.5.1 rejoués sans régression. Non testé : vrai Safari/WebKit ; export PDF avec radar masqué (à vérifier à la main).
+- Pas encore fait : bouton ⓘ d'antériorité (étape suivante) ; écran de mi-temps.
+
+---
+
+## [1.5.1] — 2026-11-12
+
+### Modifié
+- Observations rapides : les catégories sont rangées dans la classification A / B / C (`FAMILIES` dans `js/state.js`, désormais des groupes contenant des blocs). A1 Gestion des duels, A2 Continuité du jeu, B1/B2 Irrégularités et comportements antisportifs, C1 Technique d'arbitrage, C2 Pouvoir décisionnel. « Autre » occupe la case libre de A1 (grise).
+- Affichage iPad : grille alignée sur 7 colonnes (A = 6 colonnes dont A1 sur 4 et A2 sur 2, B = 1 colonne, C = 7 colonnes), boutons ✘ / ✔ carrés (36 px) aux bords arrondis. Carte plus compacte : au moins 3 lignes du tableau « Observations » restent visibles sans défiler (iPad 1180×820 et 1133×744).
+- Affichage iPhone : liste inchangée, avec les titres de groupe A/B/C ; boutons carrés de 44 px.
+- Pastilles de groupe : A brun, B rouge sombre, C violet ; fonds A crème, B rose, C bleu pâle (variantes en mode sombre).
+
+### Ajouté
+- Catégorie « Gestuelle » (C1), ajoutée à `CP` ; sans tag spécifique (tags généraux). « Gestion du sifflet » passe dans C2. Les noms des autres catégories sont inchangés : les anciens suivis, la synthèse et le PDF restent lisibles.
+
+### Maintenance
+- `js/version.js` — `1.5.1`. `sw.js` — cache `arbitres-hb-v1.5.1`. `js/main.js` — entrée `1.5.1` dans « Nouveautés ». `tests/families.test.mjs` adapté aux groupes.
+
+### Validation effectuée avant livraison
+- `node tests/families.test.mjs` : 21 catégories, 3 groupes. Tests navigateur (Chromium, 6 formats iPad/iPhone, clair/sombre) : tous passés, dont 21 catégories uniques, boutons carrés et ≥ 3 lignes du tableau visibles sur iPad. Non testé : vrai Safari/WebKit.
+
+---
+
+## [1.5.0] — 2026-11-10
+
+> **Nouvelle interface des observations rapides** (cartes « Observations rapides » et « Observations » de l'écran match) + correctif du mode sombre. Compatible iPad (paysage/portrait) et iPhone.
+
+### Ajouté
+
+- `js/state.js` — constante `FAMILIES` : 4 familles (Fautes d'attaque, Sanctions et jets, Gestion du jeu, Positionnement) couvrant les 20 catégories.
+- `js/observations.js` — drapeau « à revoir » (champ `flag` booléen sur l'observation), boutons **Annuler** (confirmation, plusieurs observations à la suite) et **Rétablir** (sans confirmation), pastilles par arbitre avec les noms réels, tags triés par fréquence (historique local + match en cours).
+- `index.html` — colonne ⚑ et option de filtre « ⚑ À revoir » dans les deux tableaux (match et fin de match) ; fenêtre `#undoOverlay`.
+- `js/pdf.js` — les observations à revoir sont préfixées `[À revoir]` dans le tableau PDF.
+
+### Modifié
+
+- `js/observations.js` — une seule grille de catégories (plus de zones A1/A2). L'arbitre se choisit dans la fenêtre : les trois boutons d'enregistrement (arbitre 1, arbitre 2, « Les deux ») valident l'observation. En édition, le bouton de l'arbitre actuel est entouré. Le contrôle « Arbitre » du mode édition est supprimé (redondant). `saveDetail(sel)` reçoit désormais `'A1' | 'A2' | 'both'`.
+- `styles.css` — nouvelles classes `qn-families`, `qn-family`, `qn-row`, `qn-head`, `qn-chip`, `qn-flag-btn`, `qn-save-*`. Arbitre 2 = rouge du logo `#981010` (`--a2-main`). Fenêtre : centrée à partir de 768 px, feuille basse en dessous, barre d'enregistrement collée en bas, cibles tactiles ≥ 44 px, champ note à 16 px (pas de zoom iOS).
+- Boutons ✘/✔ : écoute de `click` uniquement (`touch-action: manipulation`) — le défilement de la page n'est plus bloqué sur iPhone.
+
+### Corrigé
+
+- **Mode sombre/clair** : `theme-init.js` posait `--bg-app` en inline sur `<html>` et rien ne le retirait ; en mode clair forcé sur un appareil en mode sombre, le fond restait noir. `js/main.js` retire maintenant cette variable une fois le thème appliqué.
+- `styles.css` — couleur invalide `##bfcaff` (`--amber-border`, thème sombre) corrigée en `#bfcaff`.
+- `js/match.js` — la fenêtre des paramètres du match (durée des mi-temps) devient défilable : sur iPhone en paysage, son bouton « Démarrer » sortait de l'écran et le match ne pouvait pas être lancé.
+- `js/main.js` — la touche Échap ne fermait pas la fenêtre d'observation (test d'une classe `open` inexistante au lieu de `on`).
+
+### Retiré
+
+- Retour tactile à l'enregistrement : flash du bouton et `navigator.vibrate` (à la demande de l'utilisateur : ne pas perturber les arbitres).
+- Tag « + A2 aussi » de la fenêtre (remplacé par le bouton « Les deux »).
+
+### Maintenance
+
+- `js/version.js` — `1.5.0`. `sw.js` — cache `arbitres-hb-v1.5.0`. `js/main.js` — entrée `1.5.0` dans « Nouveautés ».
+
+---
+
 ## [1.4.33] — 2026-11-09
 
 > **Sécurité — Supabase.** Correctifs issus de l'audit du 2026-11-09 (points 3 et 4). Aucun changement de comportement visible pour un utilisateur normal.

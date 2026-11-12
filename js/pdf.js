@@ -593,6 +593,7 @@ async function _generatePDF(selection) {
       head: [['Heure', 'MT', 'Arbitre', 'Cat\u00e9gorie', 'Type', 'Commentaire']],
       body: S.obs.map(function(o) {
         var parts = [];
+        if (o.flag) parts.push('[\u00c0 revoir]');
         if (o.tags && o.tags.length) parts.push(o.tags.join(', '));
         if (o.cmt) parts.push(o.cmt);
         var arbLabel = o.an || (Array.isArray(o.arb)

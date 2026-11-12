@@ -843,6 +843,7 @@ export function reexportPDF(id) {
   const savedCtx = document.getElementById('ctxTA')?.value || '';
   const savedGC  = document.getElementById('GC')?.value    || '';
   Object.keys(entry.S).forEach(k   => { S[k]   = entry.S[k];   });
+  S.pauseNote = entry.S.pauseNote || '';
   Object.keys(entry.ans).forEach(k => { ans[k]  = entry.ans[k]; });
 
   // v0.3.22 (FRAG-7) : compat selArb/selCat retirée (code mort, cf. resumeMatch).

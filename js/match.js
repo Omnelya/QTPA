@@ -1,5 +1,6 @@
 /* ═══ MATCH — Cycle de vie du match v0.3.5 (sans auth, Quick Notes) ═══ */
 import { S, ans, synFilters, KEY_CURRENT } from './state.js';
+import { resetDebrief } from './debrief.js';
 import { fmtDate, pad, escapeHtml } from './utils.js';
 import { log } from './logger.js';
 import { startSafetyAutosave, stopSafetyAutosave, saveToHistory } from './storage.js';
@@ -115,7 +116,7 @@ function _showMatchParamsPopup() {
 
   function render() {
     const box = document.createElement('div');
-    box.style.cssText = 'background:var(--bg-card,#fff);border-radius:14px;padding:24px 20px 20px;max-width:340px;width:92%;box-shadow:0 8px 32px rgba(0,0,0,.25);';
+    box.style.cssText = 'background:var(--bg-card,#fff);border-radius:14px;padding:24px 20px 20px;max-width:340px;width:92%;box-shadow:0 8px 32px rgba(0,0,0,.25);max-height:94vh;max-height:94dvh;overflow-y:auto;overscroll-behavior:contain;';
     box.innerHTML =
       '<div style="font-size:16px;font-weight:700;margin-bottom:4px;color:var(--text-main);">Paramètres du match</div>' +
       '<div style="font-size:12px;color:var(--text-hint);margin-bottom:18px;">Règlement de la compétition</div>' +
@@ -221,14 +222,13 @@ export function endMatch() {
   document.getElementById('ET').innerHTML = '<strong>' + escapeHtml(S.tA) + '</strong> vs <strong>' + escapeHtml(S.tB) + '</strong>';  document.getElementById('EM').textContent = mp.join(' · ') + (mp.length ? ' — ' : '') + S.a1 + ' & ' + S.a2;
   document.getElementById('ESc').textContent = S.sA + ' : ' + S.sB;
   const htEl = document.getElementById('EHtScore');
-  /* v1.4.19 : affichage multi-MT */
+  /* v1.6.0 : mi-temps (2 MT) ou 1TT / 2TT (3 tiers-temps) */
   if (S.htA !== null) {
-    if (S.nbMT === 3 && S.ht2A !== null) {
-      htEl.textContent = 'MT1  ' + S.htA + ' : ' + S.htB + '   ·   MT2  ' + S.ht2A + ' : ' + S.ht2B;
-    } else {
-      htEl.textContent = 'MT  ' + S.htA + ' : ' + S.htB;
-    }
-    htEl.style.display = 'block';
+    const lab = (t, a, b) => '<div><div class="db-score-lab">' + t + '</div><div class="db-score-sub">' + a + ' : ' + b + '</div></div>';
+    htEl.innerHTML = (S.nbMT === 3 && S.ht2A !== null)
+      ? lab('1TT', S.htA, S.htB) + lab('2TT', S.ht2A, S.ht2B)
+      : lab('Mi-temps', S.htA, S.htB);
+    htEl.style.display = 'flex';
   } else { htEl.style.display = 'none'; }
   const ctxVal = document.getElementById('ctxTA').value.trim();
   const eCtxEdit = document.getElementById('ECtxEdit');
@@ -286,9 +286,10 @@ function _doGoHome() {
   stopSafetyAutosave(); /* également appelé depuis goHomeFromEnd avant saveToHistory */
   clearInterval(S.timer);
   /* v1.4.19 : reset inclut les nouveaux paramètres réglementaires */
-  Object.assign(S, { tA: 'Equipe A', tB: 'Equipe B', a1: 'Arb 1', a2: 'Arb 2', mDate: '', mTime: '', mComp: '', run: false, elapsed: 0, period: 'MT1', timer: null, tick: null, sA: 0, sB: 0, htA: null, htB: null, tme: { A: { MT1:[null,null], MT2:[null,null], MT3:[null,null] }, B: { MT1:[null,null], MT2:[null,null], MT3:[null,null] } }, tmeLocked: { A: false, B: false }, obs: [], detailPending: null, pauseTme: false, nbMT: 2, dureesMT: [30*60, 30*60], dureeProl: 5*60, ht2A: null, ht2B: null, histId: null, remoteId: null });
+  Object.assign(S, { tA: 'Equipe A', tB: 'Equipe B', a1: 'Arb 1', a2: 'Arb 2', mDate: '', mTime: '', mComp: '', run: false, elapsed: 0, period: 'MT1', timer: null, tick: null, sA: 0, sB: 0, htA: null, htB: null, tme: { A: { MT1:[null,null], MT2:[null,null], MT3:[null,null] }, B: { MT1:[null,null], MT2:[null,null], MT3:[null,null] } }, tmeLocked: { A: false, B: false }, obs: [], detailPending: null, pauseTme: false, pauseNote: '', nbMT: 2, dureesMT: [30*60, 30*60], dureeProl: 5*60, ht2A: null, ht2B: null, histId: null, remoteId: null });
   ans.esprit = null; ans.engage = null; ans.niveau = null;
   Object.assign(synFilters, { arb: 'all', per: 'all' });
+  resetDebrief();
   document.getElementById('CD').textContent = '00:00';
   document.getElementById('BSS').textContent = 'Demarrer';
   document.getElementById('BSS').className = 'bc go';

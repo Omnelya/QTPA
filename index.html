@@ -172,6 +172,7 @@
       <div class="btn-theme-icon" id="themeIcon"></div>
       
     </button>
+    <button class="btn-mt" onclick="mtOpen()" title="Point à la mi-temps">Mi-temps</button>
     <button class="btn-end" onclick="endMatch()">Fin de match</button>
   </div>
   <div class="prolong-banner" id="PB">
@@ -220,10 +221,15 @@
 
     <!-- ══ QUICK NOTES — remplace l'ancien formulaire ══ -->
     <div class="card" id="cardQuickNotes">
-      <div class="obs-controls" style="margin-bottom:8px;">
+      <div class="qn-head">
         <div class="card-title" style="margin-bottom:0;">Observations rapides</div>
-        <div style="font-size:11px;color:var(--text-hint);margin-left:6px;">Tap = popup tags</div>
-        <div class="obs-cnt" id="OC">0 obs.</div>
+        <div class="obs-cnt qn-cnt-head" id="OC">0 obs.</div>
+        <span class="qn-head-spacer"></span>
+        <span class="qn-chip qn-chip-a1" id="qnStats_A1"></span>
+        <span class="qn-chip qn-chip-a2" id="qnStats_A2"></span>
+        <span class="qn-chip qn-chip-flag" id="qnFlags" title="Observations à revoir">⚑ 0</span>
+        <button type="button" class="qn-hbtn" id="btnUndo" onclick="askUndo()" disabled>↶ Annuler</button>
+        <button type="button" class="qn-hbtn" id="btnRedo" onclick="redoObs()" disabled>Rétablir ↷</button>
       </div>
       <div id="quickNotesWrap"></div>
     </div>
@@ -243,6 +249,7 @@
           <option value="all">Tous types</option>
           <option value="red">Non conforme</option>
           <option value="green">Conforme</option>
+          <option value="flag">⚑ À revoir</option>
         </select>
         <select id="fltMT" onchange="onFilterChange()" title="Filtrer par mi-temps">
           <option value="all">Toutes MT</option>
@@ -256,8 +263,8 @@
         <span class="flt-badge" id="fltBadge" style="display:none;"></span>
         <button class="flt-reset" id="fltReset" onclick="resetFilters()" disabled title="Réinitialiser les filtres">✕ Reset</button>
       </div>
-      <div class="obs-wrap"><table class="olist"><thead><tr><th>Heure</th><th>MT</th><th>Arbitre</th><th>Catégorie</th><th>Type</th><th>Commentaire</th><th class="th-actions"></th></tr></thead>
-      <tbody id="OTB"><tr><td colspan="7" class="empty">Aucune observation</td></tr></tbody></table></div>
+      <div class="obs-wrap"><table class="olist"><thead><tr><th>Heure</th><th>MT</th><th>Arbitre</th><th>Catégorie</th><th>Type</th><th title="À revoir">⚑</th><th>Commentaire</th><th class="th-actions"></th></tr></thead>
+      <tbody id="OTB"><tr><td colspan="8" class="empty">Aucune observation</td></tr></tbody></table></div>
     </div>
   </div>
   <div class="copyright-bar"></div>
@@ -265,20 +272,13 @@
 
 <!-- ═══ OVERLAY DETAIL (appui long) ═════════════════════════════════════ -->
 <div class="qn-overlay" id="detailOverlay">
-  <div class="qn-sheet">
+  <div class="qn-sheet" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
     <div class="qn-detail-header">
       <span class="qn-detail-title" id="detailTitle">Catégorie</span>
       <span class="qn-detail-meta" id="detailMeta">A1 · 00:00 · MT1</span>
     </div>
     <!-- Contrôles édition : Arbitre + Type — v0.4.11 (masqués en mode saisie) -->
     <div class="detail-edit-controls" id="detailEditControls" style="display:none;">
-      <div class="detail-edit-group">
-        <span class="detail-edit-label">Arbitre</span>
-        <div class="detail-edit-btns">
-          <button class="edit-ctrl-arb" id="detailArb_A1" data-arb="A1">A1</button>
-          <button class="edit-ctrl-arb" id="detailArb_A2" data-arb="A2">A2</button>
-        </div>
-      </div>
       <div class="detail-edit-group">
         <span class="detail-edit-label">Type</span>
         <div class="detail-edit-btns">
@@ -287,13 +287,47 @@
         </div>
       </div>
     </div>
-    <div class="qn-detail-label">Tags rapides</div>
+    <button type="button" class="qn-flag-btn" id="detailFlag" aria-pressed="false" onclick="toggleDetailFlag()"><span aria-hidden="true">⚑</span> <span class="qn-flag-label">Marquer à revoir avec l’arbitre</span></button>
+    <button type="button" class="qn-flag-btn qn-todo-btn" id="detailTodo" aria-pressed="false" onclick="toggleDetailTodo()"><span aria-hidden="true">✎</span> <span class="qn-flag-label">À compléter plus tard</span></button>
+    <div class="qn-detail-label">Tags rapides · les plus fréquents d’abord</div>
     <div class="qn-tags-wrap" id="detailTags"></div>
     <div class="qn-detail-label">Note libre</div>
     <textarea class="qn-detail-textarea" id="detailNote" placeholder="Ajouter un commentaire..."></textarea>
+    <div class="qn-save-zone">
+      <div class="qn-detail-label" id="detailSaveLabel">Enregistrer pour</div>
+      <div class="qn-save-arbs">
+        <button type="button" class="qn-save-arb qn-save-a1" id="detailSave_A1" onclick="saveDetail('A1')">A1</button>
+        <button type="button" class="qn-save-arb qn-save-a2" id="detailSave_A2" onclick="saveDetail('A2')">A2</button>
+        <button type="button" class="qn-save-arb qn-save-both" id="detailSave_both" onclick="saveDetail('both')">Les deux</button>
+      </div>
+      <button type="button" class="qn-btn-cancel qn-btn-close" onclick="closeDetail()">Fermer sans enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ÉCRAN MI-TEMPS — v1.7.0 ═══════════════════════════════════════ -->
+<div class="qn-overlay" id="mtOverlay">
+  <div class="qn-sheet mt-sheet" role="dialog" aria-modal="true" aria-labelledby="mtTitle">
+    <div class="qn-detail-header">
+      <span class="qn-detail-title" id="mtTitle">Point à la mi-temps</span>
+      <button type="button" class="qn-btn-cancel mt-close" onclick="mtClose()">Fermer</button>
+    </div>
+    <div class="mt-score" id="mtScore"></div>
+    <div id="mtBody"></div>
+    <div class="qn-detail-label">À dire à la pause</div>
+    <textarea class="qn-detail-textarea" id="mtPauseNote" placeholder="Ce que je dirai aux arbitres à la pause..." oninput="mtNote(this.value)"></textarea>
+  </div>
+</div>
+
+<!-- ═══ OVERLAY CONFIRMATION ANNULATION — v1.5.0 ════════════════════════ -->
+<div class="qn-overlay" id="undoOverlay">
+  <div class="qn-sheet confirm-sheet" role="alertdialog" aria-modal="true" aria-labelledby="undoMsg">
+    <div class="confirm-msg" id="undoMsg">Défaire cette observation ?</div>
+    <div class="confirm-summary" id="undoObsSummary"></div>
+    <div class="confirm-summary" style="font-size:12px;">Vous pourrez la rétablir avec « Rétablir », sans confirmation.</div>
     <div class="qn-detail-actions">
-      <button class="qn-btn-cancel" onclick="closeDetail()">Annuler</button>
-      <button class="qn-btn-save" id="detailBtnSave" onclick="saveDetail()">Enregistrer</button>
+      <button class="qn-btn-cancel" onclick="cancelUndo()">Non, garder</button>
+      <button class="qn-btn-delete" onclick="doUndo()">Oui, défaire</button>
     </div>
   </div>
 </div>
@@ -328,18 +362,22 @@
       <button class="btn-act prim" id="BExp" onclick="exportPDF()">Exporter PDF…</button>
     </div>
   </div>
-  <div class="card" style="text-align:center;">
-    <div class="card-title">Score final</div>
-    <div id="EHtScore" style="font-size:13px;color:var(--text-hint);margin-bottom:4px;display:none;"></div>
-    <div style="font-size:32px;font-weight:700;padding:8px 0;color:var(--score-color);" id="ESc">0 : 0</div>
+  <div class="card db-score-card">
+    <div class="card-title">Score</div>
+    <div class="db-score">
+      <div><div class="db-score-lab">Score final</div><div class="db-score-main" id="ESc">0 : 0</div></div>
+      <div id="EHtScore" class="db-score-ht" style="display:none;"></div>
+    </div>
   </div>
+  <div class="card" id="db-pause" style="display:none;"><div class="card-title">À dire à la pause <span class="db-pause-hint">· indicatif : les arbitres se sont-ils améliorés ?</span></div><div class="db-pause-txt"></div></div>
   <div class="card">
     <div class="card-title">Contexte du match</div>
     <textarea class="ctx-area" id="ECtxEdit" placeholder="Éléments de contexte : niveau des équipes, enjeux, ambiance salle... (clavier ou Apple Pencil)" oninput="window.App.autosaveDebounced()"></textarea>
   </div>
   <div class="card"><div class="card-title">Évaluation générale du match</div><div id="QC"></div></div>
 
-  <div class="card" id="synCard">
+  <!-- Radar : masqué depuis 1.6.0 (conservé uniquement pour l'export PDF) -->
+  <div class="card" id="synCard" style="display:none;">
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
       <div class="card-title" style="margin-bottom:0;">Synthèse par catégorie</div>
     </div>
@@ -368,9 +406,15 @@
     </div>
   </div>
 
+  <!-- ═══ DÉBRIEF v1.6.0 ═══ -->
+  <div class="card"><div class="card-title">À revoir et notes <span class="db-sub-title">⚑ d'abord, puis les autres notes</span></div><div id="db-rev"></div></div>
+  <div class="card"><div class="card-title">À travailler</div><div id="db-work"></div></div>
+  <div class="card"><div class="card-title">Points forts</div><div id="db-strong"></div></div>
+  <div class="card"><div class="card-title">Frise chronologique</div><div id="db-frise"></div></div>
+
   <div class="card" style="overflow-y:auto;">
     <div class="flt-bar">
-      <div class="card-title flt-title">Toutes les observations</div>
+      <div class="card-title flt-title">Observations</div>
       <select id="sortSelE" onchange="renderEndTable()" title="Tri">
         <option value="time_desc">⇅ Heure (récent en haut)</option>
         <option value="time_asc">⇅ Heure (ancien en haut)</option>
@@ -383,6 +427,7 @@
         <option value="all">Tous types</option>
         <option value="red">Non conforme</option>
         <option value="green">Conforme</option>
+          <option value="flag">⚑ À revoir</option>
       </select>
       <select id="fltMTE" onchange="onFilterChangeE()" title="Filtrer par mi-temps">
         <option value="all">Toutes MT</option>
@@ -396,7 +441,7 @@
       <span class="flt-badge" id="fltBadgeE" style="display:none;"></span>
       <button class="flt-reset" id="fltResetE" onclick="resetFiltersE()" disabled title="Réinitialiser les filtres">✕ Reset</button>
     </div>
-    <div class="obs-wrap"><table class="olist"><thead><tr><th>Heure</th><th>MT</th><th>Arbitre</th><th>Catégorie</th><th>Type</th><th>Commentaire</th><th class="th-actions"></th></tr></thead>
+    <div class="obs-wrap"><table class="olist"><thead><tr><th>Heure</th><th>MT</th><th>Arbitre</th><th>Catégorie</th><th>Type</th><th title="À revoir">⚑</th><th>Commentaire</th><th class="th-actions"></th></tr></thead>
     <tbody id="EETB"></tbody></table></div>
   </div>
   <div class="card"><div class="card-title">Commentaire global</div><textarea class="gc-ta" id="GC" placeholder="Synthèse générale, points forts, axes d'amélioration..."></textarea></div>

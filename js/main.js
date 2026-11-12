@@ -6,8 +6,10 @@
 import { applyTheme, toggleTheme, showAlert, closeAlert, buildQs, setAns } from './ui.js';
 import { updateCD, toggleChrono, resumeTme, tickC, advPeriod, activerProlong, resetChrono, applyRecal } from './timer.js';
 import { chgScore, buildTme, refreshTme, addTme, deleteTme, tmeVal } from './score.js';
-import { buildQuickNotes, closeDetail, saveDetail, refreshCounters, renderTable, renderEndTable, sorted, onFilterChange, onFilterChangeE, resetFilters, resetFiltersE, editObservation, deleteObservation, confirmDelete, closeConfirm } from './observations.js';
+import { mtOpen, mtClose, mtArb, mtNote, mtRender } from './midtime.js';
+import { buildQuickNotes, closeDetail, saveDetail, toggleDetailFlag, toggleDetailTodo, askUndo, cancelUndo, doUndo, redoObs, refreshCounters, renderTable, renderEndTable, sorted, onFilterChange, onFilterChangeE, resetFilters, resetFiltersE, editObservation, deleteObservation, confirmDelete, closeConfirm } from './observations.js';
 import { setSynFilter, buildSynTable } from './synthesis.js';
+import { dbFilter, dbToggle, dbBubble } from './debrief.js';
 import { exportPDF } from './pdf.js';
 import { autosave, autosaveDebounced, flushAutosave, checkResume, resumeMatch, discardMatch, saveToHistory, openHistory, closeHistory, renderHistory, deleteHistory, deleteHistoryRemote, reexportPDF, reexportPDFRemote, setAdminFilter, setHistFilters, startSafetyAutosave, stopSafetyAutosave } from './storage.js';
 import { startMatch, endMatch, backMatch, goHome, goHomeFromEnd } from './match.js';
@@ -25,7 +27,7 @@ window.App = {
   showAlert, closeAlert, buildQs, setAns, applyTheme, toggleTheme,
   updateCD, toggleChrono, resumeTme, advPeriod, activerProlong, resetChrono, applyRecal,
   chgScore, buildTme, refreshTme, addTme, deleteTme,
-  buildQuickNotes, closeDetail, saveDetail, refreshCounters, renderTable, renderEndTable,
+  buildQuickNotes, closeDetail, saveDetail, toggleDetailFlag, askUndo, cancelUndo, doUndo, redoObs, refreshCounters, renderTable, renderEndTable,
   onFilterChange, onFilterChangeE, resetFilters, resetFiltersE,
   editObservation, deleteObservation, confirmDelete, closeConfirm,
   setSynFilter, buildSynTable,
@@ -53,6 +55,9 @@ window.chgScore            = chgScore;
 window.addTme              = (t, i) => window.App.addTme(t, i);
 window.deleteTme           = (t, i) => window.App.deleteTme(t, i);
 window.setSynFilter        = setSynFilter;
+window.dbFilter            = dbFilter;
+window.dbToggle            = dbToggle;
+window.dbBubble            = dbBubble;
 window.exportPDF           = exportPDF;
 window.resumeMatch         = resumeMatch;
 window.discardMatch        = discardMatch;
@@ -79,6 +84,13 @@ window.renderTable         = renderTable;
 window.renderEndTable      = renderEndTable;
 window.closeDetail         = closeDetail;
 window.saveDetail          = saveDetail;
+window.toggleDetailFlag    = toggleDetailFlag;
+window.toggleDetailTodo    = toggleDetailTodo;
+window.mtOpen = mtOpen; window.mtClose = mtClose; window.mtArb = mtArb; window.mtNote = mtNote; window.mtRefresh = mtRender;
+window.askUndo             = askUndo;
+window.cancelUndo          = cancelUndo;
+window.doUndo              = doUndo;
+window.redoObs             = redoObs;
 window.onFilterChange      = onFilterChange;
 window.onFilterChangeE     = onFilterChangeE;
 window.resetFilters        = resetFilters;
@@ -493,6 +505,11 @@ async function _renderLastMatchCard() {
    CHANGELOG / BADGE VERSION (v1.4.8)
 ════════════════════════════════════════ */
 const CHANGELOG = [
+  { v: '1.7.0', items: ['Nouveau bouton « Mi-temps » : score, 3 points les moins réussis, 3 les mieux réussis (MT1), observations ⚑ à revoir, filtre par arbitre','Bouton ✎ « À compléter plus tard » dans la fenêtre d\'observation','Champ « À dire à la pause » repris sur l\'écran de fin de match à titre indicatif'] },
+  { v: '1.6.1', items: ['Observations rapides : la coche verte et la croix rouge ont maintenant la même taille (icônes dessinées), le comptage se lit d\'un coup d\'œil','Sur iPad, SPP est sur la 1re ligne et SPA sur la 2e, à la même hauteur que les items du A'] },
+  { v: '1.6.0', items: ['Nouvel écran de débrief en fin de match : score (mi-temps ou 1TT / 2TT), actions à revoir et notes libres en premier, catégories à travailler, points forts, frise chronologique','Chaque bloc a ses propres filtres par arbitre et par période','Un clic sur une catégorie déplie ses observations et leurs notes ; un clic sur un repère de la frise affiche son détail','Le radar est supprimé de l\'écran (le PDF reste inchangé)'] },
+  { v: '1.5.1', items: ['Observations rapides réorganisées en trois groupes : A Protection du jeu (A1 duels, A2 continuité), B Protection des joueurs, C Savoir être (C1 technique, C2 pouvoir décisionnel)','Nouvelle catégorie « Gestuelle » ; « Gestion du sifflet » passe dans C2','Boutons ✘ / ✔ carrés aux bords arrondis, cartes alignées ; au moins 3 lignes du tableau visibles sur iPad'] },
+  { v: '1.5.0', items: ['Nouvelle grille d\'observations rapides : catégories rangées par familles, un seul jeu de boutons ✘ / ✔', 'Le choix de l\'arbitre se fait dans la fenêtre d\'observation (boutons à son nom, ou « Les deux »)', 'Nouveau drapeau « à revoir avec l\'arbitre » dans la fenêtre, colonne ⚑ et filtre dans les tableaux', 'Boutons Annuler (avec confirmation, plusieurs observations de suite) et Rétablir', 'Tags classés du plus au moins fréquent selon vos suivis précédents', 'Compatible iPad et iPhone ; plus aucun retour lumineux ou vibratoire à l\'enregistrement', 'Correction : le fond reste blanc en mode clair quand l\'appareil est en mode sombre'] },
   { v: '1.4.33', items: ['Sécurité : un administrateur ne peut plus modifier son propre rôle ni supprimer son propre compte', 'Sécurité : validation des rôles, emails et mots de passe côté serveur', 'Administration : la liste des utilisateurs n\'est plus limitée à 50'] },
   { v: '1.4.32', items: ['Correction : un match n\'est plus enregistré en double (export PDF puis retour accueil)'] },
   { v: '1.4.31', items: ['Correction : reprise d\'un match à 3 mi-temps interrompu pendant la MT3 (il était rejeté à tort)'] },
@@ -940,6 +957,9 @@ window.addEventListener('load', async () => {
   const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
   applyTheme(saved === 'dark' || (!saved && prefersDark), false);
   document.documentElement.classList.remove('dark-init');
+  /* v1.4.34 : theme-init.js pose --bg-app en inline sur <html> ; sans ce retrait, le mode clair
+     forcé sur un appareil en mode sombre garde un fond noir (la variable inline est héritée). */
+  document.documentElement.style.removeProperty('--bg-app');
   window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener('change', e => {
     if (!localStorage.getItem('arbitres_hb_theme')) applyTheme(e.matches, false);
   });
@@ -953,6 +973,9 @@ window.addEventListener('load', async () => {
   /* v1.4.17 : listener séparé — confirmOverlay est frère, pas enfant */
   document.getElementById('confirmOverlay').addEventListener('click', e => {
     if (e.target === document.getElementById('confirmOverlay')) closeConfirm();
+  });
+  document.getElementById('undoOverlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('undoOverlay')) cancelUndo();
   });
 
   /* v1.4.11 : raccourcis clavier */
@@ -977,8 +1000,10 @@ window.addEventListener('load', async () => {
       const pwdReset = document.getElementById('pwdResetOverlay');
       if (pwdReset && pwdReset.style.display !== 'none') { pwdResetCancel(); return; }
       /* Overlay détail observation */
+      const undoOv = document.getElementById('undoOverlay');
+      if (undoOv && undoOv.classList.contains('on')) { cancelUndo(); return; }
       const detailOv = document.getElementById('detailOverlay');
-      if (detailOv && detailOv.classList.contains('open')) { closeDetail(); return; }
+      if (detailOv && detailOv.classList.contains('on')) { closeDetail(); return; }
     }
   });
 
