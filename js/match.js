@@ -38,6 +38,8 @@ export function startMatch() {
 function _doStartMatch() {
   S.tA    = document.getElementById('tA').value    || 'Equipe A';
   S.tB    = document.getElementById('tB').value    || 'Equipe B';
+  S.numA  = document.getElementById('nA').value    || '';
+  S.numB  = document.getElementById('nB').value    || '';
   S.a1    = document.getElementById('a1').value    || 'Arbitre 1';
   S.a2    = document.getElementById('a2').value    || 'Arbitre 2';
   S.mDate = document.getElementById('mDate').value || '';
@@ -286,7 +288,7 @@ function _doGoHome() {
   stopSafetyAutosave(); /* également appelé depuis goHomeFromEnd avant saveToHistory */
   clearInterval(S.timer);
   /* v1.4.19 : reset inclut les nouveaux paramètres réglementaires */
-  Object.assign(S, { tA: 'Equipe A', tB: 'Equipe B', a1: 'Arb 1', a2: 'Arb 2', mDate: '', mTime: '', mComp: '', run: false, elapsed: 0, period: 'MT1', timer: null, tick: null, sA: 0, sB: 0, htA: null, htB: null, tme: { A: { MT1:[null,null], MT2:[null,null], MT3:[null,null] }, B: { MT1:[null,null], MT2:[null,null], MT3:[null,null] } }, tmeLocked: { A: false, B: false }, obs: [], detailPending: null, pauseTme: false, pauseNote: '', nbMT: 2, dureesMT: [30*60, 30*60], dureeProl: 5*60, ht2A: null, ht2B: null, histId: null, remoteId: null });
+  Object.assign(S, { tA: 'Equipe A', tB: 'Equipe B', a1: 'Arb 1', a2: 'Arb 2', mDate: '', mTime: '', mComp: '', run: false, elapsed: 0, period: 'MT1', timer: null, tick: null, sA: 0, sB: 0, htA: null, htB: null, tme: { A: { MT1:[null,null], MT2:[null,null], MT3:[null,null] }, B: { MT1:[null,null], MT2:[null,null], MT3:[null,null] } }, tmeLocked: { A: false, B: false }, obs: [], detailPending: null, pauseTme: false, pauseNote: '', numA: '', numB: '', nbMT: 2, dureesMT: [30*60, 30*60], dureeProl: 5*60, ht2A: null, ht2B: null, histId: null, remoteId: null });
   ans.esprit = null; ans.engage = null; ans.niveau = null;
   Object.assign(synFilters, { arb: 'all', per: 'all' });
   resetDebrief();
@@ -310,7 +312,7 @@ function _doGoHome() {
   document.getElementById('HistS').style.display = 'none';
   document.getElementById('SS').style.display = 'none';
   document.getElementById('mComp').value = '';
-  document.getElementById('tA').value = ''; document.getElementById('tB').value = '';
+  document.getElementById('tA').value = ''; document.getElementById('tB').value = ''; document.getElementById('nA').value = ''; document.getElementById('nB').value = '';
   document.getElementById('a1').value = ''; document.getElementById('a2').value = '';
   /* v1.4.9 : retour vers la page de garde */
   const homeS = document.getElementById('HomeS');

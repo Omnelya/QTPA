@@ -60,6 +60,15 @@ Quand une version corrige un bug ou un frag identifié dans l'audit, **toujours 
 
 ---
 
+## [1.7.1] — 2026-11-12
+
+### Modifié
+- Barre des observations : seules les flèches ↶ (annuler, avec confirmation) et ↷ (rétablir) restent, sans texte.
+- Fenêtre d'observation : section « Équipe » séparée des tags rapides. Un clic sur une équipe affiche ses numéros de joueurs en petit ; chaque numéro choisi ajoute le tag « Équipe n°N ». Les numéros (`S.numA`, `S.numB`) se saisissent, facultativement, sur l'écran de préparation (champs « N° joueurs », séparés par virgule, espace ou point-virgule).
+- Bouton « Mi-temps » : même classe que « Fin de match ».
+
+---
+
 ## [1.7.0] — 2026-11-12
 
 ### Ajouté

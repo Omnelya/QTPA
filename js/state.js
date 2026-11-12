@@ -171,6 +171,7 @@ export const S = {
   obs: [],
   detailPending: null,
   pauseTme: false,
+  numA: '', numB: '',   /* v1.7.1 : n° de joueurs facultatifs saisis à la préparation (ex « 1, 4, 7 ») */
   pauseNote: '',   /* v1.7.0 : « à dire à la pause » (écran mi-temps) */
 
   /* v0.3.31 (BUG-5) : flag indiquant qu'une action réelle a été effectuée
