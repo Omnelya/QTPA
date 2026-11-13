@@ -60,6 +60,14 @@ Quand une version corrige un bug ou un frag identifié dans l'audit, **toujours 
 
 ---
 
+## [1.8.3] — 2026-11-13
+
+### Modifié
+- iPad (≥768 px) : `.left-panel` compact (chrono 40 px, score 30 px, cases TME 28 px, contexte 56 px) : la colonne mesure ~593 px et ne défile plus (testé 1180×820, 1133×744, 1024×768, 820×1180).
+- iPhone (≤767 px, testé 430×932) : bandeau de fin de match en 2 lignes (titre / 4 boutons), filtres Arbitre et Période pleine largeur, lignes `.db-row` compactes (heure · arbitre · type, catégorie, note), écran mi-temps avec en-tête fixe, score sur 2 lignes et classements `.mt-rk` nom + compteur / barre.
+
+---
+
 ## [1.8.2] — 2026-11-12
 
 ### Modifié

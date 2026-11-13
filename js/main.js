@@ -505,6 +505,7 @@ async function _renderLastMatchCard() {
    CHANGELOG / BADGE VERSION (v1.4.8)
 ════════════════════════════════════════ */
 const CHANGELOG = [
+  { v: '1.8.3', items: ['iPad : la colonne de gauche de la saisie (chrono, score, temps morts, contexte) est plus compacte et tient sans faire défiler','iPhone : bandeau de l\'écran de fin de match refait (titre puis boutons alignés), filtres sur toute la largeur, lignes « À revoir et notes » plus compactes','iPhone : écran mi-temps/tiers-temps retravaillé (en-tête fixe, score lisible, « 3 moins / 3 mieux réussis » sur deux lignes avec barre)'] },
   { v: '1.8.2', items: ['Frise chronologique : les ✔ ✘ ⚑ partent de la ligne de la frise et s\'empilent vers le haut quand ils sont trop proches'] },
   { v: '1.8.1', items: ['Les nouveaux matchs enregistrés sur Supabase gardent aussi mi-temps / tiers-temps, période, numéros de joueurs et notes de pause : ils se rouvrent complets'] },
   { v: '1.8.0', items: ['Un clic sur un match de « Matchs récents » le rouvre sur l\'écran de fin de match (débrief), pour relire, modifier les notes et ré-exporter le PDF','Matchs enregistrés sur cet appareil : état complet restauré. Matchs Supabase : score, observations, notes et évaluation (mi-temps/période déduites des observations)'] },

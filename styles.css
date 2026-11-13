@@ -1669,3 +1669,65 @@ body.dark .edit-ctrl-green.edit-ctrl-active{ background: #1a6b35; border-color: 
 
 .home-match-open { cursor: pointer; }
 .home-match-open:active { opacity: .85; }
+
+/* ═══ iPad : colonne de gauche compacte (tient sans défiler) — v1.8.3 ═══ */
+@media (min-width: 768px) {
+  .left-panel { gap: 6px; }
+  .left-panel .card { padding: 9px 12px; }
+  .left-panel .card-title { margin-bottom: 4px; }
+  .left-panel .period-badge { margin-bottom: 0; padding: 2px 9px; }
+  .left-panel .chrono-num { font-size: 40px; margin: 0 0 6px; letter-spacing: -1.5px; }
+  .left-panel .bc { padding: 8px; min-height: 40px; }
+  .left-panel .recal-wrap { margin-top: 6px; }
+  .left-panel .recal-label { margin-bottom: 3px; }
+  .left-panel .recal-field { font-size: 17px; padding: 5px 4px; width: 48px; }
+  .left-panel .score-num { font-size: 30px; margin: 2px 0; }
+  .left-panel .stn { margin-bottom: 0; }
+  .left-panel .bs { width: 38px; height: 34px; }
+  .left-panel .tme-cell { min-height: 28px; }
+  .left-panel .tme-table th { padding: 2px 6px; }
+  .left-panel .tme-table td { padding: 2px 3px; }
+  .left-panel .ctx-area { min-height: 56px; height: 56px; padding: 6px 10px; }
+}
+
+/* ═══ iPhone (≤767 px) : fin de match et mi-temps — v1.8.3 ═══════════════ */
+@media (max-width: 767px) {
+  /* Bandeau du haut : titre sur la 1re ligne, boutons alignés sur la 2e */
+  .end-header { align-items: center; row-gap: 8px; column-gap: 10px; padding-bottom: 2px; }
+  .end-header .topbar-logo { height: 36px; }
+  .end-header .match-info { flex: 1 1 0; min-width: 0; }
+  .end-header #ET { font-size: 15px; line-height: 1.25; overflow-wrap: anywhere; }
+  .end-header .match-meta { font-size: 11px; line-height: 1.3; }
+  .end-acts { flex: 0 0 100%; display: grid; grid-template-columns: 44px 1fr 1fr 1.5fr; gap: 8px; flex-wrap: nowrap; }
+  .end-acts .btn-act { padding: 0 6px; min-height: 44px; white-space: nowrap; }
+  .end-acts .btn-theme-adaptive { width: 44px; height: 44px; padding: 0; display: flex; align-items: center; justify-content: center; }
+
+  /* Filtres des blocs : libellé à gauche, boutons sur toute la largeur */
+  .db-filters { display: grid; grid-template-columns: auto 1fr; gap: 6px 10px; align-items: center; }
+  .db-filters .db-seg { display: flex; }
+  .db-filters .db-seg-b { flex: 1; padding: 0 6px; min-height: 40px; }
+  .db-sub-title { display: block; margin: 2px 0 0; }
+
+  /* « À revoir et notes » : ligne compacte (heure · arbitre · type, puis catégorie, puis note) */
+  .db-row, .db-row.db-nocat { grid-template-columns: 22px 1fr auto 34px; grid-template-areas: "i t w y" ". c c c" ". n n n"; gap: 2px 8px; padding: 9px 4px; }
+  .db-row.db-nocat { grid-template-areas: "i t w y" ". n n n"; }
+  .db-tm { font-size: 14px; } .db-tm i { font-size: 11px; }
+  .db-cat { grid-area: c; font-size: 15px; }
+  .db-type { grid-area: y; width: 34px; }
+  .db-note { grid-area: n; font-size: 13px; line-height: 1.35; }
+
+  /* Écran mi-temps : en-tête fixe, score lisible, classements en 2 lignes */
+  .mt-sheet { padding: 0 14px 22px; }
+  .mt-sheet .qn-detail-header { position: sticky; top: 0; z-index: 3; background: var(--bg-card); padding: 14px 0 10px; margin-bottom: 4px; border-bottom: 1px solid var(--border); }
+  .mt-sheet .qn-detail-title { font-size: 17px; }
+  .mt-close { min-height: 44px; }
+  .mt-score { font-size: 15px; line-height: 1.3; }
+  .mt-score .mt-sc-lab { display: block; margin-bottom: 2px; }
+  .mt-score b { font-size: 26px; white-space: nowrap; }
+  .mt-rk { grid-template-columns: 1fr auto; grid-template-areas: "n s" "b b"; gap: 4px 10px; padding: 8px 0; border-top: 1px solid var(--border); }
+  .mt-rk .db-cname { grid-area: n; }
+  .mt-rk .db-cnt { grid-area: s; grid-column: auto; font-size: 13px; text-align: right; }
+  .mt-rk .db-bar { grid-area: b; }
+  .mt-cols { gap: 4px; }
+  #mtPauseNote { min-height: 96px; font-size: 16px; }
+}

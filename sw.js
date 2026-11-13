@@ -1,4 +1,4 @@
-/* ═══ SERVICE WORKER — v0.3.31 (version 1.8.2) ════════════════════════
+/* ═══ SERVICE WORKER — v0.3.31 (version 1.8.3) ════════════════════════
    Stratégie de cache :
 
    1) Fichiers de l'app (même origine que le SW)
@@ -42,7 +42,7 @@
    - Bumper CACHE_NAME ci-dessous à chaque release.
 ═════════════════════════════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'arbitres-hb-v1.8.2';
+const CACHE_NAME = 'arbitres-hb-v1.8.3';
 
 /* Fichier sentinelle utilisé pour la détection rapide de mise à jour.
    Doit être un fichier qui change à chaque release par convention.
