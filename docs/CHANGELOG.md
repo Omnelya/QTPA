@@ -60,6 +60,11 @@ Quand une version corrige un bug ou un frag identifié dans l'audit, **toujours 
 
 ---
 
+## [1.9.1] — 2026-11-15
+
+### Modifié
+- iPhone (≤767 px) : bandeau de l'écran match en 2 lignes (équipes + arbitres pleine largeur, puis boutons thème / ⚙ / Mi-temps / Fin de match). iPad inchangé.
+
 ## [1.9.0] — 2026-11-15
 
 ### Ajouté
