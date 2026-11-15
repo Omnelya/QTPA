@@ -60,6 +60,16 @@ Quand une version corrige un bug ou un frag identifié dans l'audit, **toujours 
 
 ---
 
+## [1.9.0] — 2026-11-15
+
+### Ajouté
+- Onglet Réglages ⚙ (`js/settings.js`) : équipes, numéros de joueurs, arbitres (renommés aussi dans les observations), date, heure, compétition, durées par période, prolongation ; 2↔3 périodes modifiable seulement avant le début de MT2.
+- Tags Protocole : Protocole Sanction, Protocole TME, Protocole Jet 7m ; tag Différée pour SPA et SPP.
+
+### Modifié
+- Score MT1 / TT1 / TT2 (`htA`, `ht2A`) figé au démarrage du chrono de la période suivante (et non plus à la fin de la période). Limite : si le match s'arrête sans redémarrer, ce score reste vide.
+- Recalage temps : minutes seules ou secondes seules ne recalent que la partie saisie ; vide + vide = aucun changement.
+
 ## [1.8.3] — 2026-11-13
 
 ### Modifié

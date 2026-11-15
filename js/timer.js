@@ -19,10 +19,15 @@ function _getPeriodDuration() {
 export function applyRecal() {
   /* v1.4.19 : limite selon la durée réelle de la période */
   const maxMin = Math.floor(_getPeriodDuration() / 60);
-  const m   = Math.min(parseInt(document.getElementById('rMin').value) || 0, maxMin);
-  const s   = Math.min(parseInt(document.getElementById('rSec').value) || 0, 59);
+  const rMin = document.getElementById('rMin').value.trim();
+  const rSec = document.getElementById('rSec').value.trim();
+  if (rMin === '' && rSec === '') return; /* rien saisi : on ne touche pas au chrono */
+  /* v1.9.0 : seule la partie renseignée (minutes OU secondes) est recalée, l'autre est conservée */
+  const cur = Math.floor(S.elapsed);
+  const m   = rMin === '' ? Math.floor(cur / 60) : Math.min(parseInt(rMin) || 0, maxMin);
+  const s   = rSec === '' ? cur % 60 : Math.min(parseInt(rSec) || 0, 59);
   const old = S.elapsed;
-  S.elapsed = m * 60 + s;
+  S.elapsed = Math.min(m * 60 + s, _getPeriodDuration());
   log.info('CHRONO', 'recalage', {
     ancien: fmt(old), nouveau: fmt(S.elapsed), periode: S.period
   });
@@ -44,6 +49,10 @@ export function toggleChrono() {
     document.getElementById('BSS').className = 'bc go';
     log.info('CHRONO', 'pause', { temps: fmt(S.elapsed), periode: S.period });
   } else {
+    /* v1.9.0 : le score de la période précédente est consigné au démarrage de la suivante
+       (les buts marqués pendant la pause comptent pour la période terminée) */
+    if (S.period === 'MT2' && S.htA === null)  { S.htA = S.sA;  S.htB = S.sB; }
+    if (S.period === 'MT3' && S.ht2A === null) { S.ht2A = S.sA; S.ht2B = S.sB; }
     S.tick  = Date.now();
     S.timer = setInterval(tickC, 200);
     S.run   = true;
@@ -93,7 +102,6 @@ export function tickC() {
 export function advPeriod() {
   const periodeAvant = S.period;
   if (S.period === 'MT1') {
-    S.htA = S.sA; S.htB = S.sB; /* score fin MT1 */
     S.period  = 'MT2';
     S.elapsed = 0;
     document.getElementById('PBadge').textContent = pl('MT2');
@@ -101,7 +109,6 @@ export function advPeriod() {
     window.App.showAlert((S.nbMT === 3 ? 'Tiers-temps' : 'Mi-temps') + ' ! Debut de la 2eme periode.');
   } else if (S.period === 'MT2') {
     if (S.nbMT === 3) {
-      S.ht2A = S.sA; S.ht2B = S.sB; /* score fin MT2 */
       S.period  = 'MT3';
       S.elapsed = 0;
       document.getElementById('PBadge').textContent = pl('MT3');

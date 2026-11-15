@@ -176,6 +176,7 @@
       <div class="btn-theme-icon" id="themeIcon"></div>
       
     </button>
+    <button class="btn-end btn-gear" onclick="sgOpen()" title="Réglages du match" aria-label="Réglages du match">⚙</button>
     <button class="btn-end" id="btnMT" onclick="mtOpen()" title="Point à la pause">Mi-temps</button>
     <button class="btn-end" onclick="endMatch()">Fin de match</button>
   </div>
@@ -322,6 +323,34 @@
     <div id="mtBody"></div>
     <div class="qn-detail-label">À dire à la pause</div>
     <textarea class="qn-detail-textarea" id="mtPauseNote" placeholder="Ce que je dirai aux arbitres à la pause..." oninput="mtNote(this.value)"></textarea>
+  </div>
+</div>
+
+<!-- ═══ RÉGLAGES DU MATCH — v1.9.0 ═══════════════════════════════════ -->
+<div class="qn-overlay" id="sgOverlay">
+  <div class="qn-sheet sg-sheet" role="dialog" aria-modal="true" aria-labelledby="sgTitle">
+    <div class="qn-detail-header">
+      <span class="qn-detail-title" id="sgTitle">⚙ Réglages du match</span>
+      <button type="button" class="qn-btn-cancel mt-close" onclick="sgClose()">Annuler</button>
+    </div>
+    <div class="g2">
+      <div class="sf"><label>Équipe A</label><input type="text" id="sgTA" autocomplete="off"></div>
+      <div class="sf"><label>Équipe B</label><input type="text" id="sgTB" autocomplete="off"></div>
+      <div class="sf"><label>N° joueurs A (facultatif)</label><input type="text" id="sgNA" placeholder="ex : 1, 4, 7" inputmode="numeric" autocomplete="off"></div>
+      <div class="sf"><label>N° joueurs B (facultatif)</label><input type="text" id="sgNB" placeholder="ex : 2, 5, 8" inputmode="numeric" autocomplete="off"></div>
+      <div class="sf"><label>Arbitre 1</label><input type="text" id="sgA1" autocomplete="off"></div>
+      <div class="sf"><label>Arbitre 2</label><input type="text" id="sgA2" autocomplete="off"></div>
+      <div class="sf"><label>Date</label><input type="date" id="sgDate"></div>
+      <div class="sf"><label>Heure</label><input type="time" id="sgTime"></div>
+    </div>
+    <div class="sf"><label>Compétition</label><input type="text" id="sgComp" autocomplete="off"></div>
+    <div class="qn-detail-label">Nombre de périodes</div>
+    <div class="sg-nb"><button type="button" id="sgNb2" onclick="sgNb(2)">2 MT</button><button type="button" id="sgNb3" onclick="sgNb(3)">3 TT</button></div>
+    <div class="sg-note" id="sgNbNote">Le nombre de périodes ne se change plus une fois la 2e période commencée.</div>
+    <div class="qn-detail-label">Durées</div>
+    <div class="g2" id="sgDurs"></div>
+    <div class="sf"><label>Prolongation (min)</label><input type="number" inputmode="numeric" min="1" max="30" id="sgProl"></div>
+    <button type="button" class="qn-btn-save sg-save" onclick="sgSave()">Enregistrer</button>
   </div>
 </div>
 

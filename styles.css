@@ -1731,3 +1731,15 @@ body.dark .edit-ctrl-green.edit-ctrl-active{ background: #1a6b35; border-color: 
   .mt-cols { gap: 4px; }
   #mtPauseNote { min-height: 96px; font-size: 16px; }
 }
+
+/* ═══ Réglages du match ⚙ — v1.9.0 ═══════════════════════════════════ */
+#sgOverlay { z-index: 195; }
+.sg-sheet { max-width: 640px; }
+.sg-sheet .sf { margin-bottom: 10px; }
+.sg-nb { display: flex; gap: 8px; }
+.sg-nb button { flex: 1; min-height: 44px; border-radius: 10px; border: 2px solid var(--border-input); background: var(--bg-input); color: var(--text-main); font: inherit; font-weight: 600; cursor: pointer; }
+.sg-nb button.on { border-color: var(--blue-main); color: var(--blue-main); background: rgba(29,58,122,.1); font-weight: 700; }
+.sg-nb button:disabled { opacity: .45; cursor: not-allowed; }
+.sg-note { font-size: 12px; color: var(--text-hint); margin: 4px 0 8px; }
+.sg-save { width: 100%; min-height: 48px; margin-top: 8px; }
+.btn-gear { font-size: 18px; line-height: 1; padding: 6px 12px; margin-right: 8px; }

@@ -40,11 +40,11 @@ export const CAT_TAGS = {
   'SPP': {
     red:   ['Verbale retard', 'Manque CJ', 'Manque explication', 'Pas CJ après but'],
     green: ['Bonne verbale', 'Bon CJ'],
-    both:  ['Duel pivot']
+    both:  ['Duel pivot', 'Différée']
   },
   'SPA': {
     red:   [],  green: [],
-    both:  ['Retient', 'Pousse', 'Ceinturage', 'Dépassée', 'Ferme en retard', 'Neutralise par derrière', 'Tête visage gorge', 'Amène au sol', 'Ne retient pas', 'Duel pivot', 'SPA 2' ,'SPA CR', 'SPA CR+CB']
+    both:  ['Retient', 'Pousse', 'Ceinturage', 'Dépassée', 'Ferme en retard', 'Neutralise par derrière', 'Tête visage gorge', 'Amène au sol', 'Ne retient pas', 'Duel pivot', 'Différée', 'SPA 2' ,'SPA CR', 'SPA CR+CB']
   },
   'J7M': {
     red:   [],  green: [],
@@ -53,7 +53,7 @@ export const CAT_TAGS = {
   'Protocole': {
     red:   ['Manque protocole', 'Sanctions', 'Décisions différentes'],
     green: ['Bon protocole', 'Sanctions', 'Décisions différentes'],
-    both:  []
+    both:  ['Protocole Sanction', 'Protocole TME', 'Protocole Jet 7m']
   },
   'Passage en Force': {
     red:   [],  green: [],

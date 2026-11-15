@@ -6,6 +6,7 @@
 import { applyTheme, toggleTheme, showAlert, closeAlert, buildQs, setAns } from './ui.js';
 import { updateCD, toggleChrono, resumeTme, tickC, advPeriod, activerProlong, resetChrono, applyRecal } from './timer.js';
 import { chgScore, buildTme, refreshTme, addTme, deleteTme, tmeVal } from './score.js';
+import { sgOpen, sgClose, sgNb, sgSave } from './settings.js';
 import { mtOpen, mtClose, mtArb, mtNote, mtRender, mtPer } from './midtime.js';
 import { buildQuickNotes, closeDetail, saveDetail, toggleDetailFlag, toggleDetailTodo, askUndo, cancelUndo, doUndo, redoObs, refreshCounters, renderTable, renderEndTable, sorted, onFilterChange, onFilterChangeE, resetFilters, resetFiltersE, editObservation, deleteObservation, confirmDelete, closeConfirm } from './observations.js';
 import { setSynFilter, buildSynTable } from './synthesis.js';
@@ -86,6 +87,7 @@ window.closeDetail         = closeDetail;
 window.saveDetail          = saveDetail;
 window.toggleDetailFlag    = toggleDetailFlag;
 window.toggleDetailTodo    = toggleDetailTodo;
+window.sgOpen = sgOpen; window.sgClose = sgClose; window.sgNb = sgNb; window.sgSave = sgSave;
 window.mtOpen = mtOpen; window.mtClose = mtClose; window.mtArb = mtArb; window.mtPer = mtPer; window.mtNote = mtNote; window.mtRefresh = mtRender;
 window.askUndo             = askUndo;
 window.cancelUndo          = cancelUndo;
@@ -505,6 +507,7 @@ async function _renderLastMatchCard() {
    CHANGELOG / BADGE VERSION (v1.4.8)
 ════════════════════════════════════════ */
 const CHANGELOG = [
+  { v: '1.9.0', items: ['Réglages ⚙ (en haut) : modifier équipes, numéros, arbitres, date, heure, compétition, durées et prolongation, même en cours de match','Le score de MT1 / TT1 / TT2 est consigné dès que la période suivante démarre (les buts de la pause sont inclus)','Recalage temps : minutes seules ou secondes seules = on ne recale que la partie renseignée','Nouveaux tags : Protocole Sanction / TME / Jet 7m ; « Différée » pour SPA et SPP'] },
   { v: '1.8.3', items: ['iPad : la colonne de gauche de la saisie (chrono, score, temps morts, contexte) est plus compacte et tient sans faire défiler','iPhone : bandeau de l\'écran de fin de match refait (titre puis boutons alignés), filtres sur toute la largeur, lignes « À revoir et notes » plus compactes','iPhone : écran mi-temps/tiers-temps retravaillé (en-tête fixe, score lisible, « 3 moins / 3 mieux réussis » sur deux lignes avec barre)'] },
   { v: '1.8.2', items: ['Frise chronologique : les ✔ ✘ ⚑ partent de la ligne de la frise et s\'empilent vers le haut quand ils sont trop proches'] },
   { v: '1.8.1', items: ['Les nouveaux matchs enregistrés sur Supabase gardent aussi mi-temps / tiers-temps, période, numéros de joueurs et notes de pause : ils se rouvrent complets'] },
