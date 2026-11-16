@@ -60,6 +60,14 @@ Quand une version corrige un bug ou un frag identifié dans l'audit, **toujours 
 
 ---
 
+## [1.10.0] — 2026-11-16
+
+### Modifié
+- `CAT_TAGS` (js/state.js) revu avec le suiveur, catégorie par catégorie, à partir des commentaires des 12 matchs Supabase (red = Non conforme, green = Conforme, both = les deux).
+- Ajouts : Marcher (4 pas, Marcher + but), Reprise de dribble (Ballon non dirigé vers sol), Passage en force (Corps projectile, Non passif, Zone, Pas gain d'intervalle, En retard ; Pas d'intervalle passe en Conforme), Pied (Pied hors cylindre => SPA2), J7M (refonte), Zone (Retour de zone), Continuité (Siffle trop vite, Marcher + but), Jeu passif (Lors maîtrise ballon), Exécution du jet (7 tags), Jet franc (Bras bloqué, Reviens à la faute), SPP (6 tags), SPA (Tir dans la tête, Pas besoin de concertation), Placement (Côté opposé au banc), Déplacement (Course en C), Gestuelle (Prend le temps, Bonne théâtralité, Bonne gestuelle), Communication (Gardien, Joueurs, TME long), Gestion du sifflet (Enlève de la bouche, Coup de sifflet de reprise, Adapte volume), Protocole (Arrêter le temps, Regarde table, Protocole Soin, Entrée Soins).
+- `TAGS_GENERAUX` : + Après TME.
+- Retirés : J7M (OMB, Équilibré, Retard), Jet franc (Pas au bon endroit, Sortir des 9m). Corrigés : Secrétaire, Coups de sifflet brefs. Les observations déjà enregistrées ne sont pas modifiées.
+
 ## [1.9.1] — 2026-11-15
 
 ### Modifié

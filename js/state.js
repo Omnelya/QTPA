@@ -37,80 +37,92 @@ export const FAMILIES = [
    both  → tags affichés quelle que soit la couleur
 ═══════════════════════════════════════════════════════════════════════════ */
 export const CAT_TAGS = {
+  /* v1.10.0 : tags revus catégorie par catégorie avec Vincent (red = Non conforme, green = Conforme) */
   'SPP': {
     red:   ['Verbale retard', 'Manque CJ', 'Manque explication', 'Pas CJ après but'],
     green: ['Bonne verbale', 'Bon CJ'],
-    both:  ['Duel pivot', 'Différée']
+    both:  ['Duel pivot', 'Différée', 'Ne retient pas', 'Maillot', 'Pousse', 'Râle', 'Théâtralité', 'SPP pas assez']
   },
   'SPA': {
     red:   [],  green: [],
-    both:  ['Retient', 'Pousse', 'Ceinturage', 'Dépassée', 'Ferme en retard', 'Neutralise par derrière', 'Tête visage gorge', 'Amène au sol', 'Ne retient pas', 'Duel pivot', 'Différée', 'SPA 2' ,'SPA CR', 'SPA CR+CB']
+    both:  ['Retient', 'Pousse', 'Ceinturage', 'Dépassée', 'Ferme en retard', 'Neutralise par derrière', 'Tête visage gorge', 'Amène au sol', 'Ne retient pas', 'Duel pivot', 'Différée', 'SPA 2' ,'SPA CR', 'SPA CR+CB', 'Tir dans la tête', 'Pas besoin de concertation']
   },
   'J7M': {
-    red:   [],  green: [],
-    both:  ['Défense en zone', 'OMB', 'Équilibré', 'Retient', 'Retard']
+    red:   ['Contact hors zone => JF', 'Joueur équilibré'],
+    green: ['Défense en zone'],
+    both:  ['OMB déjouée', 'Arrachage bras', 'Déséquilibre', 'Retient', 'Fermeture tardive']
   },
   'Protocole': {
     red:   ['Manque protocole', 'Sanctions', 'Décisions différentes'],
     green: ['Bon protocole', 'Sanctions', 'Décisions différentes'],
-    both:  ['Protocole Sanction', 'Protocole TME', 'Protocole Jet 7m']
+    both:  ['Protocole Sanction', 'Protocole TME', 'Protocole Jet 7m', 'Arrêter le temps', 'Regarde table', 'Protocole Soin', 'Entrée Soins']
   },
   'Passage en Force': {
-    red:   [],  green: [],
-    both:  ["Pas d'intervalle", 'Raffut', 'Épaule en avant']
+    red:   ['Corps projectile', 'Non passif', 'Zone', "Pas gain d'intervalle", 'En retard'],
+    green: ["Pas d'intervalle"],
+    both:  ['Raffut', 'Épaule en avant']
   },
   'Mauvais Bloc': {
     red:   [],  green: [],
     both:  ['Hors cylindre (bras)', 'Hors cylindre (fesses)', 'Écran illégal']
   },
+  'Pied': {
+    red:   ['Pied hors cylindre => SPA2'],  green: [],
+    both:  []
+  },
   'Jet Franc': {
-    red:   [],  green: [],
-    both:  ['Pas au bon endroit', 'Sortir des 9m', 'Pied hors du terrain']
+    red:   ['Bras bloqué', 'Reviens à la faute'],  green: [],
+    both:  ['Pied hors du terrain']
   },
   'Exécution du Jet': {
     red:   [],  green: [],
-    both:  ['Engagement', 'Jet Franc', 'J7M', 'Renvoi', 'Remise en jeu', 'Respect 3m']  /* v0.4.6 : ajout tag 'Respect des 3m' */
+    both:  ['Engagement', 'Jet Franc', 'J7M', 'Renvoi', 'Remise en jeu', 'Respect 3m', 'Replacer', 'Hors des 9m', 'Franchissement de la ligne', 'Ballon non maîtrisé', 'Pas dans le rond central', 'Debout', 'Coup sifflet reprise']
   },
   'Jeu Passif': {
-    red:   ['Trop tôt', 'Trop tard', 'Non cohérent'],
+    red:   ['Trop tôt', 'Trop tard', 'Non cohérent', 'Lors maîtrise ballon'],
     green: ['Bon avertissement'],
     both:  ['2-3 passes après JF']
   },
   'Marcher': {
-    red:   [],  green: [],
-    both:  ['Piétine']
+    red:   ['Marcher + but'],  green: [],
+    both:  ['Piétine', '4 pas']
   },
   'Reprise de dribble': {
-    red:   [],  green: [],
+    red:   ['Ballon non dirigé vers sol'],  green: [],
     both:  ['Pas de maîtrise ballon']
   },
   'Zone': {
     red:   [],  green: [],
-    both:  ['Passage en zone', 'Dribble en zone', 'Appui zone', 'Gardien non maître de son équilibre ET du ballon']
+    both:  ['Passage en zone', 'Dribble en zone', 'Appui zone', 'Gardien non maître de son équilibre ET du ballon', 'Retour de zone']
   },
   'Continuité': {
-    red:   [],  green: [],
-    both:  ['Bras libre + équilibré', 'Irrégularité + perd la balle', 'Pas de faute']
+    red:   ['Marcher + but'],  green: [],
+    both:  ['Bras libre + équilibré', 'Irrégularité + perd la balle', 'Pas de faute', 'Siffle trop vite']
   },
   'Communication': {
-    red:   [],  green: ['Bonne comm.'],
-   both:  ['Binôme','Banc', 'Coachs', 'Chronométreur', 'Secretaire', 'Gestuelle floue']
+    red:   ['TME long'],  green: ['Bonne comm.'],
+    both:  ['Binôme','Banc', 'Coachs', 'Chronométreur', 'Secrétaire', 'Gestuelle floue', 'Gardien', 'Joueurs']
   },
   'Placement': {
     red:   [],  green: [],
-    both:  ['Trop loin', 'Trop proche', 'Latéralité', 'Profondeur', 'Angle de vue']
+    both:  ['Trop loin', 'Trop proche', 'Latéralité', 'Profondeur', 'Angle de vue', 'Côté opposé au banc']
   },
   'Déplacement': {
     red:   ['Contre-attaque trop lent'],  green: [],
-    both:  ['Jaillissement', 'Permutation', 'Latéral', 'Profondeur']
+    both:  ['Jaillissement', 'Permutation', 'Latéral', 'Profondeur', 'Course en C']
   },
   "Zone d'influence": {
     red:   [],  green: [],
     both:  ['Regarde le pivot en AZ', 'Pas ta zone', 'Crédibilité', 'Changement de zone']
   },
+  'Gestuelle': {
+    red:   ['Prend le temps'],
+    green: ['Bonne théâtralité', 'Bonne gestuelle'],
+    both:  []
+  },
   'Gestion du sifflet': {
-    red:   [],  green: [],
-    both:  ['Croissant', 'Décroissant', 'Coup de sifflet brefs', 'Arrêt du temps']
+    red:   ['Enlève de la bouche', 'Coup de sifflet de reprise', 'Adapte volume'],  green: [],
+    both:  ['Croissant', 'Décroissant', 'Coups de sifflet brefs', 'Arrêt du temps']
   }
 };
 
@@ -118,7 +130,7 @@ export const CAT_TAGS = {
 /* v0.4.7 : tA et tB sont injectés dynamiquement en tête dans observations.js */
 export const TAGS_GENERAUX = [
   'Contre-attaque', 'Montée balle rapide', 'Repli défensif', 'Attaque placée',
-  'Jeu supériorité', 'Jeu infériorité', 'Ballon hors jeu'
+  'Jeu supériorité', 'Jeu infériorité', 'Ballon hors jeu', 'Après TME'
 ];
 
 /* ── Durées (secondes) ── */

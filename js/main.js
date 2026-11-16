@@ -507,6 +507,7 @@ async function _renderLastMatchCard() {
    CHANGELOG / BADGE VERSION (v1.4.8)
 ════════════════════════════════════════ */
 const CHANGELOG = [
+  { v: '1.10.0', items: ['Tags rapides revus catégorie par catégorie à partir des commentaires des matchs déjà suivis (conforme / non conforme / les deux)','Pied et Gestuelle ont enfin leurs propres tags','Nouveau tag commun à toutes les catégories : « Après TME »','Orthographe corrigée : Secrétaire, Coups de sifflet brefs (les anciens matchs gardent leur texte)'] },
   { v: '1.9.1', items: ['iPhone : bandeau bleu de l\'écran match sur 2 lignes — noms des équipes et des arbitres affichés en entier, boutons dessous'] },
   { v: '1.9.0', items: ['Réglages ⚙ (en haut) : modifier équipes, numéros, arbitres, date, heure, compétition, durées et prolongation, même en cours de match','Le score de MT1 / TT1 / TT2 est consigné dès que la période suivante démarre (les buts de la pause sont inclus)','Recalage temps : minutes seules ou secondes seules = on ne recale que la partie renseignée','Nouveaux tags : Protocole Sanction / TME / Jet 7m ; « Différée » pour SPA et SPP'] },
   { v: '1.8.3', items: ['iPad : la colonne de gauche de la saisie (chrono, score, temps morts, contexte) est plus compacte et tient sans faire défiler','iPhone : bandeau de l\'écran de fin de match refait (titre puis boutons alignés), filtres sur toute la largeur, lignes « À revoir et notes » plus compactes','iPhone : écran mi-temps/tiers-temps retravaillé (en-tête fixe, score lisible, « 3 moins / 3 mieux réussis » sur deux lignes avec barre)'] },
