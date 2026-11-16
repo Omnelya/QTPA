@@ -49,12 +49,11 @@ function _doStartMatch() {
   _showMatchParamsPopup();
 }
 
-/* v1.4.20 : popup de configuration avec roues défilantes */
-function _showMatchParamsPopup() {
-  const IH = 40; /* hauteur d'un item de roue (px) */
+/* ── Roue défilante (v1.4.20) — partagée avec les Réglages ⚙ depuis v1.12.0 ── */
+const IH = 40; /* hauteur d'un item de roue (px) */
 
-  /* ── Crée une roue défilante snap ── */
-  function _wheel(id, minV, maxV, cur) {
+/** Crée une roue défilante snap de minV à maxV, positionnée sur cur. */
+export function makeWheel(id, minV, maxV, cur) {
     const wrap = document.createElement('div');
     wrap.style.cssText = 'position:relative;width:64px;height:' + (IH*3) + 'px;overflow:hidden;border-radius:8px;background:var(--bg-input);';
 
@@ -63,9 +62,12 @@ function _showMatchParamsPopup() {
     sc.style.cssText = 'height:' + (IH*3) + 'px;overflow-y:scroll;scroll-snap-type:y mandatory;' +
       '-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none;';
 
-    const stHide = document.createElement('style');
-    stHide.textContent = '#' + id + '::-webkit-scrollbar{display:none}';
-    document.head.appendChild(stHide);
+    if (!document.getElementById('stw-' + id)) {
+      const stHide = document.createElement('style');
+      stHide.id = 'stw-' + id;
+      stHide.textContent = '#' + id + '::-webkit-scrollbar{display:none}';
+      document.head.appendChild(stHide);
+    }
 
     const padT = document.createElement('div'); padT.style.height = IH + 'px'; sc.appendChild(padT);
     for (let v = minV; v <= maxV; v++) {
@@ -90,13 +92,17 @@ function _showMatchParamsPopup() {
     wrap.appendChild(sc); wrap.appendChild(fade); wrap.appendChild(sel);
     requestAnimationFrame(() => { sc.scrollTop = (cur - minV) * IH; });
     return wrap;
-  }
+}
 
-  /* ── Lit la valeur courante d'une roue ── */
-  function _rw(id, minV) {
-    const el = document.getElementById(id);
-    return el ? minV + Math.round(el.scrollTop / IH) : minV;
-  }
+/** Lit la valeur courante d'une roue. */
+export function readWheel(id, minV) {
+  const el = document.getElementById(id);
+  return el ? minV + Math.round(el.scrollTop / IH) : minV;
+}
+
+/* v1.4.20 : popup de configuration avec roues défilantes */
+function _showMatchParamsPopup() {
+  const _wheel = makeWheel, _rw = readWheel;
 
   /* ── Lit toutes les roues dans S ── */
   function _readAll() {

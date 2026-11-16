@@ -4,18 +4,25 @@
    Renommer une équipe ou un arbitre met aussi à jour les observations déjà saisies. */
 import { S, applyPeriodLabels } from './state.js';
 import { escapeHtml, fmtDate } from './utils.js';
+import { makeWheel, readWheel } from './match.js';
 
 const $ = id => document.getElementById(id);
 const _clamp = (v, a, b) => Math.max(a, Math.min(b, parseInt(v, 10) || a));
 
+/* v1.12.0 : choix en attente, appliqués seulement par « Enregistrer » (Annuler = rien ne change) */
+let _nb = 2, _durs = [1800, 1800];
+
+/* v1.12.0 : durées choisies avec les mêmes roues que la fenêtre de démarrage */
 function _durRow() {
   const box = $('sgDurs');
   box.innerHTML = '';
-  for (let i = 0; i < S.nbMT; i++) {
-    const d = document.createElement('div'); d.className = 'sf';
-    d.innerHTML = '<label>' + (S.nbMT === 3 ? 'TT ' : 'MT ') + (i + 1) + ' (min)</label>' +
-      '<input type="number" inputmode="numeric" min="1" max="59" id="sgD' + i + '" value="' + Math.round((S.dureesMT[i] || 1800) / 60) + '">';
-    box.appendChild(d);
+  for (let i = 0; i < _nb; i++) {
+    const col = document.createElement('div');
+    col.className = 'sg-wcol';
+    col.innerHTML = '<div class="sg-wlab">' + (_nb === 3 ? 'TT ' : 'MT ') + (i + 1) + '</div>';
+    col.appendChild(makeWheel('sgW' + i, 1, 59, Math.round((_durs[i] || 1800) / 60)));
+    col.insertAdjacentHTML('beforeend', '<div class="sg-wunit">min</div>');
+    box.appendChild(col);
   }
 }
 
@@ -23,8 +30,8 @@ function _nbButtons() {
   const locked = S.period !== 'MT1';
   [2, 3].forEach(n => {
     const b = $('sgNb' + n);
-    b.classList.toggle('on', S.nbMT === n);
-    b.disabled = locked && S.nbMT !== n;
+    b.classList.toggle('on', _nb === n);
+    b.disabled = locked && _nb !== n;
     b.title = locked ? 'Modifiable seulement avant le début de la 2e période' : '';
   });
   $('sgNbNote').style.display = S.period !== 'MT1' ? '' : 'none';
@@ -35,16 +42,22 @@ export function sgOpen() {
   $('sgNA').value = S.numA || ''; $('sgNB').value = S.numB || '';
   $('sgA1').value = S.a1; $('sgA2').value = S.a2;
   $('sgDate').value = S.mDate || ''; $('sgTime').value = S.mTime || ''; $('sgComp').value = S.mComp || '';
-  $('sgProl').value = Math.round((S.dureeProl || 300) / 60);
+  $('sgOverlay').classList.add('on'); /* visible avant de créer les roues (positionnement) */
+  const pr = $('sgProlW');
+  pr.innerHTML = '';
+  pr.appendChild(makeWheel('sgWProl', 1, 30, Math.round((S.dureeProl || 300) / 60)));
+  pr.insertAdjacentHTML('beforeend', '<div class="sg-wunit">min par prolongation</div>');
+  _nb = S.nbMT; _durs = [...S.dureesMT];
   _nbButtons(); _durRow();
-  $('sgOverlay').classList.add('on');
+  const card = $('sgOverlay').querySelector('.sg-card');
+  if (card) card.scrollTop = 0;
 }
 export function sgClose() { $('sgOverlay').classList.remove('on'); }
 
 export function sgNb(n) {
-  if (S.period !== 'MT1' || n === S.nbMT) return;
-  S.nbMT = n;
-  S.dureesMT = n === 3 ? [900, 900, 900] : [1800, 1800];
+  if (S.period !== 'MT1' || n === _nb) return;
+  _nb = n;
+  _durs = n === 3 ? [900, 900, 900] : [1800, 1800];
   _nbButtons(); _durRow();
 }
 
@@ -54,8 +67,9 @@ export function sgSave() {
   S.a1 = $('sgA1').value.trim() || S.a1; S.a2 = $('sgA2').value.trim() || S.a2;
   S.numA = $('sgNA').value; S.numB = $('sgNB').value;
   S.mDate = $('sgDate').value; S.mTime = $('sgTime').value; S.mComp = $('sgComp').value.trim();
-  for (let i = 0; i < S.nbMT; i++) S.dureesMT[i] = _clamp($('sgD' + i).value, 1, 59) * 60;
-  S.dureeProl = _clamp($('sgProl').value, 1, 30) * 60;
+  if (S.period === 'MT1') S.nbMT = _nb;
+  S.dureesMT = Array.from({ length: S.nbMT }, (_, i) => _clamp(readWheel('sgW' + i, 1), 1, 59) * 60);
+  S.dureeProl = _clamp(readWheel('sgWProl', 1), 1, 30) * 60;
 
   /* cohérence des observations déjà saisies */
   S.obs.forEach(o => {

@@ -60,6 +60,16 @@ Quand une version corrige un bug ou un frag identifié dans l'audit, **toujours 
 
 ---
 
+## [1.12.0] — 2026-11-16
+
+### Modifié
+- Fin de match : « ← Accueil » devient « Enregistrer et retour à l'accueil » (même action : sauvegarde puis accueil). Sur iPhone, ce bouton passe sur une 2e ligne pleine largeur.
+- Bouton Réglages : engrenage SVG blanc, vu de face, au trait (remplace l'emoji ⚙), aligné sur la hauteur des autres boutons.
+- Fenêtre Réglages (`#sgOverlay`) : carte centrée avec la charte de « Paramètres du match » (titre, sous-titre, sections en capitales grises, boutons 2 MT / 3 TT, Annuler / Enregistrer) ; durées des mi-temps et de la prolongation choisies avec les roues défilantes (`makeWheel` / `readWheel`, désormais exportées par js/match.js).
+
+### Corrigé
+- Réglages : toucher « 3 TT » puis « Annuler » appliquait quand même 3 tiers-temps ; le choix n'est désormais appliqué qu'avec « Enregistrer ».
+
 ## [1.11.0] — 2026-11-16
 
 ### Ajouté

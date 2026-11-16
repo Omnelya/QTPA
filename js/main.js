@@ -507,6 +507,7 @@ async function _renderLastMatchCard() {
    CHANGELOG / BADGE VERSION (v1.4.8)
 ════════════════════════════════════════ */
 const CHANGELOG = [
+  { v: '1.12.0', items: ['Fin de match : le bouton devient « Enregistrer et retour à l\'accueil »','Réglages : nouvel engrenage blanc, plus sobre','Fenêtre Réglages refaite comme « Paramètres du match » : mêmes titres, mêmes boutons, roues défilantes pour les durées des mi-temps et de la prolongation','Réglages : « Annuler » ne change plus rien (le passage 2 MT / 3 TT n\'est appliqué qu\'avec « Enregistrer »)'] },
   { v: '1.11.0', items: ['Catégories liées : dans J7M, « ＋ SPA » ou « ＋ SPP » ; dans Jet Franc, « ＋ Exécution du Jet » (et inversement) — la 2e catégorie s\'ajoute dans la même fenêtre','Chaque catégorie garde son ✘/✔ (par défaut celui de la 1re) et ses tags ; équipe, tags communs, note, ⚑, ✎ et arbitre sont communs','Un seul enregistrement, une seule ligne dans le tableau, le débrief et la mi-temps ; modifier, supprimer et annuler agissent sur l\'action entière'] },
   { v: '1.10.0', items: ['Tags rapides revus catégorie par catégorie à partir des commentaires des matchs déjà suivis (conforme / non conforme / les deux)','Pied et Gestuelle ont enfin leurs propres tags','Nouveau tag commun à toutes les catégories : « Après TME »','Orthographe corrigée : Secrétaire, Coups de sifflet brefs (les anciens matchs gardent leur texte)'] },
   { v: '1.9.1', items: ['iPhone : bandeau bleu de l\'écran match sur 2 lignes — noms des équipes et des arbitres affichés en entier, boutons dessous'] },

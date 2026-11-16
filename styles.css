@@ -1739,17 +1739,40 @@ body.dark .edit-ctrl-green.edit-ctrl-active{ background: #1a6b35; border-color: 
   #mtPauseNote { min-height: 96px; font-size: 16px; }
 }
 
-/* ═══ Réglages du match ⚙ — v1.9.0 ═══════════════════════════════════ */
-#sgOverlay { z-index: 195; }
-.sg-sheet { max-width: 640px; }
-.sg-sheet .sf { margin-bottom: 10px; }
+/* ═══ Réglages du match — v1.12.0 : même charte que « Paramètres du match » ═══ */
+#sgOverlay { z-index: 195; align-items: center; justify-content: center; }
+.sg-card { background: var(--bg-card, #fff); border-radius: 14px; padding: 24px 20px 20px; width: 92%; max-width: 560px; max-height: 94vh; max-height: 94dvh; overflow-y: auto; overscroll-behavior: contain; box-shadow: 0 8px 32px rgba(0,0,0,.25); }
+.sg-title { font-size: 16px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
+.sg-sub { font-size: 12px; color: var(--text-hint); }
+.sg-lab { font-size: 12px; font-weight: 600; color: var(--text-hint); text-transform: uppercase; letter-spacing: .06em; margin: 18px 0 8px; }
+.sg-g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; }
+.sg-card .sf { margin-bottom: 0; }
+.sg-card > .sf { margin-top: 10px; }
 .sg-nb { display: flex; gap: 8px; }
-.sg-nb button { flex: 1; min-height: 44px; border-radius: 10px; border: 2px solid var(--border-input); background: var(--bg-input); color: var(--text-main); font: inherit; font-weight: 600; cursor: pointer; }
+.sg-nb button { flex: 1; padding: 9px; min-height: 44px; border-radius: 10px; border: 2px solid var(--border-input); background: var(--bg-input); color: var(--text-main); font: inherit; font-size: 14px; font-weight: 400; cursor: pointer; }
 .sg-nb button.on { border-color: var(--blue-main); color: var(--blue-main); background: rgba(29,58,122,.1); font-weight: 700; }
 .sg-nb button:disabled { opacity: .45; cursor: not-allowed; }
-.sg-note { font-size: 12px; color: var(--text-hint); margin: 4px 0 8px; }
-.sg-save { width: 100%; min-height: 48px; margin-top: 8px; }
-.btn-gear { font-size: 18px; line-height: 1; padding: 6px 12px; margin-right: 8px; }
+.sg-note { font-size: 12px; color: var(--text-hint); margin-top: 6px; }
+.sg-wrow { display: flex; gap: 16px; justify-content: center; }
+.sg-wcol { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.sg-wlab { font-size: 12px; font-weight: 600; color: var(--text-hint); }
+.sg-wunit { font-size: 11px; color: var(--text-hint); }
+.sg-prol { display: flex; align-items: center; gap: 10px; }
+.sg-prol .sg-wunit { font-size: 12px; }
+.sg-acts { display: flex; gap: 10px; margin-top: 22px; }
+.sg-cancel, .sg-save { flex: 1; padding: 12px; min-height: 46px; border-radius: 10px; font: inherit; font-size: 14px; cursor: pointer; }
+.sg-cancel { border: 1px solid var(--border-input); background: var(--bg-input); color: var(--text-main); }
+.sg-save { border: none; background: var(--blue-main, #1D3A7A); color: #fff; font-weight: 700; }
+/* Engrenage blanc, vu de face, au trait */
+.btn-gear { line-height: 0; padding-top: 0; padding-bottom: 0; margin-right: 8px; color: #fff; display: inline-flex; align-items: center; justify-content: center; align-self: stretch; }
+.btn-gear .ico-gear { display: block; width: 18px; height: 18px; }
+@media (max-width: 767px) {
+  .sg-g2 { grid-template-columns: 1fr; }
+  .sg-card { padding: 20px 16px 16px; }
+  /* Fin de match : « Enregistrer et retour à l'accueil » sur toute la largeur, 2e ligne */
+  .end-acts { grid-template-columns: 44px 1fr 1.5fr; }
+  .end-acts .btn-home-save { grid-column: 1 / -1; grid-row: 2; }
+}
 
 /* ═══ Catégories liées — v1.11.0 ═══════════════════════════════════════ */
 .qn-link-btn { border-style: dashed; border-width: 2px; }
