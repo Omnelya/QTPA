@@ -133,6 +133,14 @@ export const TAGS_GENERAUX = [
   'Jeu supériorité', 'Jeu infériorité', 'Ballon hors jeu', 'Après TME'
 ];
 
+/* ── Catégories liées — v1.11.0 ──
+   Même action saisie dans une seule fenêtre (« ＋ SPA » dans J7M…).
+   Liaisons fixées par le suiveur, valables dans les deux sens. */
+export const LINKS = {
+  'J7M': ['SPA', 'SPP'], 'SPA': ['J7M'], 'SPP': ['J7M'],
+  'Jet Franc': ['Exécution du Jet'], 'Exécution du Jet': ['Jet Franc']
+};
+
 /* ── Durées (secondes) ── */
 export const PL  = 30 * 60;
 export const PLR =  5 * 60;
@@ -209,6 +217,28 @@ export const pl = p => (S.nbMT === 3 && typeof p === 'string' && /^MT\d$/.test(p
 export const mtWord = () => (S.nbMT === 3 ? 'TT' : 'MT');
 
 /* Met à jour les libellés fixes de la page (badge, filtres, colonnes, bouton). Idempotent. */
+/* ── Actions liées (v1.11.0) : une action = 1 à 2 observations partageant `lien` ── */
+/** Observations de la même action (ordre d'enregistrement), sinon [o]. */
+export function linkGroup(o) {
+  return o && o.lien ? S.obs.filter(x => x.lien === o.lien) : [o];
+}
+/** Une seule observation par action liée (la première rencontrée dans la liste). */
+export function oneLinePerAction(list) {
+  const seen = new Set();
+  return list.filter(o => !o.lien || (!seen.has(o.lien) && seen.add(o.lien)));
+}
+/** « tags · note » d'une action : tags communs, puis tags propres préfixés par la catégorie. */
+export function actionNote(g) {
+  const note = (tags, cmt) => [tags.join(', '), cmt].filter(Boolean).join(' · ');
+  if (g.length < 2) return note(g[0].tags || [], g[0].cmt);
+  const own = (o, t) => { const d = CAT_TAGS[o.cat]; return !!d && (d.red.includes(t) || d.green.includes(t) || d.both.includes(t)); };
+  const common = (g[0].tags || []).filter(t => g.every(o => (o.tags || []).includes(t) && !own(o, t)));
+  const parts = [common.join(', ')];
+  g.forEach(o => { const t = (o.tags || []).filter(x => !common.includes(x)); if (t.length) parts.push(o.cat + ' : ' + t.join(', ')); });
+  parts.push(g[0].cmt);
+  return parts.filter(Boolean).join(' · ');
+}
+
 export function applyPeriodLabels() {
   const w = mtWord();
   const pb = document.getElementById('PBadge');

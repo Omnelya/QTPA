@@ -1,7 +1,7 @@
 /* ═══ MI-TEMPS — écran de point à la pause v1.7.0 ════════════════════════
    Lecture seule sur S.obs (période choisie : MT1, ou MT1/MT2 pour 3 tiers-temps). Seule donnée écrite : S.pauseNote
    (texte « à dire à la pause », repris sur l'écran de fin de match).      */
-import { S, pl } from './state.js';
+import { S, pl, oneLinePerAction } from './state.js';
 import { escapeHtml } from './utils.js';
 import { dbStats, dbPct, dbChrono, dbObsLine } from './debrief.js';
 
@@ -48,8 +48,9 @@ export function mtRender() {
   if (!_isOpen()) return;
   const mt1 = S.obs.filter(o => o.period === _per && _mine(o));
   const st = dbStats(mt1);
-  const flags = mt1.filter(o => o.flag).sort(dbChrono);
-  const todo = S.obs.filter(o => o.todo && _mine(o)).sort(dbChrono);
+  /* v1.11.0 : une action liée (J7M + SPA…) = une ligne */
+  const flags = oneLinePerAction(mt1.filter(o => o.flag).sort(dbChrono));
+  const todo = oneLinePerAction(S.obs.filter(o => o.todo && _mine(o)).sort(dbChrono));
   const chips = [['all', 'Tous'], ['A1', S.a1], ['A2', S.a2]].map(([v, l]) =>
     '<button type="button" class="db-seg-b' + (_arb === v ? ' on' : '') + '" onclick="mtArb(\'' + v + '\')">' + escapeHtml(l) + '</button>').join('');
   document.getElementById('mtScore').innerHTML = _score();

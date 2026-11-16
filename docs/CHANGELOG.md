@@ -60,6 +60,17 @@ Quand une version corrige un bug ou un frag identifié dans l'audit, **toujours 
 
 ---
 
+## [1.11.0] — 2026-11-16
+
+### Ajouté
+- Catégories liées (`LINKS` dans js/state.js, fixées dans l'app) : J7M ↔ SPA, J7M ↔ SPP, Jet Franc ↔ Exécution du Jet. Choisies à partir des annotations saisies à moins de 10 s d'écart dans les matchs Supabase (J7M + SPA : 14 fois).
+- Fenêtre de saisie : zone « Lier une catégorie » ; la carte liée a son propre ✘/✔ (par défaut celui de la 1re catégorie) et ses tags ; équipe/n°, tags communs, note, ⚑, ✎ et arbitre sont communs.
+- Enregistrement : une observation par catégorie, reliées par le champ `lien` (compteurs, statistiques et PDF comptent chaque catégorie).
+
+### Modifié
+- Tableau du match / fin de match, débrief « À revoir et notes » et écran mi-temps : une action liée = une ligne (« J7M ✘ + SPA ✔ », fond dégradé si couleurs différentes).
+- Modifier rouvre l'action entière (liaison ajoutable / retirable) ; Supprimer, Annuler et Rétablir agissent sur l'action entière.
+
 ## [1.10.0] — 2026-11-16
 
 ### Modifié

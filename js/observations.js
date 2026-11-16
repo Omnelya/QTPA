@@ -5,7 +5,7 @@
    • Annuler (avec confirmation) / Rétablir (sans confirmation)
    • Aucun retour sonore, vibratoire ou lumineux à l'enregistrement
 ════════════════════════════════════════════════════════════════════════════ */
-import { S, pl, applyPeriodLabels, CA, CP, CAU, CAT_TAGS, TAGS_GENERAUX, FAMILIES, KEY_HISTORY } from './state.js';
+import { S, pl, applyPeriodLabels, CA, CP, CAU, CAT_TAGS, TAGS_GENERAUX, FAMILIES, KEY_HISTORY, LINKS, linkGroup, oneLinePerAction, actionNote } from './state.js';
 import { fmt, escapeHtml } from './utils.js';
 import { log } from './logger.js';
 import { renderDebrief } from './debrief.js';
@@ -182,6 +182,13 @@ function _rebuildTags(cat, col, keepTags) {
       .forEach(t => _addTag(tagsWrap, t, keepTags.includes(t)));
   }
 
+  /* ── Catégories liées (v1.11.0) : cartes insérées entre les tags propres et les communs ── */
+  const lk = document.createElement('div');
+  lk.id = 'detailLinked';
+  lk.className = 'qn-linked-wrap';
+  tagsWrap.appendChild(lk);
+  _renderLinked();
+
   /* ── Séparateur ── */
   if (hasSpecific) {
     const sep = document.createElement('div');
@@ -193,6 +200,104 @@ function _rebuildTags(cat, col, keepTags) {
   _buildTeams(keepTags);
   _byFreq(TAGS_GENERAUX, freq)
     .forEach(t => _addTag(tagsWrap, t, keepTags.includes(t)));
+}
+
+/* ═══ Catégories liées — v1.11.0 ═══════════════════════════════════════
+   « ＋ SPA » ajoute une carte SPA (son ✘/✔, ses tags) dans la même fenêtre.
+   Équipe/n°, tags communs, note, ⚑, ✎ et arbitre restent communs.        */
+let _editGroup = null; /* observations de l'action modifiée (hors de S : non sauvegardé) */
+
+function _syncTitle() {
+  const d = S.detailPending;
+  document.getElementById('detailTitle').textContent =
+    (_editGroup ? '✎ Modifier — ' : '') + d.cat + ' — ' + (d.col === 'red' ? 'Non conforme' : 'Conforme') +
+    d.links.map(l => ' + ' + l.cat).join('');
+}
+
+function _renderLinkBtns() {
+  const d = S.detailPending;
+  const zone = document.getElementById('detailLinkZone');
+  const box = document.getElementById('detailLinkBtns');
+  if (!zone || !box) return;
+  const cand = LINKS[d.cat] || [];
+  zone.style.display = cand.length ? '' : 'none';
+  box.innerHTML = '';
+  cand.forEach(c => {
+    const on = d.links.some(l => l.cat === c);
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'qn-tag qn-link-btn' + (on ? ' selected' : '');
+    b.dataset.link = c;
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    b.textContent = (on ? '✓ ' : '＋ ') + c;
+    b.onclick = () => _toggleLink(c);
+    box.appendChild(b);
+  });
+}
+
+function _toggleLink(c) {
+  const d = S.detailPending;
+  const i = d.links.findIndex(l => l.cat === c);
+  if (i >= 0) d.links.splice(i, 1);
+  else d.links.push({ cat: c, col: d.col, tags: [] }); /* même couleur que la 1re catégorie par défaut */
+  _renderLinkBtns();
+  _syncTitle();
+  _renderLinked();
+}
+
+function _renderLinked() {
+  const box = document.getElementById('detailLinked');
+  const d = S.detailPending;
+  if (!box || !d) return;
+  const freq = _tagFreq();
+  box.innerHTML = '';
+  d.links.forEach(l => {
+    const def = CAT_TAGS[l.cat] || { red: [], green: [], both: [] };
+    const card = document.createElement('div');
+    card.className = 'qn-linked qn-linked-' + l.col;
+    card.dataset.cat = l.cat;
+    const head = document.createElement('div');
+    head.className = 'qn-linked-head';
+    const name = document.createElement('b');
+    name.textContent = l.cat;
+    head.appendChild(name);
+    ['red', 'green'].forEach(c => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'edit-ctrl-type edit-ctrl-' + c + (l.col === c ? ' edit-ctrl-active' : '');
+      b.dataset.col = c;
+      b.setAttribute('aria-pressed', l.col === c ? 'true' : 'false');
+      b.textContent = c === 'red' ? '✘ Non conforme' : '✔ Conforme';
+      b.onclick = () => {
+        if (l.col === c) return;
+        l.col = c;
+        const ok = [...def[c], ...def.both];
+        l.tags = l.tags.filter(t => ok.includes(t));
+        _renderLinked();
+      };
+      head.appendChild(b);
+    });
+    const x = document.createElement('button');
+    x.type = 'button';
+    x.className = 'qn-linked-x';
+    x.textContent = '✕';
+    x.setAttribute('aria-label', 'Retirer ' + l.cat);
+    x.onclick = () => _toggleLink(l.cat);
+    head.appendChild(x);
+    card.appendChild(head);
+    const wrap = document.createElement('div');
+    wrap.className = 'qn-tags-wrap';
+    _byFreq([...def[l.col], ...def.both], freq).forEach(t => {
+      _addTag(wrap, t, l.tags.includes(t));
+      const btn = wrap.lastChild, base = btn.onclick;
+      btn.onclick = () => {
+        base();
+        l.tags = btn.classList.contains('selected') ? [...l.tags, t] : l.tags.filter(u => u !== t);
+      };
+    });
+    card.appendChild(wrap);
+    box.appendChild(card);
+  });
 }
 
 function _syncFlagBtn() {
@@ -228,9 +333,10 @@ export function toggleDetailFlag() {
 }
 
 function _openDetail(cat, col, prefill) {
-  /* prefill : objet { arb, tags, cmt, flag, editIndex, time, el, period }
+  /* prefill : objet { arb, tags, cmt, flag, todo, time, el, period, group, lien, links }
      pour le mode édition, undefined pour une nouvelle observation. */
   const isEdit = prefill !== undefined;
+  _editGroup = isEdit ? prefill.group : null;
 
   S.detailPending = {
     arb:       isEdit ? [...prefill.arb] : [],
@@ -240,13 +346,13 @@ function _openDetail(cat, col, prefill) {
     time:      isEdit ? prefill.time   : fmt(S.elapsed),
     el:        isEdit ? prefill.el     : S.elapsed,
     period:    isEdit ? prefill.period : S.period,
-    editIndex: isEdit ? prefill.editIndex : undefined
+    lien:      isEdit ? prefill.lien   : undefined,
+    links:     isEdit ? (prefill.links || []) : []  /* catégories liées : [{ cat, col, tags }] */
   };
 
-  /* ── Titre ── */
-  const colLabel = col === 'red' ? 'Non conforme' : 'Conforme';
-  document.getElementById('detailTitle').textContent =
-    (isEdit ? '✎ Modifier — ' : '') + cat + ' — ' + colLabel;
+  /* ── Titre + liaisons possibles ── */
+  _syncTitle();
+  _renderLinkBtns();
   document.getElementById('detailMeta').textContent =
     S.detailPending.time + ' · ' + pl(S.detailPending.period);
 
@@ -275,8 +381,7 @@ function _openDetail(cat, col, prefill) {
         btn.onclick = () => {
           if (S.detailPending.col === c) return; /* pas de changement */
           S.detailPending.col = c;
-          document.getElementById('detailTitle').textContent =
-            '✎ Modifier — ' + cat + ' — ' + (c === 'red' ? 'Non conforme' : 'Conforme');
+          _syncTitle();
 
           /* Conserver uniquement les tags both + généraux sélectionnés */
           const catDef = CAT_TAGS[cat];
@@ -285,7 +390,7 @@ function _openDetail(cat, col, prefill) {
           const keepable  = [...bothTags, ...genTags];
           const keepTags  = _getSelectedTags().filter(t => keepable.includes(t));
 
-          document.querySelectorAll('.edit-ctrl-type').forEach(b =>
+          document.querySelectorAll('#detailEditControls .edit-ctrl-type').forEach(b =>
             b.classList.toggle('edit-ctrl-active', b.dataset.col === c));
           _rebuildTags(cat, c, keepTags);
         };
@@ -306,14 +411,15 @@ function _openDetail(cat, col, prefill) {
   if (sheet) sheet.scrollTop = 0;
 }
 
-/** Lit les tags actuellement sélectionnés dans la popup. */
+/** Lit les tags sélectionnés de la catégorie principale (hors cartes liées, imbriquées plus bas). */
 function _getSelectedTags() {
-  return [...document.querySelectorAll('#detailTeams .qn-tag.selected, #detailTags .qn-tag.selected')].map(t => t.dataset.tag);
+  return [...document.querySelectorAll('#detailTeams .qn-tag.selected, #detailTags > .qn-tag.selected')].map(t => t.dataset.tag);
 }
 
 export function closeDetail() {
   document.getElementById('detailOverlay').classList.remove('on');
   S.detailPending = null;
+  _editGroup = null;
 }
 
 /* Appelé par les 3 boutons de la popup : 'A1' | 'A2' | 'both' */
@@ -330,27 +436,36 @@ export function saveDetail(sel) {
   const arb = sel === 'both' ? ['A1', 'A2'] : [sel];
   const arbNames = arb.map(a => a === 'A1' ? S.a1 : S.a2);
 
-  const obsEntry = {
+  /* v1.11.0 : une observation par catégorie de l'action, reliées par `lien`.
+     Équipe/n° et tags communs sont recopiés dans chaque catégorie liée. */
+  const teamTags = _teamDefs().flatMap(([t, ns]) => [t, ...ns.map(n => _numTag(t, n))]);
+  const common = selectedTags.filter(t => teamTags.includes(t) || TAGS_GENERAUX.includes(t));
+  const lien = d.links.length ? (d.lien || 'L' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6)) : null;
+  const mk = (cat, col, tags) => Object.assign({
     time: d.time, el: d.el, period: d.period,
     arb,
     an: arbNames.join(' + '),
-    cat: d.cat,
-    cats: [d.cat],
-    col: d.col,
+    cat,
+    cats: [cat],
+    col,
     flag: !!d.flag,
     todo: !!d.todo,
-    tags: selectedTags,
+    tags,
     cmt: cmt
-  };
+  }, lien ? { lien } : {});
+  const entries = [mk(d.cat, d.col, selectedTags), ...d.links.map(l => mk(l.cat, l.col, [...common, ...l.tags]))];
+  const obsEntry = entries[0];
 
-  const isEdit = d.editIndex !== undefined;
+  const isEdit = !!_editGroup;
 
   if (isEdit) {
-    /* ── Mode édition : remplacement en place ── */
-    S.obs.splice(d.editIndex, 1, obsEntry);
+    /* ── Mode édition : l'action entière est remplacée en place ── */
+    const at = S.obs.indexOf(_editGroup[0]);
+    for (let i = S.obs.length - 1; i >= 0; i--) if (_editGroup.includes(S.obs[i])) S.obs.splice(i, 1);
+    S.obs.splice(at < 0 ? S.obs.length : at, 0, ...entries);
     log.info('OBS', 'observation_modifiee', {
-      index: d.editIndex,
-      arbitres: arbNames.join(' + '), categorie: d.cat,
+      index: at,
+      arbitres: arbNames.join(' + '), categorie: entries.map(e => e.cat).join(' + '),
       type: d.col === 'red' ? 'non_conforme' : 'conforme',
       a_revoir: obsEntry.flag,
       tags: selectedTags.join(', '),
@@ -358,10 +473,10 @@ export function saveDetail(sel) {
     });
   } else {
     /* ── Mode création : ajout ── */
-    S.obs.push(obsEntry);
+    S.obs.push(...entries);
     _undone.length = 0; /* une nouvelle observation invalide le « Rétablir » */
     log.info('OBS', 'observation_enregistree', {
-      arbitres: arbNames.join(' + '), categorie: d.cat,
+      arbitres: arbNames.join(' + '), categorie: entries.map(e => e.cat).join(' + '),
       type: d.col === 'red' ? 'non_conforme' : 'conforme',
       a_revoir: obsEntry.flag,
       tags: selectedTags.join(', '),
@@ -384,16 +499,28 @@ function _afterObsChange() {
 }
 
 /* ═══ Annuler (avec confirmation) / Rétablir (sans confirmation) ═══════ */
-function _resume(o) {
-  return o.time + ' · ' + pl(o.period) + ' · ' + o.an + ' · ' + o.cat +
-    ' ' + (o.col === 'red' ? '✘' : '✔') + (o.flag ? ' ⚑' : '') +
+/* v1.11.0 : g = observations d'une action (1 ou 2 catégories liées) */
+function _resume(g) {
+  const o = g[0];
+  return o.time + ' · ' + pl(o.period) + ' · ' + o.an + ' · ' +
+    g.map(x => x.cat + ' ' + (x.col === 'red' ? '✘' : '✔')).join(' + ') + (o.flag ? ' ⚑' : '') +
     (o.cmt ? ' — ' + o.cmt : '');
+}
+
+/** Dernière action saisie : la dernière observation et ses liées (contiguës en fin de liste). */
+function _lastAction() {
+  const n = S.obs.length;
+  if (!n) return [];
+  const last = S.obs[n - 1];
+  let i = n - 1;
+  while (last.lien && i > 0 && S.obs[i - 1].lien === last.lien) i--;
+  return S.obs.slice(i);
 }
 
 export function askUndo() {
   if (!S.obs.length) return;
   const el = document.getElementById('undoObsSummary');
-  if (el) el.textContent = _resume(S.obs[S.obs.length - 1]);
+  if (el) el.textContent = _resume(_lastAction());
   document.getElementById('undoOverlay').classList.add('on');
 }
 
@@ -404,38 +531,44 @@ export function cancelUndo() {
 export function doUndo() {
   cancelUndo();
   S.matchActif = true;
-  const o = S.obs.pop();
-  if (!o) return;
-  _undone.push(o);
-  log.info('OBS', 'observation_annulee', { categorie: o.cat, totalObservations: S.obs.length });
+  const g = _lastAction();
+  if (!g.length) return;
+  S.obs.splice(S.obs.length - g.length, g.length);
+  _undone.push(g);
+  log.info('OBS', 'observation_annulee', { categorie: g.map(o => o.cat).join(' + '), totalObservations: S.obs.length });
   _afterObsChange();
 }
 
 export function redoObs() {
-  const o = _undone.pop();
-  if (!o) return;
+  const g = _undone.pop();
+  if (!g) return;
   S.matchActif = true;
-  S.obs.push(o);
-  log.info('OBS', 'observation_retablie', { categorie: o.cat, totalObservations: S.obs.length });
+  S.obs.push(...g);
+  log.info('OBS', 'observation_retablie', { categorie: g.map(o => o.cat).join(' + '), totalObservations: S.obs.length });
   _afterObsChange();
 }
 
 /* ═══ Édition d'une observation existante — v0.4.9 ═════════════════════
    Retrouve l'observation par index dans S.obs et rouvre la popup
-   avec toutes les données pré-remplies.                                  */
+   avec toutes les données pré-remplies.
+   v1.11.0 : une action liée se rouvre entière (1re catégorie + cartes liées). */
 export function editObservation(idx) {
   const o = S.obs[idx];
   if (!o) return;
-  _openDetail(o.cat, o.col, {
-    arb:       o.arb,
-    tags:      o.tags || [],
-    cmt:       o.cmt  || '',
-    flag:      !!o.flag,
-    todo:      !!o.todo,
-    time:      o.time,
-    el:        o.el,
-    period:    o.period,
-    editIndex: idx
+  const g = linkGroup(o), p = g[0];
+  const own = m => { const def = CAT_TAGS[m.cat]; return def ? (m.tags || []).filter(t => def.red.includes(t) || def.green.includes(t) || def.both.includes(t)) : []; };
+  _openDetail(p.cat, p.col, {
+    arb:       p.arb,
+    tags:      p.tags || [],
+    cmt:       p.cmt  || '',
+    flag:      !!p.flag,
+    todo:      !!p.todo,
+    time:      p.time,
+    el:        p.el,
+    period:    p.period,
+    group:     g,
+    lien:      p.lien,
+    links:     g.slice(1).map(m => ({ cat: m.cat, col: m.col, tags: own(m) }))
   });
 }
 
@@ -447,13 +580,11 @@ export function deleteObservation(idx) {
   if (idx < 0 || idx >= S.obs.length) return;
   _pendingDeleteIdx = idx;
 
-  /* Alimenter la modale avec un résumé de l'observation */
-  const o = S.obs[idx];
-  const cmtParts = [];
-  if (o.tags && o.tags.length) cmtParts.push(o.tags.join(', '));
-  if (o.cmt) cmtParts.push(o.cmt);
-  const resume = o.time + ' · ' + pl(o.period) + ' · ' + o.an + ' · ' + o.cat +
-    (cmtParts.length ? ' · ' + cmtParts.join(' / ') : '');
+  /* Alimenter la modale avec un résumé de l'action (v1.11.0 : catégories liées comprises) */
+  const g = linkGroup(S.obs[idx]), o = g[0];
+  const note = actionNote(g);
+  const resume = o.time + ' · ' + pl(o.period) + ' · ' + o.an + ' · ' + g.map(x => x.cat).join(' + ') +
+    (note ? ' · ' + note : '');
 
   const summaryEl = document.getElementById('confirmObsSummary');
   if (summaryEl) summaryEl.textContent = resume;
@@ -475,11 +606,12 @@ function _refreshSynthesisIfVisible() {
 
 export function confirmDelete() {
   if (_pendingDeleteIdx === null) return;
-  const o = S.obs[_pendingDeleteIdx];
-  S.obs.splice(_pendingDeleteIdx, 1);
+  const g = S.obs[_pendingDeleteIdx] ? linkGroup(S.obs[_pendingDeleteIdx]) : [];
+  /* v1.11.0 : une action liée est supprimée entière */
+  for (let i = S.obs.length - 1; i >= 0; i--) if (g.includes(S.obs[i])) S.obs.splice(i, 1);
   log.info('OBS', 'observation_supprimee', {
     index: _pendingDeleteIdx,
-    categorie: o ? o.cat : '?',
+    categorie: g.length ? g.map(o => o.cat).join(' + ') : '?',
     totalObservations: S.obs.length
   });
   _pendingDeleteIdx = null;
@@ -701,12 +833,14 @@ export function resetFiltersE() {
 }
 
 export function oRow(o, idx) {
-  const rc = o.col === 'red' ? 'rr' : 'rg';
-  const tl = o.col === 'red' ? 'Non conf./manquante' : 'Conforme';
-  const cmtParts = [];
-  if (o.tags && o.tags.length) cmtParts.push(o.tags.join(', '));
-  if (o.cmt) cmtParts.push(o.cmt);
-  const cmtText = cmtParts.join(' · ') || '';
+  /* v1.11.0 : une action liée (ex. J7M + SPA) tient sur une seule ligne */
+  const g = linkGroup(o), multi = g.length > 1;
+  const mixed = multi && g.some(x => x.col !== g[0].col);
+  const rc = mixed ? 'rm' : (g[0].col === 'red' ? 'rr' : 'rg');
+  const tl = x => x.col === 'red' ? 'Non conf./manquante' : 'Conforme';
+  const mark = x => '<span class="' + (x.col === 'red' ? 'lk-n' : 'lk-o') + '">' + (x.col === 'red' ? '✘' : '✔') + '</span>';
+  const cmtText = actionNote(g);
+  o = g[0];
 
   /* v0.3.24 (FRAG-3) : échappement HTML des champs utilisateur */
   /* v0.4.9 : ajout colonne Actions (crayon + croix) avec data-idx */
@@ -714,8 +848,8 @@ export function oRow(o, idx) {
     '<td style="white-space:nowrap;font-variant-numeric:tabular-nums;">' + o.time + '</td>' +
     '<td style="white-space:nowrap;">' + pl(o.period) + '</td>' +
     '<td><span class="badge ba">' + escapeHtml(o.an) + '</span></td>' +
-    '<td style="font-weight:700;white-space:nowrap;">' + escapeHtml(o.cat) + '</td>' +
-    '<td><span class="lc">' + tl + '</span></td>' +
+    '<td style="font-weight:700;white-space:nowrap;">' + (multi ? g.map(x => escapeHtml(x.cat) + ' ' + mark(x)).join(' + ') : escapeHtml(o.cat)) + '</td>' +
+    '<td>' + g.map(x => '<span class="lc' + (multi ? (x.col === 'red' ? ' lc-n' : ' lc-o') : '') + '">' + tl(x) + '</span>').join(' + ') + '</td>' +
     '<td class="obs-flag">' + (o.flag ? '<span role="img" aria-label="À revoir">⚑</span>' : '') + (o.todo ? '<span role="img" aria-label="À compléter" title="À compléter">✎</span>' : '') + '</td>' +
     '<td>' + escapeHtml(cmtText) + '</td>' +
     '<td class="obs-actions"><div class="obs-actions-inner">' +
@@ -748,7 +882,7 @@ export function renderTable() {
       tb.innerHTML = '<tr><td colspan="8" class="empty">Aucun résultat pour ces filtres</td></tr>';
     } else {
       /* Passer l'index réel dans S.obs (pas l'index dans filtered) */
-      tb.innerHTML = filtered.map(o => oRow(o, S.obs.indexOf(o))).join('');
+      tb.innerHTML = oneLinePerAction(filtered).map(o => oRow(o, S.obs.indexOf(o))).join('');
     }
   }
 
@@ -778,7 +912,7 @@ export function renderEndTable() {
     } else if (filtered.length === 0) {
       etb.innerHTML = '<tr><td colspan="8" class="empty">Aucun résultat pour ces filtres</td></tr>';
     } else {
-      etb.innerHTML = filtered.map(o => oRow(o, S.obs.indexOf(o))).join('');
+      etb.innerHTML = oneLinePerAction(filtered).map(o => oRow(o, S.obs.indexOf(o))).join('');
     }
   }
 

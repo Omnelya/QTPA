@@ -294,6 +294,11 @@
     </div>
     <button type="button" class="qn-flag-btn" id="detailFlag" aria-pressed="false" onclick="toggleDetailFlag()"><span aria-hidden="true">⚑</span> <span class="qn-flag-label">Marquer à revoir avec l’arbitre</span></button>
     <button type="button" class="qn-flag-btn qn-todo-btn" id="detailTodo" aria-pressed="false" onclick="toggleDetailTodo()"><span aria-hidden="true">✎</span> <span class="qn-flag-label">À compléter plus tard</span></button>
+    <!-- Catégories liées — v1.11.0 (affiché seulement pour J7M, SPA, SPP, Jet Franc, Exécution du Jet) -->
+    <div id="detailLinkZone" style="display:none;">
+      <div class="qn-detail-label">Lier une catégorie · même action</div>
+      <div class="qn-tags-wrap" id="detailLinkBtns"></div>
+    </div>
     <div class="qn-detail-label">Équipe · touchez pour choisir un numéro</div>
     <div class="qn-teams" id="detailTeams"></div>
     <div class="qn-detail-label">Tags rapides · les plus fréquents d’abord</div>

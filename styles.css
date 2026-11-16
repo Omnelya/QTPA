@@ -1750,3 +1750,21 @@ body.dark .edit-ctrl-green.edit-ctrl-active{ background: #1a6b35; border-color: 
 .sg-note { font-size: 12px; color: var(--text-hint); margin: 4px 0 8px; }
 .sg-save { width: 100%; min-height: 48px; margin-top: 8px; }
 .btn-gear { font-size: 18px; line-height: 1; padding: 6px 12px; margin-right: 8px; }
+
+/* ═══ Catégories liées — v1.11.0 ═══════════════════════════════════════ */
+.qn-link-btn { border-style: dashed; border-width: 2px; }
+.qn-link-btn.selected { border-style: solid; }
+.qn-linked-wrap { width: 100%; }
+.qn-linked-wrap:empty { display: none; }
+.qn-linked { border: 2px solid var(--border-input); border-radius: 14px; padding: 8px 10px 10px; margin: 6px 0; }
+.qn-linked-red { border-color: var(--red-border); background: var(--red-bg); }
+.qn-linked-green { border-color: var(--green-border); background: var(--green-bg); }
+.qn-linked-head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+.qn-linked-head b { flex: 1; font-size: 16px; color: var(--text-main); }
+.qn-linked-head .edit-ctrl-type { min-height: 40px; font-size: 13px; }
+.qn-linked-x { border: 0; background: none; color: var(--text-sec); font-size: 18px; min-width: 44px; min-height: 44px; cursor: pointer; font-family: inherit; }
+table.olist tr.rm td { background: linear-gradient(90deg, var(--red-bg), var(--green-bg)); color: var(--text-main); border-bottom: 1px solid var(--border-input); }
+table.olist tr.rm:last-child td { border-bottom: none; }
+table.olist tr.rm td .lc { font-size: 11px; font-weight: 700; }
+table.olist td .lk-n, table.olist tr.rm td .lc-n { color: var(--red-text); font-weight: 700; }
+table.olist td .lk-o, table.olist tr.rm td .lc-o { color: var(--green-text); font-weight: 700; }

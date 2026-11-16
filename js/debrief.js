@@ -4,7 +4,7 @@
    Arbitre / Période (indépendants). Aucune donnée n'est modifiée ici :
    tout est calculé à partir de S.obs.
 ════════════════════════════════════════════════════════════════════════════ */
-import { S, pl } from './state.js';
+import { S, pl, linkGroup, oneLinePerAction, actionNote } from './state.js';
 import { fmt, escapeHtml } from './utils.js';
 
 const BLOCKS = ['rev', 'work', 'strong', 'frise'];
@@ -88,13 +88,15 @@ export function dbBubble(idx) {
 /* ── Une ligne d'observation avec sa note ────────────────────────────── */
 function _obsLine(o, withCat) {
   const idx = S.obs.indexOf(o);
-  const note = _noteText(o);
+  /* v1.11.0 : dans les listes toutes catégories, une action liée = une ligne « J7M ✘ + SPA ✔ » */
+  const g = withCat ? linkGroup(o) : [o];
+  const note = withCat ? actionNote(g) : _noteText(o);
   return '<div class="db-row' + (o.flag ? ' db-flag' : '') + (withCat ? '' : ' db-nocat') + '" onclick="editObservation(' + idx + ')" title="Modifier cette observation">' +
     '<span class="db-ico">' + (o.flag ? '⚑' : (note ? '💬' : '')) + '</span>' +
     '<span class="db-tm">' + escapeHtml(o.time || '') + ' <i>' + escapeHtml(pl(o.period || '')) + '</i></span>' +
     '<span class="db-who">' + _arbChips(o) + '</span>' +
-    (withCat ? '<span class="db-cat">' + escapeHtml(o.cat) + '</span>' : '') +
-    _typeChip(o) +
+    (withCat ? '<span class="db-cat">' + g.map(x => escapeHtml(x.cat) + (g.length > 1 ? ' ' + _typeChip(x) : '')).join(' + ') + '</span>' : '') +
+    (g.length > 1 ? '' : _typeChip(o)) +
     '<span class="db-note">' + (note ? '« ' + escapeHtml(note) + ' »' : '') + '</span></div>';
 }
 
@@ -103,7 +105,7 @@ function _renderRev() {
   const all = _filtered('rev');
   const flagged = all.filter(o => o.flag).sort(_chrono);
   const noted = all.filter(o => !o.flag && _noteText(o)).sort(_chrono);
-  const rows = flagged.concat(noted);
+  const rows = oneLinePerAction(flagged.concat(noted));
   return _filterBar('rev') + (rows.length
     ? rows.map(o => _obsLine(o, true)).join('')
     : '<div class="db-empty">Aucune action à revoir ni note pour ces filtres.</div>');
