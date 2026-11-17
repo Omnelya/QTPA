@@ -76,7 +76,7 @@ export const CAT_TAGS = {
   },
   'Exécution du Jet': {
     red:   [],  green: [],
-    both:  ['Engagement', 'Jet Franc', 'J7M', 'Renvoi', 'Remise en jeu', 'Respect 3m', 'Replacer', 'Hors des 9m', 'Franchissement de la ligne', 'Ballon non maîtrisé', 'Pas dans le rond central', 'Debout', 'Coup sifflet reprise']
+    both:  ['Engagement', 'Jet Franc', 'J7M', 'Renvoi', 'Remise en jeu', 'Respect 3m', 'Replacer', 'Hors des 9m', 'Franchissement de la ligne', 'Ballon non maîtrisé', 'Pas dans le rond central', 'Debout']
   },
   'Jeu Passif': {
     red:   ['Trop tôt', 'Trop tard', 'Non cohérent', 'Lors maîtrise ballon'],
@@ -121,8 +121,8 @@ export const CAT_TAGS = {
     both:  []
   },
   'Gestion du sifflet': {
-    red:   ['Enlève de la bouche', 'Coup de sifflet de reprise', 'Adapte volume'],  green: [],
-    both:  ['Croissant', 'Décroissant', 'Coups de sifflet brefs', 'Arrêt du temps']
+    red:   ['Enlève de la bouche', 'Adapte volume'],  green: [],
+    both:  ['Croissant', 'Décroissant', 'Coups de sifflet brefs', 'Arrêt du temps', 'Coup de sifflet de reprise']  /* v1.13.0 : venu d'Exécution du Jet */
   }
 };
 
@@ -137,8 +137,13 @@ export const TAGS_GENERAUX = [
    Même action saisie dans une seule fenêtre (« ＋ SPA » dans J7M…).
    Liaisons fixées par le suiveur, valables dans les deux sens. */
 export const LINKS = {
-  'J7M': ['SPA', 'SPP'], 'SPA': ['J7M'], 'SPP': ['J7M'],
-  'Jet Franc': ['Exécution du Jet'], 'Exécution du Jet': ['Jet Franc']
+  'J7M': ['SPA', 'SPP'],
+  'SPA': ['J7M', 'Exécution du Jet'],
+  'SPP': ['J7M', 'Exécution du Jet', 'Protocole'],
+  'Jet Franc': ['Exécution du Jet'],
+  'Exécution du Jet': ['Jet Franc', 'SPP', 'SPA', 'Gestion du sifflet'],  /* v1.13.0 : + SPP, SPA, Gestion du sifflet */
+  'Gestion du sifflet': ['Exécution du Jet'],
+  'Protocole': ['SPP']                                                    /* v1.13.0 */
 };
 
 /* ── Durées (secondes) ── */

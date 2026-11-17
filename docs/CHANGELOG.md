@@ -60,6 +60,12 @@ Quand une version corrige un bug ou un frag identifié dans l'audit, **toujours 
 
 ---
 
+## [1.13.0] — 2026-11-17
+
+### Modifié
+- `LINKS` : Exécution du Jet ↔ SPP, SPA, Gestion du sifflet (en plus de Jet Franc) ; Protocole ↔ SPP. Une action peut réunir plus de 2 catégories (toujours une seule ligne).
+- `CAT_TAGS` : « Coup sifflet reprise » retiré d'Exécution du Jet ; « Coup de sifflet de reprise » passe de Non conforme à « les deux » dans Gestion du sifflet. Les anciennes observations gardent leur texte.
+
 ## [1.12.0] — 2026-11-16
 
 ### Modifié
