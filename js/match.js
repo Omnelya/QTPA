@@ -223,6 +223,10 @@ function _launchMatchScreen() {
 
 export function endMatch() {
   clearInterval(S.timer); S.run = false;
+  /* v1.14.3 : match terminé sans relancer le chrono de la période suivante →
+     le score de la pause n'avait jamais été figé (il l'est au démarrage du chrono). */
+  if (S.period === 'MT2' && S.htA === null)  { S.htA = S.sA;  S.htB = S.sB; }
+  if (S.period === 'MT3' && S.ht2A === null) { S.ht2A = S.sA; S.ht2B = S.sB; }
   log.info('LIFECYCLE', 'match_end', { equipeA: S.tA, equipeB: S.tB, scoreA: S.sA, scoreB: S.sB, scoreMiTempsA: S.htA, scoreMiTempsB: S.htB, periode: S.period, nbObservations: S.obs.length, tempsEcoule: S.elapsed });
   const mp = [];
   if (S.mDate) mp.push(fmtDate(S.mDate));

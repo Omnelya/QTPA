@@ -1,0 +1,50 @@
+const { chromium } = require('playwright');
+const { SUPA_STUB, OUT } = require('./helpers');
+let fails=0;const ok=(c,m)=>{console.log((c?'PASS ':'FAIL ')+m);if(!c)fails++;};
+(async()=>{
+ const b=await chromium.launch();
+ for(const [n,vp] of [['ipad',{width:1180,height:820}],['iphone',{width:390,height:844}]]){
+  console.log('===',n);
+  const ctx=await b.newContext({viewport:vp,hasTouch:true,isMobile:true,deviceScaleFactor:1,locale:'fr-FR'});
+  await ctx.route('**/*supabase*',r=>r.fulfill({contentType:'application/javascript',body:SUPA_STUB}));
+  await ctx.route(/cdnjs|jsdelivr|googleapis|gstatic/,r=>r.request().url().includes('supabase')?r.fulfill({contentType:'application/javascript',body:SUPA_STUB}):r.abort());
+  const page=await ctx.newPage();const errs=[];page.on('pageerror',x=>errs.push(x.message));
+  await page.goto('http://localhost:8123/index.html');await page.waitForTimeout(800);
+  await page.evaluate(()=>{tA.value='Toulouse';tB.value='Nîmes';a1.value='Durand';a2.value='Lopez';window.startMatch();});
+  await page.waitForTimeout(300);await page.locator('#_paramsOk').click();await page.waitForTimeout(500);
+  ok(await page.locator('#mtOverlay.on').count()===0,'écran mi-temps non ouvert automatiquement');
+  // observation via UI : Zone ✘ puis cocher ✎ et enregistrer pour A1
+  await page.locator('.qn-tap').first().click();await page.waitForTimeout(300);
+  ok(await page.locator('#detailTodo').isVisible(),'bouton ✎ visible dans la popup');
+  await page.locator('#detailTodo').click();
+  ok(await page.locator('#detailTodo.on').count()===1,'bouton ✎ s\'active');
+  await page.locator('#detailSave_A1').click();await page.waitForTimeout(300);
+  await page.evaluate(async()=>{const {S}=await import('/js/state.js');
+    const O=(el,arb,cat,col,flag)=>({time:'0'+el,el,period:'MT1',arb,an:arb.join('+'),cat,cats:[cat],col,flag:!!flag,tags:[],cmt:''});
+    S.obs.push(O(5,['A1'],'Zone','red',true),O(6,['A2'],'Pied','red'),O(7,['A2'],'Pied','green'),O(8,['A1'],'Marcher','red'),O(9,['A1'],'J7M','red'),O(10,['A1'],'Placement','green'),O(11,['A1'],'Zone','red'));
+    S.sA=7;S.sB=5;});
+  const o0=await page.evaluate(async()=>(await import('/js/state.js')).S.obs[0]);
+  ok(o0.todo===true,'obs.todo enregistré');
+  await page.locator('#btnMT').click();await page.waitForTimeout(300);
+  ok(await page.locator('#mtOverlay.on').count()===1,'bouton Mi-temps ouvre l\'écran');
+  const t=await page.evaluate(()=>({sc:mtScore.textContent,body:mtBody.innerText,worst:[...document.querySelectorAll('#mtBody .mt-cols > div')[0].querySelectorAll('.db-cname')].map(x=>x.textContent),best:[...document.querySelectorAll('#mtBody .mt-cols > div')[1].querySelectorAll('.db-cname')].map(x=>x.textContent),over:document.documentElement.scrollWidth-innerWidth}));
+  console.log(JSON.stringify(t));
+  ok(/Score actuel/.test(t.sc)&&/7 : 5/.test(t.sc),'score actuel affiché');
+  ok(t.worst.length<=3&&t.worst[0]==='Marcher'||t.worst[0]==='J7M','3 moins réussis (max 3, 100% ✘ en tête)');
+  ok(t.best.length===2&&t.best.includes('Placement'),'mieux réussis');
+  ok(/compléter plus tard \(1\)/i.test(t.body)&&/À revoir \(1\)/i.test(t.body),'compteurs ⚑ et ✎');
+  await page.locator('#mtBody .db-seg-b',{hasText:'Lopez'}).click();await page.waitForTimeout(200);
+  const l=await page.evaluate(()=>mtBody.innerText);
+  ok(/À revoir \(0\)/i.test(l)&&/compléter plus tard \(0\)/i.test(l)&&/Pied/.test(l),'filtre arbitre Lopez');
+  await page.fill('#mtPauseNote','Tenir la zone');await page.screenshot({path:OUT+'mtov_'+n+'.png'});
+  await page.locator('#mtOverlay .mt-close').click();
+  await page.evaluate(()=>window.endMatch());await page.waitForTimeout(400);
+  const p=await page.evaluate(()=>({d:getComputedStyle(document.getElementById('db-pause')).display,t:document.querySelector('#db-pause .db-pause-txt').textContent}));
+  ok(p.d!=='none'&&p.t==='Tenir la zone','note affichée en fin de match');
+  console.log('overflow',t.over);ok(t.over<=0,'pas de scroll horizontal');
+  ok(errs.length===0,'aucune erreur JS '+errs.join('|'));
+  await page.screenshot({path:OUT+'mt_'+n+'.png'});
+  await ctx.close();
+ }
+ await b.close();console.log(fails?'ECHECS '+fails:'TOUS LES TESTS PASSENT');
+})();

@@ -456,57 +456,12 @@ function _updateUserBadge() {
   if (badge) badge.textContent = display;
 }
 
-/* ════════════════════════════════════════
-   MINI-CARD DERNIER MATCH + SYNC (v1.4.8)
-════════════════════════════════════════ */
-async function _renderLastMatchCard() {
-  const card = document.getElementById('lastMatchCard');
-  if (!card) return;
-
-  /* Tenter de récupérer le dernier match depuis Supabase */
-  if (isLoggedIn()) {
-    try {
-      const result = await fetchMatches();
-      if (result.ok && result.matches.length) {
-        const m = result.matches[0]; // déjà trié created_at desc
-        document.getElementById('lastMatchTitle').textContent  = m.equipe_a + ' vs ' + m.equipe_b;
-        document.getElementById('lastMatchMeta').textContent   = (m.competition || '') + (m.competition && m.date_match ? ' · ' : '') + (m.date_match || '');
-        document.getElementById('lastMatchScore').textContent  = m.score_a + ' : ' + m.score_b;
-        /* Indicateur de sync */
-        const syncEl = document.getElementById('syncIndicator');
-        if (syncEl) {
-          syncEl.innerHTML = '<span style="width:7px;height:7px;border-radius:50%;background:#3BA711;display:inline-block;"></span><span style="color:#3BA711;">Synchronisé</span>';
-        }
-        card.style.display = 'flex';
-        return;
-      }
-    } catch(e) { /* silencieux */ }
-  }
-
-  /* Fallback localStorage */
-  try {
-    const raw = localStorage.getItem('arbitres_hb_history');
-    const hist = raw ? JSON.parse(raw) : [];
-    if (hist.length) {
-      const m = hist[0];
-      document.getElementById('lastMatchTitle').textContent  = (m.S?.tA || '') + ' vs ' + (m.S?.tB || '');
-      document.getElementById('lastMatchMeta').textContent   = m.S?.mDate || '';
-      document.getElementById('lastMatchScore').textContent  = (m.S?.sA ?? '') + ' : ' + (m.S?.sB ?? '');
-      const syncEl = document.getElementById('syncIndicator');
-      if (syncEl) {
-        syncEl.innerHTML = isLoggedIn()
-          ? '<span style="width:7px;height:7px;border-radius:50%;background:#EDCF00;display:inline-block;"></span><span style="color:#EDCF00;">Non synchronisé</span>'
-          : '<span style="width:7px;height:7px;border-radius:50%;background:#aaa;display:inline-block;"></span><span style="color:#aaa;">Local</span>';
-      }
-      card.style.display = 'flex';
-    }
-  } catch(e) { /* silencieux */ }
-}
 
 /* ════════════════════════════════════════
    CHANGELOG / BADGE VERSION (v1.4.8)
 ════════════════════════════════════════ */
 const CHANGELOG = [
+  { v: '1.14.3', items: ['Score de mi-temps (ou de TT2) enregistré même si le match se termine sans relancer le chrono','Nettoyage interne (code et styles inutilisés retirés) — aucun changement visible'] },
   { v: '1.14.2', items: ['Plus de match en double en ligne quand un match est réenregistré depuis un autre appareil','Un double appui sur « Enregistrer et retour à l\'accueil » ne crée plus de match vide ; un match sans aucune donnée n\'est plus enregistré'] },
   { v: '1.14.1', items: ['Fin de match : la note d\'une action liée (ex. Jet Franc + Exécution du Jet) s\'affiche sur toute la largeur','Mi-temps : bouton « Fermer » au même style que les autres boutons'] },
   { v: '1.14.0', items: ['Tags en ordre fixe : chaque tag garde toujours la même place (fin du tri par fréquence)','Au-delà de 6 tags, rangement par groupes titrés (ex. SPA : Geste · Moment · Sanction), aussi dans les catégories liées','Modifier une ancienne observation garde ses tags retirés des listes (ex. « OMB »)'] },

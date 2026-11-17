@@ -60,6 +60,17 @@ Quand une version corrige un bug ou un frag identifié dans l'audit, **toujours 
 
 ---
 
+## [1.14.3] — 2026-11-17
+
+### Corrigé
+- `endMatch` fige le score de la pause (`htA/htB` en MT2, `ht2A/ht2B` en TT3) s'il ne l'a jamais été, c.-à-d. si le chrono de la période suivante n'a pas été relancé avant la fin du match.
+
+### Ajouté
+- Tests de bout en bout dans le dépôt : `tests/e2e/` (19 scénarios Playwright, faux Supabase, lanceur `npm test` avec serveur local intégré, mode d'emploi `tests/e2e/README.md`). `package.json` ne déclare que Playwright en dépendance de développement.
+
+### Supprimé
+- 125 lignes de styles jamais utilisés (48 classes absentes du HTML et du JS ; vérifié par 32 captures iPad/iPhone, clair/sombre, identiques au pixel près) et la fonction morte `_renderLastMatchCard` (js/main.js).
+
 ## [1.14.2] — 2026-11-17
 
 ### Corrigé

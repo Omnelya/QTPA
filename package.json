@@ -1,0 +1,11 @@
+{
+  "name": "suivi-arbitres-handball",
+  "private": true,
+  "description": "PWA de suivi des arbitres de handball — dépendances de test uniquement (l'app elle-même n'a besoin de rien).",
+  "scripts": {
+    "test": "node tests/e2e/run.js"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0"
+  }
+}

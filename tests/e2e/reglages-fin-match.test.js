@@ -1,0 +1,41 @@
+const { chromium } = require('playwright');
+const { SUPA_STUB, OUT } = require('./helpers');
+let fails=0;const ok=(c,m)=>{console.log((c?'PASS ':'FAIL ')+m);if(!c)fails++;};
+(async()=>{const b=await chromium.launch();
+for(const [n,vp] of [['ipad',{width:1180,height:820}],['iph',{width:430,height:932}]]){
+ const ctx=await b.newContext({viewport:vp,hasTouch:true,isMobile:true,deviceScaleFactor:n==='iph'?2:1,locale:'fr-FR'});
+ await ctx.route('**/*supabase*',r=>r.fulfill({contentType:'application/javascript',body:SUPA_STUB}));
+ await ctx.route(/cdnjs|jsdelivr|googleapis|gstatic/,r=>r.request().url().includes('supabase')?r.fulfill({contentType:'application/javascript',body:SUPA_STUB}):r.abort());
+ const p=await ctx.newPage();const errs=[];p.on('pageerror',x=>errs.push(x.message));
+ await p.goto('http://localhost:8123/index.html');await p.waitForTimeout(800);
+ await p.evaluate(()=>{tA.value='Toulouse Handball Club';tB.value='Nîmes Olympique HB';a1.value='Durand';a2.value='Lopez';window.startMatch();});
+ await p.waitForTimeout(300);await p.locator('#_paramsOk').click();await p.waitForTimeout(500);
+ const g=await p.$eval('.btn-gear',x=>{const s=x.querySelector('svg');return {txt:x.textContent.trim(),svg:!!s,color:getComputedStyle(x).color,w:s&&s.getBoundingClientRect().width}});
+ ok(g.svg&&g.txt===''&&g.color==='rgb(255, 255, 255)',n+' engrenage SVG blanc '+JSON.stringify(g));
+ await p.screenshot({path:`${OUT}v112_${n}_top.png`,clip:{x:0,y:0,width:vp.width,height:n==='iph'?120:60}});
+ await p.click('.btn-gear');await p.waitForTimeout(300);
+ const cardFont=await p.$eval('.sg-card',x=>getComputedStyle(x).fontFamily), bodyFont=await p.evaluate(()=>getComputedStyle(document.body).fontFamily);
+ ok(cardFont===bodyFont,n+' police de la carte = police du site');
+ ok(await p.locator('#sgDurs .sg-wcol').count()===2&&await p.locator('#sgProlW [id="sgWProl"]').count()===1,n+' roues MT1, MT2 et prolongation');
+ ok(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),n+' pas de débordement');
+ await p.screenshot({path:`${OUT}v112_${n}_sg1.png`});
+ await p.$eval('.sg-card',x=>x.scrollTop=x.scrollHeight);await p.waitForTimeout(150);
+ await p.screenshot({path:`${OUT}v112_${n}_sg2.png`});
+ await p.click('#sgNb3');await p.waitForTimeout(150);
+ ok(await p.locator('#sgDurs .sg-wcol').count()===3&&/TT 3/.test(await p.textContent('#sgDurs')),n+' 3 TT : 3 roues');
+ await p.click('.sg-cancel');ok(await p.locator('#sgOverlay.on').count()===0,n+' Annuler ferme');
+ ok(await p.evaluate(async()=>{const {S}=await import('/js/state.js');return S.nbMT===2&&S.dureesMT.length===2})&&/^Mi-temps$/.test((await p.textContent('#btnMT')).trim()),n+' Annuler : toujours 2 MT');
+ await p.click('.btn-gear');await p.click('#sgNb3');await p.click('.sg-save');await p.waitForTimeout(200);
+ ok(await p.evaluate(async()=>{const {S}=await import('/js/state.js');return S.nbMT===3&&S.dureesMT.join()==='900,900,900'})&&/Tiers-temps/.test(await p.textContent('#btnMT')),n+' Enregistrer : 3 TT de 15 min appliqués');
+ // écran de fin
+ await p.evaluate(()=>{document.getElementById('AO')?.classList.remove('on');});
+ await p.locator('#ES').evaluate(()=>window.endMatch&&window.endMatch());await p.waitForTimeout(500);
+ await p.evaluate(()=>{const o=document.querySelector('.qn-overlay.on');});
+ const hb=p.locator('.btn-home-save');ok((await hb.textContent()).trim()==="Enregistrer et retour à l'accueil",n+' libellé du bouton');
+ const box=await hb.boundingBox();ok(box&&box.width>0&&await p.evaluate(()=>{const b=document.querySelector('.btn-home-save');return b.scrollWidth<=b.clientWidth+1}),n+' libellé non tronqué '+JSON.stringify(box));
+ ok(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),n+' fin de match : pas de débordement');
+ await p.evaluate(()=>document.getElementById('ES').scrollIntoView());await p.waitForTimeout(150);
+ await p.screenshot({path:`${OUT}v112_${n}_end.png`,clip:{x:0,y:0,width:vp.width,height:n==='iph'?200:110}});
+ ok(!errs.length,n+' aucune erreur JS '+errs.join(' | '));
+ await ctx.close();}
+await b.close();console.log(fails?fails+' ÉCHEC(S)':'TOUS LES TESTS PASSENT');})();
