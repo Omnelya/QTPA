@@ -133,6 +133,44 @@ export const TAGS_GENERAUX = [
   'Jeu supériorité', 'Jeu infériorité', 'Ballon hors jeu', 'Après TME'
 ];
 
+/* ── Ordre fixe des tags, rangés par groupes — v1.14.0 (maquette validée) ──
+   Chaque tag garde toujours la même place. Au-delà de 6 tags visibles,
+   les groupes nommés s'affichent avec un petit titre ; nom '' = sans titre. */
+export const TAG_GROUPS = {
+  'Marcher':            [['', ['Piétine', '4 pas', 'Marcher + but']]],
+  'Reprise de dribble': [['', ['Pas de maîtrise ballon', 'Ballon non dirigé vers sol']]],
+  'Mauvais Bloc':       [['', ['Hors cylindre (bras)', 'Hors cylindre (fesses)', 'Écran illégal']]],
+  'Passage en Force':   [['Attaquant', ['Raffut', 'Épaule en avant', 'Corps projectile']],
+                         ['Défenseur', ["Pas d'intervalle", "Pas gain d'intervalle", 'Non passif', 'En retard', 'Zone']]],
+  'Pied':               [['', ['Pied hors cylindre => SPA2']]],
+  'J7M':                [['Situation', ['OMB déjouée', 'Défense en zone', 'Contact hors zone => JF', 'Joueur équilibré']],
+                         ['Défenseur', ['Retient', 'Arrachage bras', 'Déséquilibre', 'Fermeture tardive']]],
+  'Zone':               [['', ['Passage en zone', 'Dribble en zone', 'Appui zone', 'Retour de zone', 'Gardien non maître de son équilibre ET du ballon']]],
+  'Continuité':         [['', ['Pas de faute', 'Bras libre + équilibré', 'Irrégularité + perd la balle', 'Siffle trop vite', 'Marcher + but']]],
+  'Jeu Passif':         [['', ['Bon avertissement', 'Trop tôt', 'Trop tard', 'Non cohérent', 'Lors maîtrise ballon', '2-3 passes après JF']]],
+  'Exécution du Jet':   [['Type de jet', ['Engagement', 'Jet Franc', 'J7M', 'Renvoi', 'Remise en jeu']],
+                         ['Position', ['Hors des 9m', 'Pas dans le rond central', 'Franchissement de la ligne', 'Respect 3m', 'Debout']],
+                         ['Gestion', ['Ballon non maîtrisé', 'Replacer']]],
+  'Jet Franc':          [['', ['Pied hors du terrain', 'Bras bloqué', 'Reviens à la faute']]],
+  'SPP':                [['Faute', ['Maillot', 'Pousse', 'Ne retient pas', 'Duel pivot', 'Théâtralité', 'Râle']],
+                         ['Sanction', ['Bonne verbale', 'Verbale retard', 'Bon CJ', 'Manque CJ', 'Pas CJ après but', 'Manque explication', 'SPP pas assez', 'Différée']]],
+  'SPA':                [['Geste', ['Retient', 'Pousse', 'Ceinturage', 'Tête visage gorge', 'Amène au sol', 'Neutralise par derrière', 'Tir dans la tête', 'Duel pivot', 'Ne retient pas']],
+                         ['Moment', ['Dépassée', 'Ferme en retard']],
+                         ['Sanction', ['SPA 2', 'SPA CR', 'SPA CR+CB', 'Différée', 'Pas besoin de concertation']]],
+  'Placement':          [['', ['Trop loin', 'Trop proche', 'Latéralité', 'Profondeur', 'Angle de vue', 'Côté opposé au banc']]],
+  'Déplacement':        [['', ['Jaillissement', 'Permutation', 'Latéral', 'Profondeur', 'Course en C', 'Contre-attaque trop lent']]],
+  "Zone d'influence":   [['', ['Regarde le pivot en AZ', 'Pas ta zone', 'Changement de zone', 'Crédibilité']]],
+  'Gestuelle':          [['', ['Bonne gestuelle', 'Bonne théâtralité', 'Prend le temps']]],
+  'Communication':      [['Avec qui', ['Binôme', 'Joueurs', 'Gardien', 'Banc', 'Coachs', 'Chronométreur', 'Secrétaire']],
+                         ['Comment', ['Bonne comm.', 'Gestuelle floue', 'TME long']]],
+  'Gestion du sifflet': [['Intensité', ['Croissant', 'Décroissant', 'Coups de sifflet brefs', 'Adapte volume']],
+                         ['Usage', ['Arrêt du temps', 'Coup de sifflet de reprise']],
+                         ['Geste', ['Enlève de la bouche']]],
+  'Protocole':          [['Type', ['Protocole Sanction', 'Protocole TME', 'Protocole Jet 7m', 'Protocole Soin']],
+                         ['Étapes', ['Arrêter le temps', 'Regarde table', 'Entrée Soins']],
+                         ['Appréciation', ['Bon protocole', 'Manque protocole', 'Sanctions', 'Décisions différentes']]]
+};
+
 /* ── Catégories liées — v1.11.0 ──
    Même action saisie dans une seule fenêtre (« ＋ SPA » dans J7M…).
    Liaisons fixées par le suiveur, valables dans les deux sens. */

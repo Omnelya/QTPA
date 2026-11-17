@@ -5,7 +5,7 @@
    • Annuler (avec confirmation) / Rétablir (sans confirmation)
    • Aucun retour sonore, vibratoire ou lumineux à l'enregistrement
 ════════════════════════════════════════════════════════════════════════════ */
-import { S, pl, applyPeriodLabels, CA, CP, CAU, CAT_TAGS, TAGS_GENERAUX, FAMILIES, KEY_HISTORY, LINKS, linkGroup, oneLinePerAction, actionNote } from './state.js';
+import { S, pl, applyPeriodLabels, CA, CP, CAU, CAT_TAGS, TAG_GROUPS, TAGS_GENERAUX, FAMILIES, LINKS, linkGroup, oneLinePerAction, actionNote } from './state.js';
 import { fmt, escapeHtml } from './utils.js';
 import { log } from './logger.js';
 import { renderDebrief } from './debrief.js';
@@ -95,24 +95,41 @@ function _cntId(cat, col) {
   return 'qnCnt_' + cat.replace(/[^a-zA-Z0-9]/g, '') + '_' + col;
 }
 
-/* ═══ Fréquence des tags (historique local + match en cours) ═══════════ */
-function _tagFreq() {
-  const freq = {};
-  const add = o => (o.tags || []).forEach(t => { freq[t] = (freq[t] || 0) + 1; });
-  try {
-    const h = JSON.parse(localStorage.getItem(KEY_HISTORY) || '[]');
-    if (Array.isArray(h)) h.forEach(m => ((m && m.S && m.S.obs) || []).forEach(add));
-  } catch (e) { /* historique illisible : on ignore, ordre par défaut */ }
-  S.obs.forEach(add);
-  return freq;
+/* ═══ Ordre fixe des tags, rangés par groupes — v1.14.0 ═══════════════
+   Remplace le tri par fréquence : chaque tag garde toujours sa place.
+   Au-delà de 6 tags visibles, les groupes nommés ont un petit titre.    */
+const GROUP_MIN = 6;
+
+/** Groupes [nom, tags] visibles pour cat/col, dans l'ordre de TAG_GROUPS. */
+function _tagGroups(cat, col) {
+  const def = CAT_TAGS[cat];
+  if (!def) return [];
+  const ok = [...def[col], ...def.both];
+  const groups = (TAG_GROUPS[cat] || []).map(([n, l]) => [n, l.filter(t => ok.includes(t))]).filter(g => g[1].length);
+  const rest = ok.filter(t => !groups.some(g => g[1].includes(t))); /* filet : tag non rangé → à la fin */
+  if (rest.length) groups.push(['', rest]);
+  return groups;
 }
 
-/** Tri stable : plus fréquent d'abord, ex æquo = ordre d'origine. */
-function _byFreq(list, freq) {
-  return list
-    .map((t, i) => [t, i])
-    .sort((a, b) => (freq[b[0]] || 0) - (freq[a[0]] || 0) || a[1] - b[1])
-    .map(x => x[0]);
+/** Ajoute dans wrap les tags de cat/col : à plat (≤ 6) ou par groupes titrés. */
+function _addCatTags(wrap, cat, col, isSel) {
+  const groups = _tagGroups(cat, col);
+  const titled = groups.reduce((a, g) => a + g[1].length, 0) > GROUP_MIN && groups.some(g => g[0]);
+  groups.forEach(([name, list]) => {
+    let box = wrap;
+    if (titled) {
+      const row = document.createElement('div');
+      row.className = 'qn-tgrp';
+      const h = document.createElement('div');
+      h.className = 'qn-tgrp-name';
+      h.textContent = name;
+      box = document.createElement('div');
+      box.className = 'qn-tags-wrap';
+      row.append(h, box);
+      wrap.appendChild(row);
+    }
+    list.forEach(t => _addTag(box, t, isSel(t)));
+  });
 }
 
 /* ═══ Popup détail ═════════════════════════════════════════════════════ */
@@ -172,15 +189,17 @@ function _buildTeams(keepTags) {
 function _rebuildTags(cat, col, keepTags) {
   const tagsWrap = document.getElementById('detailTags');
   tagsWrap.innerHTML = '';
-  const freq = _tagFreq();
 
-  /* ── Tags spécifiques à la catégorie (filtrés par couleur) ── */
+  /* ── Tags spécifiques à la catégorie (filtrés par couleur, ordre fixe — v1.14.0) ── */
   const catDef = CAT_TAGS[cat];
   const hasSpecific = !!(catDef && (catDef.both.length || catDef.red.length || catDef.green.length));
-  if (catDef) {
-    _byFreq([...(col === 'red' ? catDef.red : catDef.green), ...catDef.both], freq)
-      .forEach(t => _addTag(tagsWrap, t, keepTags.includes(t)));
-  }
+  if (catDef) _addCatTags(tagsWrap, cat, col, t => keepTags.includes(t));
+
+  /* Ancien tag retiré des listes (observation d'un match passé) : affiché et gardé sélectionné
+     pour ne pas le perdre en modifiant l'observation. */
+  const known = new Set([...(catDef ? [...catDef.red, ...catDef.green, ...catDef.both] : []), ...TAGS_GENERAUX,
+    ..._teamDefs().flatMap(([t, ns]) => [t, ...ns.map(n => _numTag(t, n))])]);
+  keepTags.filter(t => !known.has(t)).forEach(t => _addTag(tagsWrap, t, true));
 
   /* ── Catégories liées (v1.11.0) : cartes insérées entre les tags propres et les communs ── */
   const lk = document.createElement('div');
@@ -196,10 +215,9 @@ function _rebuildTags(cat, col, keepTags) {
     tagsWrap.appendChild(sep);
   }
 
-  /* ── Tags généraux : équipes d'abord, puis généraux par fréquence ── */
+  /* ── Tags généraux : équipes d'abord, puis tags communs en ordre fixe ── */
   _buildTeams(keepTags);
-  _byFreq(TAGS_GENERAUX, freq)
-    .forEach(t => _addTag(tagsWrap, t, keepTags.includes(t)));
+  TAGS_GENERAUX.forEach(t => _addTag(tagsWrap, t, keepTags.includes(t)));
 }
 
 /* ═══ Catégories liées — v1.11.0 ═══════════════════════════════════════
@@ -249,7 +267,6 @@ function _renderLinked() {
   const box = document.getElementById('detailLinked');
   const d = S.detailPending;
   if (!box || !d) return;
-  const freq = _tagFreq();
   box.innerHTML = '';
   d.links.forEach(l => {
     const def = CAT_TAGS[l.cat] || { red: [], green: [], both: [] };
@@ -287,9 +304,9 @@ function _renderLinked() {
     card.appendChild(head);
     const wrap = document.createElement('div');
     wrap.className = 'qn-tags-wrap';
-    _byFreq([...def[l.col], ...def.both], freq).forEach(t => {
-      _addTag(wrap, t, l.tags.includes(t));
-      const btn = wrap.lastChild, base = btn.onclick;
+    _addCatTags(wrap, l.cat, l.col, t => l.tags.includes(t));
+    wrap.querySelectorAll('.qn-tag').forEach(btn => {
+      const t = btn.dataset.tag, base = btn.onclick;
       btn.onclick = () => {
         base();
         l.tags = btn.classList.contains('selected') ? [...l.tags, t] : l.tags.filter(u => u !== t);
@@ -413,7 +430,8 @@ function _openDetail(cat, col, prefill) {
 
 /** Lit les tags sélectionnés de la catégorie principale (hors cartes liées, imbriquées plus bas). */
 function _getSelectedTags() {
-  return [...document.querySelectorAll('#detailTeams .qn-tag.selected, #detailTags > .qn-tag.selected')].map(t => t.dataset.tag);
+  return [...document.querySelectorAll('#detailTeams .qn-tag.selected, #detailTags .qn-tag.selected')]
+    .filter(t => !t.closest('.qn-linked')).map(t => t.dataset.tag);
 }
 
 export function closeDetail() {

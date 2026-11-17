@@ -1791,3 +1791,12 @@ table.olist tr.rm:last-child td { border-bottom: none; }
 table.olist tr.rm td .lc { font-size: 11px; font-weight: 700; }
 table.olist td .lk-n, table.olist tr.rm td .lc-n { color: var(--red-text); font-weight: 700; }
 table.olist td .lk-o, table.olist tr.rm td .lc-o { color: var(--green-text); font-weight: 700; }
+
+/* ═══ Tags en ordre fixe, rangés par groupes — v1.14.0 ═════════════════ */
+.qn-tgrp { width: 100%; display: grid; grid-template-columns: 92px 1fr; gap: 4px 10px; align-items: start; padding: 6px 0; border-top: 1px dashed var(--border-input); }
+.qn-tgrp:first-child { border-top: 0; padding-top: 0; }
+.qn-tgrp-name { font-size: 11px; font-weight: 700; color: var(--blue-text); text-transform: uppercase; letter-spacing: .04em; padding-top: 14px; }
+@media (max-width: 520px) {
+  .qn-tgrp { grid-template-columns: 1fr; }
+  .qn-tgrp-name { padding-top: 2px; }
+}

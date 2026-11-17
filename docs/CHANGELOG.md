@@ -60,6 +60,15 @@ Quand une version corrige un bug ou un frag identifié dans l'audit, **toujours 
 
 ---
 
+## [1.14.0] — 2026-11-17
+
+### Modifié
+- Tags rapides en ordre fixe (`TAG_GROUPS` dans js/state.js, maquette validée) : fin du tri par fréquence (`_tagFreq` / `_byFreq` supprimés). Les tags communs suivent l'ordre de `TAGS_GENERAUX`.
+- Au-delà de 6 tags visibles, groupes titrés (SPA, SPP, J7M, Passage en force, Exécution du Jet, Communication, Gestion du sifflet, Protocole), aussi dans les cartes des catégories liées.
+
+### Corrigé
+- Modifier une observation d'un ancien match ne perd plus ses tags retirés des listes depuis (ex. « OMB ») : ils restent affichés et sélectionnés.
+
 ## [1.13.0] — 2026-11-17
 
 ### Modifié
