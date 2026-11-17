@@ -96,7 +96,8 @@ function _obsLine(o, withCat) {
     '<span class="db-tm">' + escapeHtml(o.time || '') + ' <i>' + escapeHtml(pl(o.period || '')) + '</i></span>' +
     '<span class="db-who">' + _arbChips(o) + '</span>' +
     (withCat ? '<span class="db-cat">' + g.map(x => escapeHtml(x.cat) + (g.length > 1 ? ' ' + _typeChip(x) : '')).join(' + ') + '</span>' : '') +
-    (g.length > 1 ? '' : _typeChip(o)) +
+    /* action liée : ✘/✔ déjà dans .db-cat ; case vide pour garder la note dans sa colonne */
+    (g.length > 1 ? '<span class="db-type"></span>' : _typeChip(o)) +
     '<span class="db-note">' + (note ? '« ' + escapeHtml(note) + ' »' : '') + '</span></div>';
 }
 

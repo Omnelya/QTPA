@@ -60,6 +60,12 @@ Quand une version corrige un bug ou un frag identifié dans l'audit, **toujours 
 
 ---
 
+## [1.14.1] — 2026-11-17
+
+### Corrigé
+- Débrief « À revoir et notes » (et listes de la mi-temps) : sur une action liée, la note tombait dans la colonne ✘/✔ de 34 px et s'écrivait lettre par lettre ; une case vide garde désormais chaque élément dans sa colonne.
+- Écran mi-temps : bouton « Fermer » au style `.btn-act` (comme « Retour » en fin de match).
+
 ## [1.14.0] — 2026-11-17
 
 ### Modifié
