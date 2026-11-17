@@ -256,6 +256,27 @@ export async function deleteMatchRemote(id) {
   }
 }
 
+/* ── v1.14.2 : supprime les autres versions en ligne d'un même match (même etat.uid) ──
+   Évite les doublons quand un appareil réenregistre un match avec un identifiant de ligne
+   devenu périmé (version remplacée entre-temps depuis un autre appareil). */
+export async function deleteOtherVersionsRemote(uid, keepId) {
+  if (!_session || !uid || !keepId) return { ok: false, error: 'Paramètres manquants' };
+  try {
+    const client = await _getClient();
+    const { data, error } = await client.from('matches').select('id').eq('etat->>uid', uid).neq('id', keepId);
+    if (error) throw error;
+    for (const r of data || []) {
+      const d = await deleteMatchRemote(r.id);
+      if (!d.ok) throw new Error(d.error);
+    }
+    if ((data || []).length) log.info('AUTH', 'anciennes_versions_supprimees', { uid, nb: data.length });
+    return { ok: true, nb: (data || []).length };
+  } catch (e) {
+    log.error('AUTH', 'anciennes_versions_erreur', { message: e.message });
+    return { ok: false, error: e.message };
+  }
+}
+
 /* ── Demande de réinitialisation par email (utilisateur déconnecté) ── */
 export async function requestPasswordReset(email) {
   try {

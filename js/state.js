@@ -250,7 +250,10 @@ export const S = {
      saveToHistory() (export PDF puis bouton Accueil) crée un doublon.
      Remis à null par _doGoHome() (match.js). */
   histId: null,
-  remoteId: null
+  remoteId: null,
+  /* v1.14.2 : identifiant permanent du match (rangé dans matches.etat.uid) — permet de
+     supprimer toutes les autres versions en ligne, même créées par un autre appareil. */
+  uid: null
 };
 
 /* ═══ Libellés de période — v1.7.2 ═══════════════════════════════════════

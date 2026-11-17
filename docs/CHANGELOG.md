@@ -60,6 +60,12 @@ Quand une version corrige un bug ou un frag identifié dans l'audit, **toujours 
 
 ---
 
+## [1.14.2] — 2026-11-17
+
+### Corrigé
+- Doublons Supabase : un appareil qui réenregistrait un match avec un `remoteId` périmé (version déjà remplacée depuis un autre appareil, ex. iPhone le 15/11 après le Mac le 14/11) créait une 2e ligne — la suppression de l'ancien id renvoyait « OK » sans rien supprimer. Chaque match a désormais un identifiant permanent `S.uid` (rangé dans `matches.etat.uid`, sans migration) ; après chaque insertion, `deleteOtherVersionsRemote` supprime toutes les autres lignes du même uid. Les anciens matchs reçoivent un uid à leur prochain enregistrement.
+- Lignes vides « Equipe A vs Equipe B » : un 2e appui sur le retour accueil réenregistrait le match déjà remis à zéro. `goHomeFromEnd` ignore désormais les appuis pendant l'enregistrement, et un match sans aucune donnée (0 observation, 0-0, pas d'évaluation ni de texte) jamais enregistré n'est plus sauvegardé.
+
 ## [1.14.1] — 2026-11-17
 
 ### Corrigé

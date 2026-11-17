@@ -507,6 +507,7 @@ async function _renderLastMatchCard() {
    CHANGELOG / BADGE VERSION (v1.4.8)
 ════════════════════════════════════════ */
 const CHANGELOG = [
+  { v: '1.14.2', items: ['Plus de match en double en ligne quand un match est réenregistré depuis un autre appareil','Un double appui sur « Enregistrer et retour à l\'accueil » ne crée plus de match vide ; un match sans aucune donnée n\'est plus enregistré'] },
   { v: '1.14.1', items: ['Fin de match : la note d\'une action liée (ex. Jet Franc + Exécution du Jet) s\'affiche sur toute la largeur','Mi-temps : bouton « Fermer » au même style que les autres boutons'] },
   { v: '1.14.0', items: ['Tags en ordre fixe : chaque tag garde toujours la même place (fin du tri par fréquence)','Au-delà de 6 tags, rangement par groupes titrés (ex. SPA : Geste · Moment · Sanction), aussi dans les catégories liées','Modifier une ancienne observation garde ses tags retirés des listes (ex. « OMB »)'] },
   { v: '1.13.0', items: ['Nouvelles liaisons : Exécution du Jet ↔ SPP, SPA et Gestion du sifflet ; Protocole ↔ SPP','« Coup de sifflet de reprise » passe d\'Exécution du Jet à Gestion du sifflet (conforme et non conforme)'] },

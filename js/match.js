@@ -284,10 +284,19 @@ export function goHome() {
 }
 
 /* v1.4.11 : retour accueil depuis #ES — sauvegarde automatique avant navigation */
+/* v1.14.2 : un 2e appui pendant l'enregistrement est ignoré (il réenregistrait le match
+   déjà remis à zéro → ligne vide « Equipe A vs Equipe B » dans Supabase). */
+let _leaving = false;
 export async function goHomeFromEnd() {
-  stopSafetyAutosave();
-  try { await saveToHistory(); } catch(e) { /* silencieux */ }
-  _doGoHome();
+  if (_leaving) return;
+  _leaving = true;
+  try {
+    stopSafetyAutosave();
+    try { await saveToHistory(); } catch(e) { /* silencieux */ }
+    _doGoHome();
+  } finally {
+    _leaving = false;
+  }
 }
 
 function _doGoHome() {
@@ -295,7 +304,7 @@ function _doGoHome() {
   stopSafetyAutosave(); /* également appelé depuis goHomeFromEnd avant saveToHistory */
   clearInterval(S.timer);
   /* v1.4.19 : reset inclut les nouveaux paramètres réglementaires */
-  Object.assign(S, { tA: 'Equipe A', tB: 'Equipe B', a1: 'Arb 1', a2: 'Arb 2', mDate: '', mTime: '', mComp: '', run: false, elapsed: 0, period: 'MT1', timer: null, tick: null, sA: 0, sB: 0, htA: null, htB: null, tme: { A: { MT1:[null,null], MT2:[null,null], MT3:[null,null] }, B: { MT1:[null,null], MT2:[null,null], MT3:[null,null] } }, tmeLocked: { A: false, B: false }, obs: [], detailPending: null, pauseTme: false, pauseNote: '', pauseNote2: '', numA: '', numB: '', nbMT: 2, dureesMT: [30*60, 30*60], dureeProl: 5*60, ht2A: null, ht2B: null, histId: null, remoteId: null });
+  Object.assign(S, { tA: 'Equipe A', tB: 'Equipe B', a1: 'Arb 1', a2: 'Arb 2', mDate: '', mTime: '', mComp: '', run: false, elapsed: 0, period: 'MT1', timer: null, tick: null, sA: 0, sB: 0, htA: null, htB: null, tme: { A: { MT1:[null,null], MT2:[null,null], MT3:[null,null] }, B: { MT1:[null,null], MT2:[null,null], MT3:[null,null] } }, tmeLocked: { A: false, B: false }, obs: [], detailPending: null, pauseTme: false, pauseNote: '', pauseNote2: '', numA: '', numB: '', nbMT: 2, dureesMT: [30*60, 30*60], dureeProl: 5*60, ht2A: null, ht2B: null, histId: null, remoteId: null, uid: null });
   ans.esprit = null; ans.engage = null; ans.niveau = null;
   Object.assign(synFilters, { arb: 'all', per: 'all' });
   resetDebrief();

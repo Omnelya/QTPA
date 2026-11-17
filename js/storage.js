@@ -2,7 +2,7 @@
 import { S, ans, KEY_CURRENT, KEY_HISTORY, pl, applyPeriodLabels } from './state.js';
 import { fmtDate, escapeHtml } from './utils.js';
 import { log } from './logger.js';
-import { isLoggedIn, isAdmin, getUserId, saveMatchRemote, fetchMatches, fetchMatchesAdmin, fetchMatchById, deleteMatchRemote } from './auth.js';
+import { isLoggedIn, isAdmin, getUserId, saveMatchRemote, fetchMatches, fetchMatchesAdmin, fetchMatchById, deleteMatchRemote, deleteOtherVersionsRemote } from './auth.js';
 
 /* ─────────────────────────────────────────────────────────────────────────
    v0.3.20 (BUG-2) — Filet de sécurité d'autosave
@@ -495,6 +495,14 @@ async function _saveToHistoryNow() {
   try {
     const ctx = document.getElementById('ctxTA')?.value || '';
     const gc  = document.getElementById('GC')?.value    || '';
+    /* v1.14.2 : un match vide jamais enregistré n'est pas sauvegardé (évitait des lignes
+       « Equipe A vs Equipe B » à 0 observation, ex. double appui sur le retour accueil). */
+    if (!S.obs.length && !S.sA && !S.sB && !ctx.trim() && !gc.trim() &&
+        !Object.values(ans).some(Boolean) && !S.histId && !S.remoteId) {
+      log.info('STORAGE', 'match_vide_non_sauvegarde');
+      return;
+    }
+    if (!S.uid) S.uid = 'm-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
     const prevId     = S.histId;
     const prevRemote = S.remoteId;
     const entry = {
@@ -547,7 +555,7 @@ async function _saveToHistoryNow() {
         contexte: ctx,
         commentaire_global: gc,
         /* v1.8.1 : état nécessaire pour rouvrir le match (colonne matches.etat) */
-        etat: Object.fromEntries(['nbMT','dureesMT','dureeProl','period','htA','htB','ht2A','ht2B','numA','numB','pauseNote','pauseNote2'].map(k => [k, S[k]]))
+        etat: Object.fromEntries(['nbMT','dureesMT','dureeProl','period','htA','htB','ht2A','ht2B','numA','numB','pauseNote','pauseNote2','uid'].map(k => [k, S[k]]))
       };
       const result = await saveMatchRemote(matchData);
       if (result.ok) {
@@ -561,6 +569,9 @@ async function _saveToHistoryNow() {
           const del = await deleteMatchRemote(prevRemote);
           if (!del.ok) log.warn('STORAGE', 'ancienne_copie_remote_non_supprimee', { prevRemote, error: del.error });
         }
+        /* v1.14.2 : et toute autre version du même match (même uid), même si prevRemote
+           était périmé (version remplacée depuis un autre appareil) → plus de doublon. */
+        await deleteOtherVersionsRemote(S.uid, result.id);
       }
     }
   } catch (e) {
@@ -917,7 +928,7 @@ export async function openMatchFromHome(id, local) {
   if (!src) { window.App.showAlert('Match introuvable ou impossible à charger.'); return; }
 
   log.info('LIFECYCLE', 'match_rouvert', { id: String(id), local: !!local });
-  Object.assign(S, src.S, { run: false, histId: src.histId || null, remoteId: src.remoteId || null });
+  Object.assign(S, src.S, { run: false, histId: src.histId || null, remoteId: src.remoteId || null, uid: src.S.uid || null });
   S.pauseNote = S.pauseNote || ''; S.pauseNote2 = S.pauseNote2 || ''; S.numA = S.numA || ''; S.numB = S.numB || '';
   S.obs.forEach(o => {
     if (!Array.isArray(o.arb)) o.arb = o.arb ? [o.arb] : [];
