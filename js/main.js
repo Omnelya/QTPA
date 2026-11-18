@@ -10,7 +10,7 @@ import { sgOpen, sgClose, sgNb, sgSave } from './settings.js';
 import { mtOpen, mtClose, mtArb, mtNote, mtRender, mtPer } from './midtime.js';
 import { buildQuickNotes, closeDetail, saveDetail, toggleDetailFlag, toggleDetailTodo, askUndo, cancelUndo, doUndo, redoObs, refreshCounters, renderTable, renderEndTable, sorted, onFilterChange, onFilterChangeE, resetFilters, resetFiltersE, editObservation, deleteObservation, confirmDelete, closeConfirm } from './observations.js';
 import { setSynFilter, buildSynTable } from './synthesis.js';
-import { dbFilter, dbToggle, dbBubble } from './debrief.js';
+import { dbFilter, dbToggle, dbBubble, dbRadarAxis } from './debrief.js';
 import { exportPDF } from './pdf.js';
 import { openMatchFromHome, autosave, autosaveDebounced, flushAutosave, checkResume, resumeMatch, discardMatch, saveToHistory, openHistory, closeHistory, renderHistory, deleteHistory, deleteHistoryRemote, reexportPDF, reexportPDFRemote, setAdminFilter, setHistFilters, startSafetyAutosave, stopSafetyAutosave } from './storage.js';
 import { startMatch, endMatch, backMatch, goHome, goHomeFromEnd } from './match.js';
@@ -59,6 +59,7 @@ window.setSynFilter        = setSynFilter;
 window.dbFilter            = dbFilter;
 window.dbToggle            = dbToggle;
 window.dbBubble            = dbBubble;
+window.dbRadarAxis         = dbRadarAxis;
 window.exportPDF           = exportPDF;
 window.resumeMatch         = resumeMatch;
 window.discardMatch        = discardMatch;
@@ -461,6 +462,7 @@ function _updateUserBadge() {
    CHANGELOG / BADGE VERSION (v1.4.8)
 ════════════════════════════════════════ */
 const CHANGELOG = [
+  { v: '1.15.0', items: ['Fin de match : nouveau « Radar par bloc » (A1 Duels · A2 Continuité · B Joueurs · C1 Technique · C2 Décisionnel), une courbe par arbitre, filtres Arbitre / Période','Touchez un axe pour voir le détail de ses catégories (% conforme par arbitre et au total) ; un axe à moins de 3 observations est grisé','Quelques textes secondaires retrouvent leur gris prévu (couleur mal référencée)'] },
   { v: '1.14.3', items: ['Score de mi-temps (ou de TT2) enregistré même si le match se termine sans relancer le chrono','Nettoyage interne (code et styles inutilisés retirés) — aucun changement visible'] },
   { v: '1.14.2', items: ['Plus de match en double en ligne quand un match est réenregistré depuis un autre appareil','Un double appui sur « Enregistrer et retour à l\'accueil » ne crée plus de match vide ; un match sans aucune donnée n\'est plus enregistré'] },
   { v: '1.14.1', items: ['Fin de match : la note d\'une action liée (ex. Jet Franc + Exécution du Jet) s\'affiche sur toute la largeur','Mi-temps : bouton « Fermer » au même style que les autres boutons'] },

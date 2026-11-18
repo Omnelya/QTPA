@@ -4,18 +4,20 @@
    Arbitre / Période (indépendants). Aucune donnée n'est modifiée ici :
    tout est calculé à partir de S.obs.
 ════════════════════════════════════════════════════════════════════════════ */
-import { S, pl, linkGroup, oneLinePerAction, actionNote } from './state.js';
+import { S, pl, linkGroup, oneLinePerAction, actionNote, FAMILIES } from './state.js';
 import { fmt, escapeHtml } from './utils.js';
 
-const BLOCKS = ['rev', 'work', 'strong', 'frise'];
+const BLOCKS = ['rev', 'radar', 'work', 'strong', 'frise'];
 const _F = {};      /* filtres par bloc : { arb: 'all'|'A1'|'A2', per: 'all'|'MT1'… } */
 const _open = {};   /* catégories dépliées : 'work|Zone' → true */
 let _bubble = null; /* index (dans S.obs) du repère ouvert sur la frise */
+let _axis = null;   /* v1.15.0 : axe du radar dont le détail est affiché (null = le plus faible) */
 
 export function resetDebrief() {
   BLOCKS.forEach(b => { _F[b] = { arb: 'all', per: 'all' }; });
   Object.keys(_open).forEach(k => delete _open[k]);
   _bubble = null;
+  _axis = null;
 }
 resetDebrief();
 
@@ -220,8 +222,92 @@ function _renderPause() {
   if (b) b.textContent = t;
 }
 
+/* ── Bloc radar par bloc — v1.15.0 ──────────────────────────────────────
+   % conforme par bloc (A1 Duels · A2 Continuité · B Joueurs · C1 Technique ·
+   C2 Décisionnel), une courbe par arbitre. Un axe touché affiche le détail
+   de ses catégories. Axe grisé = moins de 3 observations (peu fiable). */
+const AXIS_SHORT = { A1: 'Duels', A2: 'Continuité', B: 'Joueurs', C1: 'Technique', C2: 'Décisionnel' };
+const AXES = FAMILIES.flatMap(f => f.blocks.map(b => {
+  const k = b.code.startsWith('B') ? 'B' : b.code;
+  return { k, t: AXIS_SHORT[k] || b.title, cats: b.cats };
+}));
+
+/** { n, g, p } : nombre d'observations du bloc, conformes, % conforme (null si 0). */
+function _axisStat(obs, cats) {
+  let r = 0, g = 0;
+  obs.forEach(o => (Array.isArray(o.cats) && o.cats.length ? o.cats : [o.cat]).forEach(c => {
+    if (cats.includes(c)) { if (o.col === 'red') r++; else g++; }
+  }));
+  return { n: r + g, g, p: r + g ? _pct(g, r) : null };
+}
+
+export function dbRadarAxis(k) {
+  _axis = k;
+  renderBlock('radar');
+}
+
+function _renderRadar() {
+  const f = _F.radar;
+  const L = _filtered('radar');
+  if (!L.length) return _filterBar('radar') + '<div class="db-empty">Aucune observation pour ces filtres.</div>';
+  const perOk = o => f.per === 'all' || o.period === f.per;
+  const series = (f.arb === 'all' ? ['A1', 'A2'] : [f.arb]).map(a => ({
+    a, cls: a === 'A2' ? 'a2' : 'a1',
+    vals: AXES.map(ax => _axisStat(S.obs.filter(o => _arbs(o).includes(a) && perOk(o)), ax.cats))
+  }));
+  const tot = AXES.map(ax => _axisStat(L, ax.cats));
+  if (!_axis || !AXES.some(ax => ax.k === _axis)) {
+    const cand = AXES.map((ax, i) => [ax.k, tot[i]]).filter(([, s]) => s.n >= 3).sort((x, y) => x[1].p - y[1].p);
+    _axis = cand.length ? cand[0][0] : AXES[0].k;
+  }
+
+  /* Radar SVG */
+  const cx = 180, cy = 165, R = 118, N = AXES.length;
+  const ang = i => -Math.PI / 2 + i * 2 * Math.PI / N;
+  const pt = (i, v) => [cx + R * v * Math.cos(ang(i)), cy + R * v * Math.sin(ang(i))].map(x => x.toFixed(1));
+  let s = '';
+  [0.25, 0.5, 0.75, 1].forEach(v => { s += '<polygon class="rd-grid" points="' + AXES.map((_, i) => pt(i, v).join(',')).join(' ') + '"/>'; });
+  AXES.forEach((_, i) => { const [x, y] = pt(i, 1); s += '<line class="rd-grid" x1="' + cx + '" y1="' + cy + '" x2="' + x + '" y2="' + y + '"/>'; });
+  s += '<text class="rd-scale" x="' + (cx + 4) + '" y="' + (cy - R * 0.5 + 11) + '">50 %</text>';
+  series.forEach(se => {
+    s += '<polygon class="rd-area rd-' + se.cls + '" points="' + se.vals.map((v, i) => pt(i, (v.p || 0) / 100).join(',')).join(' ') + '"/>';
+    se.vals.forEach((v, i) => {
+      if (!v.n) return;
+      const [x, y] = pt(i, v.p / 100);
+      s += '<circle class="rd-dot ' + (v.n < 3 ? 'rd-few' : 'rd-' + se.cls) + '" cx="' + x + '" cy="' + y + '" r="4"/>';
+    });
+  });
+  AXES.forEach((ax, i) => {
+    const [x, y] = pt(i, 1.2).map(Number);
+    const few = tot[i].n < 3;
+    s += '<g class="rd-lab' + (_axis === ax.k ? ' on' : '') + (few ? ' few' : '') + '" role="button" tabindex="0" aria-label="Détail ' + ax.k + ' ' + escapeHtml(ax.t) + '"' +
+      ' onclick="dbRadarAxis(\'' + ax.k + '\')" onkeydown="if(event.key===\'Enter\')dbRadarAxis(\'' + ax.k + '\')">' +
+      '<rect x="' + (x - 47) + '" y="' + (y - 17) + '" width="94" height="34" rx="9"/>' +
+      '<text class="rd-t" x="' + x + '" y="' + (y - 2) + '">' + ax.k + ' ' + escapeHtml(ax.t) + '</text>' +
+      '<text class="rd-n" x="' + x + '" y="' + (y + 11) + '">' + tot[i].n + ' obs.</text></g>';
+  });
+  const svg = '<svg class="db-radar-svg" viewBox="-14 0 388 330" role="img" aria-label="Radar : pourcentage conforme par bloc">' + s + '</svg>';
+  const legend = '<div class="db-radar-leg">' + series.map(se =>
+    '<span><i class="rd-leg-' + se.cls + '"></i>' + escapeHtml(se.a === 'A2' ? S.a2 : S.a1) + '</span>').join('') + '</div>';
+
+  /* Détail de l'axe choisi */
+  const ax = AXES.find(a => a.k === _axis);
+  const byArb = (a, c) => _axisStat(S.obs.filter(o => _arbs(o).includes(a) && perOk(o)), [c]);
+  const rows = ax.cats.map(c => ({ c, t: _axisStat(L, [c]), a1: byArb('A1', c), a2: byArb('A2', c) })).filter(r => r.t.n);
+  const pc = st => st.n ? st.p + ' %' : '–';
+  const tone = p => p >= 70 ? 'ok' : p >= 50 ? 'mid' : 'ko';
+  const det = '<div class="db-radar-det"><div class="db-radar-dt">' + ax.k + ' · ' + escapeHtml(ax.t) + '</div>' + (rows.length
+    ? '<table class="db-radar-tab"><thead><tr><th>Catégorie</th><th>Obs.</th><th class="a1">' + escapeHtml(S.a1) + '</th><th class="a2">' + escapeHtml(S.a2) + '</th><th>Total</th></tr></thead><tbody>' +
+      rows.map(r => '<tr><td>' + escapeHtml(r.c) + '</td><td>' + r.t.n + '</td><td class="a1">' + pc(r.a1) + '</td><td class="a2">' + pc(r.a2) +
+        '</td><td class="tot ' + tone(r.t.p) + '">' + r.t.p + ' %</td></tr>').join('') + '</tbody></table>'
+    : '<div class="db-empty">Aucune observation dans ce bloc pour ces filtres.</div>') + '</div>';
+
+  return _filterBar('radar') + '<div class="db-radar"><div>' + svg + legend +
+    '<div class="db-hint">Axe grisé : moins de 3 observations, pourcentage peu fiable.</div></div>' + det + '</div>';
+}
+
 /* ── Rendu ───────────────────────────────────────────────────────────── */
-const RENDER = { rev: _renderRev, work: _renderWork, strong: _renderStrong, frise: _renderFrise };
+const RENDER = { rev: _renderRev, radar: _renderRadar, work: _renderWork, strong: _renderStrong, frise: _renderFrise };
 export function renderBlock(block) {
   const el = document.getElementById('db-' + block);
   if (el) el.innerHTML = RENDER[block]();

@@ -60,6 +60,14 @@ Quand une version corrige un bug ou un frag identifié dans l'audit, **toujours 
 
 ---
 
+## [1.15.0] — 2026-11-18
+
+### Ajouté
+- Débrief de fin de match : bloc « Radar par bloc » (`#db-radar`, `_renderRadar` / `dbRadarAxis` dans js/debrief.js), placé après « À revoir et notes ». % conforme par bloc (FAMILIES : A1, A2, B, C1, C2), une courbe par arbitre, filtres Arbitre / Période propres au bloc ; détail des catégories de l'axe touché (par défaut le bloc le plus faible ayant ≥ 3 observations) ; axe à moins de 3 observations grisé. Test `tests/e2e/radar.test.js`.
+
+### Corrigé
+- `var(--text-sec)` (variable inexistante) remplacé par `var(--text-secondary)` : bouton « Réinitialiser » des filtres, résumé de confirmation de suppression, libellés et boutons du mode modification, ✕ des catégories liées.
+
 ## [1.14.3] — 2026-11-17
 
 ### Corrigé

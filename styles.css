@@ -1064,7 +1064,7 @@ body.dark .flt-bar select.flt-on {
   border: 1px solid var(--border-input);
   border-radius: 6px;
   background: var(--bg-card);
-  color: var(--text-sec);
+  color: var(--text-secondary);
   cursor: pointer;
   height: 28px;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
@@ -1163,7 +1163,7 @@ body.dark .obs-btn-del:hover { background: #3a1a1a; color: #f08080; }
 }
 .confirm-summary {
   font-size: 12px;
-  color: var(--text-sec);
+  color: var(--text-secondary);
   background: var(--bg-input);
   border: 1px solid var(--border-input);
   border-radius: 8px;
@@ -1208,7 +1208,7 @@ body.dark .obs-btn-del:hover { background: #3a1a1a; color: #f08080; }
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: var(--text-sec);
+  color: var(--text-secondary);
   white-space: nowrap;
 }
 .detail-edit-btns {
@@ -1222,7 +1222,7 @@ body.dark .obs-btn-del:hover { background: #3a1a1a; color: #f08080; }
   border: 1.5px solid var(--border-input);
   border-radius: 20px;
   background: var(--bg-input);
-  color: var(--text-sec);
+  color: var(--text-secondary);
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
@@ -1251,7 +1251,7 @@ body.dark .obs-btn-del:hover { background: #3a1a1a; color: #f08080; }
 body.dark .edit-ctrl-arb,
 body.dark .edit-ctrl-type {
   background: var(--bg-input);
-  color: var(--text-sec);
+  color: var(--text-secondary);
   border-color: var(--border-input);
 }
 body.dark .edit-ctrl-arb.edit-ctrl-active { background: #2a4a8a; border-color: #4a7fd4; }
@@ -1648,7 +1648,7 @@ body.dark .edit-ctrl-green.edit-ctrl-active{ background: #1a6b35; border-color: 
 .qn-linked-head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
 .qn-linked-head b { flex: 1; font-size: 16px; color: var(--text-main); }
 .qn-linked-head .edit-ctrl-type { min-height: 40px; font-size: 13px; }
-.qn-linked-x { border: 0; background: none; color: var(--text-sec); font-size: 18px; min-width: 44px; min-height: 44px; cursor: pointer; font-family: inherit; }
+.qn-linked-x { border: 0; background: none; color: var(--text-secondary); font-size: 18px; min-width: 44px; min-height: 44px; cursor: pointer; font-family: inherit; }
 table.olist tr.rm td { background: linear-gradient(90deg, var(--red-bg), var(--green-bg)); color: var(--text-main); border-bottom: 1px solid var(--border-input); }
 table.olist tr.rm:last-child td { border-bottom: none; }
 table.olist tr.rm td .lc { font-size: 11px; font-weight: 700; }
@@ -1663,3 +1663,38 @@ table.olist td .lk-o, table.olist tr.rm td .lc-o { color: var(--green-text); fon
   .qn-tgrp { grid-template-columns: 1fr; }
   .qn-tgrp-name { padding-top: 2px; }
 }
+
+/* ═══ Débrief : radar par bloc — v1.15.0 ═══════════════════════════════ */
+.db-radar { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.db-radar-svg { display: block; width: 100%; max-width: 420px; margin: 0 auto; }
+.db-radar-svg .rd-grid { fill: none; stroke: var(--border-input); stroke-width: 1; }
+.db-radar-svg .rd-scale { font-size: 9px; fill: var(--text-hint); }
+.db-radar-svg .rd-area { stroke-width: 2.5; stroke-linejoin: round; fill-opacity: .12; }
+.db-radar-svg .rd-area.rd-a1 { stroke: var(--a1-main); fill: var(--a1-main); }
+.db-radar-svg .rd-area.rd-a2 { stroke: var(--a2-main); fill: var(--a2-main); }
+.db-radar-svg .rd-dot.rd-a1 { fill: var(--a1-main); }
+.db-radar-svg .rd-dot.rd-a2 { fill: var(--a2-main); }
+.db-radar-svg .rd-dot.rd-few { fill: var(--text-hint); }
+.db-radar-svg .rd-lab { cursor: pointer; }
+.db-radar-svg .rd-lab rect { fill: var(--bg-card); stroke: var(--border-input); }
+.db-radar-svg .rd-lab.on rect { fill: var(--a1-bg); stroke: var(--a1-border); }
+.db-radar-svg .rd-lab text { text-anchor: middle; }
+.db-radar-svg .rd-t { font-size: 12px; font-weight: 700; fill: var(--text-main); }
+.db-radar-svg .rd-n { font-size: 10px; fill: var(--text-hint); }
+.db-radar-svg .rd-lab.few .rd-t { fill: var(--text-hint); }
+.db-radar-leg { display: flex; gap: 16px; justify-content: center; font-size: 13px; font-weight: 600; color: var(--text-main); margin-top: 2px; }
+.db-radar-leg i { display: inline-block; width: 14px; height: 4px; border-radius: 2px; margin-right: 6px; vertical-align: middle; }
+.db-radar-leg .rd-leg-a1 { background: var(--a1-main); }
+.db-radar-leg .rd-leg-a2 { background: var(--a2-main); }
+.db-radar-dt { font-size: 12px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
+.db-radar-tab { width: 100%; border-collapse: collapse; font-size: 13px; color: var(--text-main); }
+.db-radar-tab th, .db-radar-tab td { text-align: left; padding: 7px 4px; border-bottom: 1px solid var(--border-input); }
+.db-radar-tab th { font-size: 11px; color: var(--text-hint); text-transform: uppercase; font-weight: 600; }
+.db-radar-tab .a1 { color: var(--a1-text); }
+.db-radar-tab .a2 { color: var(--a2-text); }
+.db-radar-tab .tot { font-weight: 800; white-space: nowrap; }
+.db-radar-tab .tot.ok { color: var(--green-text); }
+.db-radar-tab .tot.mid { color: #8a6d00; }
+.db-radar-tab .tot.ko { color: var(--red-text); }
+@media (max-width: 767px) { .db-radar { grid-template-columns: 1fr; } }
+body.dark .db-radar-tab .tot.mid { color: #e0b84a; }
