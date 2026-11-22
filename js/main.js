@@ -11,6 +11,7 @@ import { mtOpen, mtClose, mtArb, mtNote, mtRender, mtPer } from './midtime.js';
 import { buildQuickNotes, closeDetail, saveDetail, toggleDetailFlag, toggleDetailTodo, askUndo, cancelUndo, doUndo, redoObs, refreshCounters, renderTable, renderEndTable, sorted, onFilterChange, onFilterChangeE, resetFilters, resetFiltersE, editObservation, deleteObservation, confirmDelete, closeConfirm } from './observations.js';
 import { setSynFilter, buildSynTable } from './synthesis.js';
 import { dbFilter, dbToggle, dbBubble, dbRadarAxis } from './debrief.js';
+import { openPrep, closePrep } from './prep.js';
 import { exportPDF } from './pdf.js';
 import { openMatchFromHome, autosave, autosaveDebounced, flushAutosave, checkResume, resumeMatch, discardMatch, saveToHistory, openHistory, closeHistory, renderHistory, deleteHistory, deleteHistoryRemote, reexportPDF, reexportPDFRemote, setAdminFilter, setHistFilters, startSafetyAutosave, stopSafetyAutosave } from './storage.js';
 import { startMatch, endMatch, backMatch, goHome, goHomeFromEnd } from './match.js';
@@ -60,6 +61,8 @@ window.dbFilter            = dbFilter;
 window.dbToggle            = dbToggle;
 window.dbBubble            = dbBubble;
 window.dbRadarAxis         = dbRadarAxis;
+window.openPrep            = openPrep;
+window.closePrep           = closePrep;
 window.exportPDF           = exportPDF;
 window.resumeMatch         = resumeMatch;
 window.discardMatch        = discardMatch;
@@ -462,6 +465,7 @@ function _updateUserBadge() {
    CHANGELOG / BADGE VERSION (v1.4.8)
 ════════════════════════════════════════ */
 const CHANGELOG = [
+  { v: '1.16.0', items: ['Fin de match : nouveau bouton « Préparation Suivi » — la feuille de suivi fédérale (A1 à C2, D, E, F) préremplie à partir du match','Notes proposées d\'après le % conforme (dès 3 observations), commentaires, difficulté, consignes F1 et points positifs / à travailler déjà rédigés, tout reste modifiable','Bouton « Copier » sur chaque texte et « Copier toute la feuille » ; la préparation est enregistrée avec le match','Corrigé : une modification faite juste avant « Enregistrer et retour à l\'accueil » pouvait laisser un faux « suivi interrompu » qui bloquait l\'ouverture des autres matchs'] },
   { v: '1.15.0', items: ['Fin de match : nouveau « Radar par bloc » (A1 Duels · A2 Continuité · B Joueurs · C1 Technique · C2 Décisionnel), une courbe par arbitre, filtres Arbitre / Période','Touchez un axe pour voir le détail de ses catégories (% conforme par arbitre et au total) ; un axe à moins de 3 observations est grisé','Quelques textes secondaires retrouvent leur gris prévu (couleur mal référencée)'] },
   { v: '1.14.3', items: ['Score de mi-temps (ou de TT2) enregistré même si le match se termine sans relancer le chrono','Nettoyage interne (code et styles inutilisés retirés) — aucun changement visible'] },
   { v: '1.14.2', items: ['Plus de match en double en ligne quand un match est réenregistré depuis un autre appareil','Un double appui sur « Enregistrer et retour à l\'accueil » ne crée plus de match vide ; un match sans aucune donnée n\'est plus enregistré'] },

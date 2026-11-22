@@ -60,6 +60,17 @@ Quand une version corrige un bug ou un frag identifié dans l'audit, **toujours 
 
 ---
 
+## [1.16.0] — 2026-11-22
+
+### Ajouté
+- Écran « Préparation Suivi » (`#PS`, nouveau module js/prep.js, bouton dans l'en-tête de fin de match) : feuille de suivi fédérale préremplie depuis le match — notes A1 à C2 proposées (arrondi du % conforme / 10, dès 3 observations ; B2 = SPP/SPA avec tags « Râle » / « Théâtralité »), commentaires (Bien / À travailler / situations ⚑), D1, E1 (réponses « Non » de l'Évaluation générale), E2, note globale indicative, F0 (commentaire global), F1 consignes et protocole (Oui ≥ 50 % conforme, Non vu sans observation), F2 / F3. Tout est modifiable ; boutons Copier par texte et pour toute la feuille ; « Recalculer les propositions » en deux appuis.
+- `S.prep` : enregistré avec le match (local, et `matches.etat.prep` en ligne), remis à zéro au retour à l'accueil, repris à la réouverture. Test `tests/e2e/preparation.test.js`.
+
+### Corrigé
+- `stopSafetyAutosave` (js/storage.js) annule aussi la sauvegarde différée en attente (`autosaveDebounced`, 500 ms). Avant : une saisie (contexte, préparation) suivie d'« Enregistrer et retour à l'accueil » dans la demi-seconde réécrivait `arbitres_hb_current` avec un match vide après le retour → faux « suivi interrompu » bloquant l'ouverture des autres matchs.
+
+---
+
 ## [1.15.0] — 2026-11-18
 
 ### Ajouté

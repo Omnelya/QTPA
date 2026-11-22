@@ -42,6 +42,9 @@ export function startSafetyAutosave() {
 }
 
 export function stopSafetyAutosave() {
+  /* v1.16.0 : on quitte le match → annule aussi une sauvegarde différée en attente,
+     sinon elle réécrivait un « suivi interrompu » vide après le retour à l'accueil. */
+  if (_debounceTimer) { clearTimeout(_debounceTimer); _debounceTimer = null; }
   if (!_safetyTimer) return;
   clearInterval(_safetyTimer);
   _safetyTimer = null;
@@ -555,7 +558,7 @@ async function _saveToHistoryNow() {
         contexte: ctx,
         commentaire_global: gc,
         /* v1.8.1 : état nécessaire pour rouvrir le match (colonne matches.etat) */
-        etat: Object.fromEntries(['nbMT','dureesMT','dureeProl','period','htA','htB','ht2A','ht2B','numA','numB','pauseNote','pauseNote2','uid'].map(k => [k, S[k]]))
+        etat: Object.fromEntries(['nbMT','dureesMT','dureeProl','period','htA','htB','ht2A','ht2B','numA','numB','pauseNote','pauseNote2','uid','prep'].map(k => [k, S[k]]))
       };
       const result = await saveMatchRemote(matchData);
       if (result.ok) {
@@ -928,7 +931,7 @@ export async function openMatchFromHome(id, local) {
   if (!src) { window.App.showAlert('Match introuvable ou impossible à charger.'); return; }
 
   log.info('LIFECYCLE', 'match_rouvert', { id: String(id), local: !!local });
-  Object.assign(S, src.S, { run: false, histId: src.histId || null, remoteId: src.remoteId || null, uid: src.S.uid || null });
+  Object.assign(S, src.S, { run: false, histId: src.histId || null, remoteId: src.remoteId || null, uid: src.S.uid || null, prep: src.S.prep || null });
   S.pauseNote = S.pauseNote || ''; S.pauseNote2 = S.pauseNote2 || ''; S.numA = S.numA || ''; S.numB = S.numB || '';
   S.obs.forEach(o => {
     if (!Array.isArray(o.arb)) o.arb = o.arb ? [o.arb] : [];

@@ -253,7 +253,9 @@ export const S = {
   remoteId: null,
   /* v1.14.2 : identifiant permanent du match (rangé dans matches.etat.uid) — permet de
      supprimer toutes les autres versions en ligne, même créées par un autre appareil. */
-  uid: null
+  uid: null,
+  /* v1.16.0 : Préparation Suivi (js/prep.js) — null tant que l'écran n'a pas été ouvert */
+  prep: null
 };
 
 /* ═══ Libellés de période — v1.7.2 ═══════════════════════════════════════

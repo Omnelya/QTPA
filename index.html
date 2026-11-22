@@ -409,6 +409,7 @@
       <button class="btn-theme-adaptive" onclick="toggleTheme()" title="Basculer le thème"><div class="btn-theme-icon"></div></button>
       <button class="btn-act btn-home-save" onclick="goHomeFromEnd()">Enregistrer et retour à l'accueil</button>
       <button class="btn-act" onclick="backMatch()">Retour</button>
+      <button class="btn-act btn-prep" onclick="openPrep()">Préparation Suivi</button>
       <button class="btn-act prim" id="BExp" onclick="exportPDF()">Exporter PDF…</button>
     </div>
   </div>
@@ -498,6 +499,22 @@
   </div>
   <div class="card"><div class="card-title">Commentaire global</div><textarea class="gc-ta" id="GC" placeholder="Synthèse générale, points forts, axes d'amélioration..."></textarea></div>
   <div class="copyright-bar" style="border-radius:10px;"></div>
+</div>
+
+<!-- ═══ PRÉPARATION SUIVI — v1.16.0 (contenu généré par js/prep.js) ══════ -->
+<div class="end-screen" id="PS" style="display:none;">
+  <div class="ps-wrap">
+    <div class="end-header">
+      <div class="match-info"><div id="PST"><strong>Préparation Suivi</strong></div><div class="match-meta" id="PSM"></div></div>
+      <div class="end-acts">
+        <button class="btn-theme-adaptive" onclick="toggleTheme()" title="Basculer le thème"><div class="btn-theme-icon"></div></button>
+        <button class="btn-act" onclick="closePrep()">← Fin de match</button>
+        <button class="btn-act prim" data-act="all">Copier la feuille</button>
+      </div>
+    </div>
+    <div class="ps-intro">Prépare la feuille de suivi à recopier sur le site fédéral. Tout est prérempli à partir du match <span class="ps-auto">auto</span> et reste modifiable ; chaque texte a son bouton « Copier ». La préparation est enregistrée avec le match.</div>
+    <div class="ps-wrap" id="psBody"></div>
+  </div>
 </div>
 
 <!-- ═══ HISTORIQUE ═══════════════════════════════════════════════════════ -->

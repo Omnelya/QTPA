@@ -1698,3 +1698,54 @@ table.olist td .lk-o, table.olist tr.rm td .lc-o { color: var(--green-text); fon
 .db-radar-tab .tot.ko { color: var(--red-text); }
 @media (max-width: 767px) { .db-radar { grid-template-columns: 1fr; } }
 body.dark .db-radar-tab .tot.mid { color: #e0b84a; }
+
+/* ═══ Préparation Suivi — v1.16.0 (js/prep.js) ═════════════════════════ */
+.ps-wrap { max-width: 900px; margin: 0 auto; width: 100%; display: flex; flex-direction: column; gap: 12px; }
+#PST, #PST strong, #PSM { color: #000; }
+body.dark #PST, body.dark #PST strong, body.dark #PSM { color: var(--text-main); }
+.ps-intro { font-size: 13px; color: var(--text-hint); line-height: 1.45; }
+.ps-info { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; }
+.ps-info .sf { margin: 0; }
+.ps-val { font-size: 15px; color: var(--text-main); font-weight: 600; }
+.ps-item { padding: 12px 0; border-bottom: 1px solid var(--border-light); }
+.ps-item:first-of-type { padding-top: 0; }
+.ps-item:last-child { border-bottom: none; padding-bottom: 0; }
+.ps-ih { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.ps-ih b { font-size: 15px; color: var(--text-main); }
+.ps-code { color: var(--blue-main); margin-right: 6px; font-weight: 800; }
+body.dark .ps-code { color: var(--blue-text); }
+.ps-sugg { font-size: 12px; color: var(--text-hint); }
+.ps-sugg b { color: var(--text-main); }
+.ps-notes { display: grid; grid-template-columns: repeat(11, 1fr); width: 100%; margin: 8px 0; }
+.ps-notes .db-seg-b { padding: 0; min-width: 0; min-height: 40px; }
+.ps-notes .db-seg-b.sugg:not(.on) { box-shadow: inset 0 0 0 2px var(--blue-main); }
+.ps-seg { display: flex; width: 100%; margin: 8px 0; }
+.ps-seg .db-seg-b { flex: 1; min-height: 40px; }
+.ps-seg .db-seg-b.on.neg { background: var(--red-text); }
+.ps-seg .db-seg-b.on.pos { background: var(--green-text); }
+.gc-ta.ps-ta { min-height: 84px; }
+.ps-tbar { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 6px; }
+.ps-cnt { font-size: 12px; color: var(--text-hint); }
+.ps-cnt.over { color: var(--red-text); font-weight: 700; }
+.btn-act.ps-copy { padding: 6px 12px; font-size: 12px; }
+.btn-act.ps-warn { border-color: var(--red-text); color: var(--red-text); }
+.ps-auto { display: inline-block; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 6px; background: var(--blue-badge); color: var(--blue-main); border: 1px solid #B5D4F4; vertical-align: 1px; text-transform: none; letter-spacing: 0; }
+.ps-why { font-size: 12px; color: var(--text-hint); margin-top: 4px; }
+.ps-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.card > .ps-tags { margin-top: 0; }
+.ps-total { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ps-total .card-title { margin-bottom: 2px; }
+.ps-big { font-size: 26px; font-weight: 800; color: var(--score-color, var(--blue-main)); }
+.ps-sub { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; margin: 10px 0 2px; }
+.q-row .q-lbl small { display: block; font-size: 11px; color: var(--text-hint); }
+.btn-yn.nvsel { background: var(--bg-secondary); color: var(--text-main); border-color: var(--text-hint); border-width: 2px; }
+.ps-acts { display: flex; gap: 8px; flex-wrap: wrap; }
+.ps-export { display: none; white-space: pre-wrap; font-size: 13px; background: var(--bg-input); border: 1px solid var(--border-input); border-radius: 10px; padding: 12px; max-height: 340px; overflow: auto; margin-top: 10px; color: var(--text-main); }
+.ps-export.on { display: block; }
+@media (max-width: 767px) {
+  .ps-info { grid-template-columns: 1fr; }
+  .yn-btns.ps-yn .btn-yn { padding: 9px 12px; }
+  .end-header #PST { font-size: 15px; line-height: 1.25; }
+  /* Fin de match : « Préparation Suivi » sur toute la largeur, 3e ligne */
+  .end-acts .btn-prep { grid-column: 1 / -1; grid-row: 3; }
+}
