@@ -28,6 +28,12 @@ for(const [n,vp] of [['ipad',{width:1180,height:820}],['iph',{width:430,height:9
  l=await links('Protocole','conforme');ok(l.join()==='SPP',n+' Protocole → '+l);await p.evaluate(()=>closeDetail());
  l=await links('SPP','conforme');ok(l.join()==='J7M,Exécution du Jet,Protocole',n+' SPP → '+l);await p.evaluate(()=>closeDetail());
  l=await links('Gestion du sifflet','conforme');ok(l.join()==='Exécution du Jet',n+' Gestion du sifflet → '+l);await p.evaluate(()=>closeDetail());
+ /* v1.17.1 : J7M ↔ Zone d'influence, dans les deux sens, et enregistrement d'une action liée */
+ l=await links('J7M','non conforme');ok(l.join()==="SPA,SPP,Zone d'influence",n+' J7M → '+l);
+ await p.click(`#detailLinkBtns [data-link="Zone d'influence"]`);await p.click('#detailSave_A1');await p.waitForTimeout(200);
+ const z=await p.evaluate(async()=>{const m=await import('/js/state.js');return JSON.parse(JSON.stringify(m.S.obs)).filter(x=>x.cat==='J7M'||x.cat==="Zone d'influence")});
+ ok(z.length===2&&z[0].lien&&z[0].lien===z[1].lien&&z.map(x=>x.cat).join()==="J7M,Zone d'influence",n+" J7M + Zone d'influence enregistrées comme une seule action");
+ l=await links("Zone d'influence",'conforme');ok(l.join()==='J7M',n+" Zone d'influence → "+l);await p.evaluate(()=>closeDetail());
  ok(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),n+' pas de débordement');
  ok(!errs.length,n+' aucune erreur JS '+errs.join(' | '));await ctx.close();}
 await b.close();console.log(fails?fails+' ÉCHEC(S)':'TOUS LES TESTS PASSENT');process.exit(fails?1:0);})();

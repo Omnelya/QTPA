@@ -18,7 +18,7 @@ for(const [n,vp] of [['ipad',{width:1180,height:820}],['iph',{width:430,height:9
  ok(!(await p.textContent('#quickNotesWrap')).includes('🔗'),n+' aucun 🔗 sur la grille');
  // J7M ✘ + SPA
  await p.click('[aria-label="J7M non conforme"]');
- ok(await p.locator('#detailLinkBtns .qn-link-btn').count()===2,n+' J7M propose 2 liaisons');
+ ok(await p.locator('#detailLinkBtns .qn-link-btn').count()===3,n+' J7M propose 3 liaisons (SPA, SPP, Zone d\'influence)');
  await p.click('#detailLinkBtns [data-link="SPA"]');
  ok(await p.locator('.qn-linked[data-cat="SPA"].qn-linked-red').count()===1,n+' carte SPA ajoutée, ✘ par défaut (option A)');
  ok((await p.textContent('#detailTitle'))==='J7M — Non conforme + SPA',n+' titre');

@@ -60,6 +60,13 @@ Quand une version corrige un bug ou un frag identifié dans l'audit, **toujours 
 
 ---
 
+## [1.17.1] — 2026-11-22
+
+### Modifié
+- `LINKS` (js/state.js) : J7M ↔ Zone d'influence (dans les deux sens). Tests `liaisons` (J7M propose 3 liaisons) et `liaisons-multiples` (J7M → SPA, SPP, Zone d'influence ; Zone d'influence → J7M ; enregistrement d'une action liée) mis à jour.
+
+---
+
 ## [1.17.0] — 2026-11-22
 
 ### Ajouté

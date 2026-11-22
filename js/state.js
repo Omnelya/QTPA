@@ -175,13 +175,14 @@ export const TAG_GROUPS = {
    Même action saisie dans une seule fenêtre (« ＋ SPA » dans J7M…).
    Liaisons fixées par le suiveur, valables dans les deux sens. */
 export const LINKS = {
-  'J7M': ['SPA', 'SPP'],
+  'J7M': ['SPA', 'SPP', "Zone d'influence"],                             /* v1.17.1 : + Zone d'influence */
   'SPA': ['J7M', 'Exécution du Jet'],
   'SPP': ['J7M', 'Exécution du Jet', 'Protocole'],
   'Jet Franc': ['Exécution du Jet'],
   'Exécution du Jet': ['Jet Franc', 'SPP', 'SPA', 'Gestion du sifflet'],  /* v1.13.0 : + SPP, SPA, Gestion du sifflet */
   'Gestion du sifflet': ['Exécution du Jet'],
-  'Protocole': ['SPP']                                                    /* v1.13.0 */
+  'Protocole': ['SPP'],                                                   /* v1.13.0 */
+  "Zone d'influence": ['J7M']                                             /* v1.17.1 */
 };
 
 /* ── Durées (secondes) ── */
