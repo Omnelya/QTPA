@@ -55,6 +55,10 @@ const VP=[['ipad-paysage',{width:1180,height:820}],['ipad-portrait',{width:820,h
   ok(await page.evaluate(()=>!!document.querySelector('#db-frise .db-bubble .db-row')),'frise : bulle au clic');
   await page.locator('#db-strong .db-crow').first().click();
   ok(await page.evaluate(()=>!!document.querySelector('#db-strong .db-sub .db-row')),'3B : dépli au clic');
+  /* v1.18.4 : une catégorie avec apostrophe (Zone d'influence) se déplie aussi */
+  await page.evaluate(async()=>{const {S}=await import('/js/state.js');S.obs.push({time:'22:00',el:1320,period:'MT2',arb:['A1'],an:'A1',cat:"Zone d'influence",cats:["Zone d'influence"],col:'red',flag:false,tags:[],cmt:'apostrophe'});window.dbFilter('work','arb','all');window.dbFilter('work','per','all');});
+  await page.locator('#db-work .db-crow',{hasText:"Zone d'influence"}).click();await page.waitForTimeout(150);
+  ok(await page.evaluate(()=>[...document.querySelectorAll('#db-work .db-sub .db-row')].some(r=>r.textContent.includes('apostrophe'))),'3 : « Zone d\'influence » se déplie');
   // édition depuis une ligne
   await page.locator('#db-rev .db-row').first().click();await page.waitForTimeout(500);
   ok(await page.evaluate(()=>document.getElementById('detailOv')?.classList.contains('on')||!!document.querySelector('.qn-overlay.on')),'clic ligne : fenêtre de modification ouverte');

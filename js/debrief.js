@@ -135,7 +135,9 @@ function _catRow(block, s, kind) {
   const red = kind === 'n';
   const p = red ? _pct(s.r, s.g) : _pct(s.g, s.r);
   const open = !!_open[block + '|' + s.cat];
-  const cat = escapeHtml(s.cat).replace(/'/g, '&#39;');
+  /* v1.18.4 : chaîne JS dans un attribut HTML → \' puis échappement HTML
+     (avant, « Zone d'influence » cassait le onclick : impossible à déplier) */
+  const cat = escapeHtml(s.cat.replace(/\\/g, '\\\\').replace(/'/g, "\\'"));
   let h = '<div class="db-crow" role="button" tabindex="0" onclick="dbToggle(\'' + block + '\',\'' + cat + '\')">' +
     '<span class="db-cname">' + escapeHtml(s.cat) + '</span>' +
     '<span class="db-bar db-bar-' + kind + '"><i style="width:' + p + '%"></i></span>' +

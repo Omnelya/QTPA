@@ -60,6 +60,13 @@ Quand une version corrige un bug ou un frag identifié dans l'audit, **toujours 
 
 ---
 
+## [1.18.4] — 2026-11-22
+
+### Corrigé
+- Débrief « À travailler » / « Points forts » : une catégorie dont le nom contient une apostrophe (« Zone d'influence ») ne se dépliait pas — l'apostrophe, décodée par le HTML, fermait la chaîne JS du `onclick` (« missing ) after argument list »). `_catRow` échappe désormais pour JS (`\'`) puis pour HTML. Test `debrief` complété (échoue sans le correctif).
+
+---
+
 ## [1.18.3] — 2026-11-22
 
 ### Corrigé
