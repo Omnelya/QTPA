@@ -60,6 +60,13 @@ Quand une version corrige un bug ou un frag identifié dans l'audit, **toujours 
 
 ---
 
+## [1.18.1] — 2026-11-22
+
+### Modifié
+- `CAT_TAGS["Zone d'influence"]` : « Pas ta zone » passe de `both` à `red` (Non conforme seulement). Vérifié par `families.test.mjs` et, menu par menu, par `tags-menus` / `tags-groupes`. Les anciens suivis gardent leurs tags.
+
+---
+
 ## [1.18.0] — 2026-11-22
 
 ### Ajouté

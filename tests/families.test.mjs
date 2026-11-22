@@ -24,3 +24,9 @@ assert.equal(blockOf({}, 'SPA'), 'B'); assert.equal(blockOf({ grp: 'C2' }, 'J7M'
 assert.equal(catLabel({ cat: 'Autre', grp: 'B' }), 'Autre (B)'); assert.equal(catLabel({ cat: 'Autre' }), 'Autre');
 assert.deepEqual(Object.keys(GROUPS), ['A1', 'A2', 'B', 'C1', 'C2']);
 console.log('OK : ' + Object.keys(LINKS).length + ' catégories avec liaisons (symétriques, triées)');
+
+/* v1.18.1 : « Pas ta zone » (Zone d'influence) seulement en Non conforme */
+const { CAT_TAGS } = await import('../js/state.js');
+const zi = CAT_TAGS["Zone d'influence"];
+assert.ok(zi.red.includes('Pas ta zone') && !zi.green.includes('Pas ta zone') && !zi.both.includes('Pas ta zone'), '« Pas ta zone » doit être Non conforme seulement');
+console.log('OK : tags de Zone d\'influence');

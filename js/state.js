@@ -112,8 +112,8 @@ export const CAT_TAGS = {
     both:  ['Jaillissement', 'Permutation', 'Latéral', 'Profondeur', 'Course en C']
   },
   "Zone d'influence": {
-    red:   [],  green: [],
-    both:  ['Regarde le pivot en AZ', 'Pas ta zone', 'Crédibilité', 'Changement de zone']
+    red:   ['Pas ta zone'],  green: [],                                   /* v1.18.1 : Non conforme seulement */
+    both:  ['Regarde le pivot en AZ', 'Crédibilité', 'Changement de zone']
   },
   'Gestuelle': {
     red:   ['Prend le temps'],

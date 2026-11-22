@@ -465,6 +465,7 @@ function _updateUserBadge() {
    CHANGELOG / BADGE VERSION (v1.4.8)
 ════════════════════════════════════════ */
 const CHANGELOG = [
+  { v: '1.18.1', items: ['Zone d\'influence : le tag « Pas ta zone » n\'est plus proposé qu\'en Non conforme'] },
   { v: '1.18.0', items: ['15 nouvelles liaisons (ex. J7M ↔ Gestion du sifflet, Protocole, Placement ; Gestuelle ↔ Marcher, Passage en force, Zone, Reprise de dribble, Jeu passif, Jet franc ; Communication ↔ Déplacement…) ; les catégories liées sont triées par ordre alphabétique','« Autre » : choix du groupe (A1, A2, B, C1, C2) dans la fenêtre ; il compte dans ce groupe (radar, Préparation Suivi) et s\'affiche « Autre (C2) »','iPad : flèches Annuler / Rétablir toujours en face de « Observations rapides » (en portrait, les pastilles passent dessous)','Mi-temps : touche une catégorie des « 3 moins / mieux réussis » pour voir ses observations'] },
   { v: '1.17.1', items: ['J7M : nouvelle catégorie liée « Zone d\'influence » (bouton « + Zone d\'influence » dans la fenêtre J7M, et « + J7M » dans Zone d\'influence)'] },
   { v: '1.17.0', items: ['Préparation Suivi : sous chaque rubrique (A1 à C2), un menu « N actions » liste les actions du match des catégories concernées','Le menu est réduit par défaut ; touche-le pour le développer (il se referme à la prochaine ouverture de l\'écran)'] },
