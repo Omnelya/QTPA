@@ -60,6 +60,13 @@ Quand une version corrige un bug ou un frag identifié dans l'audit, **toujours 
 
 ---
 
+## [1.18.2] — 2026-11-22
+
+### Modifié
+- Tableau des observations (match et fin de match) : ligne d'action liée aux couleurs mixtes (`tr.rm`) → un seul `linear-gradient` posé sur le `<tr>` (cases transparentes) au lieu d'un dégradé par case. `oRow` le calcule : une couleur par catégorie, dans l'ordre de l'action, centrée sur sa part de la largeur ((i + 0,5) / n) → proportionnel au nombre de ✘ / ✔ (ex. ✘ ✘ ✔ : rouge jusqu'à 50 %, vert à 83 %). Test `liaisons` complété. Limite : Safari antérieur à 18 répète le fond d'un `<tr>` dans chaque case (bug WebKit 9268, corrigé en 2024).
+
+---
+
 ## [1.18.1] — 2026-11-22
 
 ### Modifié

@@ -1649,7 +1649,11 @@ body.dark .edit-ctrl-green.edit-ctrl-active{ background: #1a6b35; border-color: 
 .qn-linked-head b { flex: 1; font-size: 16px; color: var(--text-main); }
 .qn-linked-head .edit-ctrl-type { min-height: 40px; font-size: 13px; }
 .qn-linked-x { border: 0; background: none; color: var(--text-secondary); font-size: 18px; min-width: 44px; min-height: 44px; cursor: pointer; font-family: inherit; }
-table.olist tr.rm td { background: linear-gradient(90deg, var(--red-bg), var(--green-bg)); color: var(--text-main); border-bottom: 1px solid var(--border-input); }
+/* v1.18.2 : dégradé posé sur la ligne entière (cases transparentes), calculé par oRow.
+   shortcut: Safari antérieur à 18 répète le fond d'un <tr> dans chaque case (bug WebKit 9268,
+   corrigé en 2024) ; passer par un calcul JS si un appareil plus ancien doit être pris en charge. */
+table.olist tr.rm { background: var(--rm-bg, linear-gradient(90deg, var(--red-bg), var(--green-bg))); }
+table.olist tr.rm td { background: transparent; color: var(--text-main); border-bottom: 1px solid var(--border-input); }
 table.olist tr.rm:last-child td { border-bottom: none; }
 table.olist tr.rm td .lc { font-size: 11px; font-weight: 700; }
 table.olist td .lk-n, table.olist tr.rm td .lc-n { color: var(--red-text); font-weight: 700; }

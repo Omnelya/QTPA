@@ -882,11 +882,15 @@ export function oRow(o, idx) {
   const tl = x => x.col === 'red' ? 'Non conf./manquante' : 'Conforme';
   const mark = x => '<span class="' + (x.col === 'red' ? 'lk-n' : 'lk-o') + '">' + (x.col === 'red' ? '✘' : '✔') + '</span>';
   const cmtText = actionNote(g);
+  /* v1.18.2 : couleurs mixtes → un seul dégradé sur toute la ligne, une couleur par
+     catégorie dans l'ordre de l'action (centrée sur sa part) : proportionnel ✘ / ✔ */
+  const bg = mixed ? ' style="--rm-bg:linear-gradient(90deg,' + g.map((x, i) =>
+    'var(--' + (x.col === 'red' ? 'red' : 'green') + '-bg) ' + Math.round((i + 0.5) * 100 / g.length) + '%').join(',') + ')"' : '';
   o = g[0];
 
   /* v0.3.24 (FRAG-3) : échappement HTML des champs utilisateur */
   /* v0.4.9 : ajout colonne Actions (crayon + croix) avec data-idx */
-  return '<tr class="' + rc + '" data-idx="' + idx + '">' +
+  return '<tr class="' + rc + '" data-idx="' + idx + '"' + bg + '>' +
     '<td style="white-space:nowrap;font-variant-numeric:tabular-nums;">' + o.time + '</td>' +
     '<td style="white-space:nowrap;">' + pl(o.period) + '</td>' +
     '<td><span class="badge ba">' + escapeHtml(o.an) + '</span></td>' +

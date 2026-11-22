@@ -46,6 +46,10 @@ for(const [n,vp] of [['ipad',{width:1180,height:820}],['iph',{width:430,height:9
  await p.click('#detailSave_A2');await p.waitForTimeout(200);
  o=await obs();ok(o.length===2&&o[1].col==='green'&&o[0].col==='red'&&o[1].an==='Lopez'&&o[1].tags.includes('SPA 2'),n+' édition enregistrée sur les 2');
  ok((await p.getAttribute('#OTB tr','class'))==='rm'&&/J7M ✘ \+ SPA ✔/.test((await row())[0]),n+' ligne couleurs mixtes');
+ /* v1.18.2 : un seul dégradé sur la ligne (pas un par case), proportionnel : ✘ à 25 %, ✔ à 75 % */
+ const bgs=await p.$eval('#OTB tr',tr=>({tr:getComputedStyle(tr).backgroundImage,td:[...tr.cells].map(c=>getComputedStyle(c).backgroundImage+'|'+getComputedStyle(c).backgroundColor)}));
+ ok(/linear-gradient\(90deg, .+ 25%, .+ 75%\)/.test(bgs.tr)&&bgs.td.every(x=>x==='none|rgba(0, 0, 0, 0)'),n+' dégradé sur toute la ligne, cases transparentes '+bgs.tr);
+ await p.locator('#OTB tr').screenshot({path:OUT+'degrade_'+n+'.png'});
  // Retirer la liaison en édition
  await p.evaluate(()=>editObservation(1));await p.click('.qn-linked-x');await p.click('#detailSave_A2');await p.waitForTimeout(200);
  o=await obs();ok(o.length===1&&o[0].cat==='J7M'&&!('lien' in o[0]),n+' ✕ en édition : SPA retirée, J7M seule');
