@@ -273,17 +273,11 @@ export function validateSnapshot(snap) {
         S.tme[team] = { MT1:[null,null], MT2:[null,null], MT3:[null,null] };
       } else {
         ['MT1','MT2','MT3'].forEach(per => {
-          if (!Array.isArray(S.tme[team][per]) || S.tme[team][per].length !== 2) {
-            S.tme[team][per] = [null, null];
-          }
+          /* v1.18.7 : 2 ou 3 cases (TME max par période réglable) — ne plus effacer un 3e TME */
+          if (!Array.isArray(S.tme[team][per])) S.tme[team][per] = [null, null];
         });
       }
     });
-  }
-
-  // tmeLocked v1.4.27 : réparable si manquant
-  if (!S.tmeLocked || typeof S.tmeLocked !== 'object') {
-    S.tmeLocked = { A: false, B: false };
   }
 
   // ans : objet avec esprit/engage/niveau (réparable si manquant)
@@ -558,7 +552,7 @@ async function _saveToHistoryNow() {
         contexte: ctx,
         commentaire_global: gc,
         /* v1.8.1 : état nécessaire pour rouvrir le match (colonne matches.etat) */
-        etat: Object.fromEntries(['nbMT','dureesMT','dureeProl','period','htA','htB','ht2A','ht2B','numA','numB','pauseNote','pauseNote2','uid','prep'].map(k => [k, S[k]]))
+        etat: Object.fromEntries(['nbMT','dureesMT','dureeProl','period','htA','htB','ht2A','ht2B','numA','numB','pauseNote','pauseNote2','uid','prep','tme','tmeMax'].map(k => [k, S[k]]))
       };
       const result = await saveMatchRemote(matchData);
       if (result.ok) {

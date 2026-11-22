@@ -236,10 +236,10 @@ export const S = {
   sA: 0, sB: 0,
   htA: null, htB: null,
 
-  /* v1.4.22 : TME par période — 2 slots max par MT, réinitialisés à chaque période */
+  /* v1.4.22 : TME par période (heures « mm:ss ») ; v1.18.7 : jusqu'à 3 cases selon tmeMax */
   tme: { A: { MT1:[null,null], MT2:[null,null], MT3:[null,null] }, B: { MT1:[null,null], MT2:[null,null], MT3:[null,null] } },
-  /* v1.4.27 : verrou définitif slot 1 dernière MT dès que les 5' sont atteintes sans TME */
-  tmeLocked: { A: false, B: false },
+  /* v1.18.7 : TME max par période choisi dans ⚙ ; null = 2 par mi-temps, 1 par tiers-temps */
+  tmeMax: null,
 
   /* v1.4.19 : paramètres réglementaires configurables au démarrage */
   nbMT: 2,                          /* nombre de mi-temps : 2 ou 3         */

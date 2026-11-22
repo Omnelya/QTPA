@@ -3,16 +3,23 @@ import { S } from './state.js';
 import { fmt } from './utils.js';
 import { log } from './logger.js';
 
-/* ── v1.4.23 : TME par période avec quota global ──────────────────────────
-   Structure S.tme : { A: { MT1:[v0,v1], MT2:[v0,v1], MT3:[v0,v1] }, B:{...} }
+/* ── TME par période avec quota global — v1.4.23, revu v1.18.7 ───────────
+   Structure S.tme : { A: { MT1:[v0,v1(,v2)], MT2:[…], MT3:[…] }, B:{...} } (« mm:ss »)
    Règles :
-   - Max 2 TME par équipe par MT
+   - Max par équipe et par période : réglage ⚙ (S.tmeMax), sinon 2 par
+     mi-temps, 1 par tiers-temps
    - Max 3 TME par équipe par match (quota global)
-   - Dans les 5 dernières min de la dernière MT : 1 seul TME autorisé
-     (si quota global restant ≥ 1 mais slot 1 de la période bloqué)
+   - Dernière période, à partir de 5' de la fin (25e minute en 30') : 1 seul TME
 ──────────────────────────────────────────────────────────────────────────── */
 
 const TME_MAX_MATCH = 3; /* quota global par équipe */
+const TME_ROWS = 3;      /* lignes du tableau ; seules les utiles sont affichées */
+/** TME max par équipe et par période. */
+export const tmePerMax = () => S.tmeMax || (S.nbMT === 3 ? 1 : 2);
+const _filled = v => !!v && v !== 'X';
+const _sec = v => { const [m, s] = String(v).split(':').map(Number); return (m || 0) * 60 + (s || 0); };
+const _seuil = () => Math.max(0, (S.dureesMT[S.nbMT - 1] || 1800) - 5 * 60);
+const _inLast5 = () => S.period === 'MT' + S.nbMT && S.elapsed >= _seuil();
 
 /* Retourne le tableau de slots [v0, v1] pour l'équipe et la période courante */
 function _curSlots(team) {
@@ -25,7 +32,7 @@ function _curSlots(team) {
 function _totalTme(team) {
   return ['MT1','MT2','MT3'].reduce((acc, per) => {
     const slots = S.tme[team][per] || [];
-    return acc + slots.filter(v => v && v !== 'X').length;
+    return acc + slots.filter(_filled).length;
   }, 0);
 }
 
@@ -44,45 +51,45 @@ export function tmeState(team, idx) {
   /* Pendant les prolongations : TME désactivés */
   if (S.period === 'Prol.1' || S.period === 'Prol.2') return 'gray';
 
-  /* Quota global épuisé */
+  /* Quota global épuisé, ou maximum de la période atteint */
   if (_totalTme(team) >= TME_MAX_MATCH) return 'gray';
+  const per = tmePerMax();
+  if (slots.filter(_filled).length >= per) return 'gray';
 
-  /* Règle "5 dernières minutes de la dernière MT" :
-     Dès que les 5' sont atteintes sans TME pris dans la MT → slot 1 verrouillé
-     définitivement (S.tmeLocked[team] = true), même si un TME est pris ensuite. */
-  if (idx === 1 && S.tmeLocked[team]) return 'red';
-
+  /* 5 dernières minutes de la dernière période : un seul TME. Déjà pris → bloqué ;
+     sinon seule la 1re case libre est proposée. (v1.18.7 : d'après l'heure des TME) */
+  if (_inLast5()) {
+    if (slots.some(v => _filled(v) && _sec(v) >= _seuil())) return 'red';
+    let first = 0;
+    while (first < per && _filled(slots[first])) first++;
+    if (idx !== first) return 'red';
+  }
   return 'free';
 }
 
 export function refreshTme() {
-  /* v1.4.27 : pose le verrou définitif dès que les 5' sont atteintes sans TME pris */
-  const lastMT = 'MT' + S.nbMT;
-  if (S.period === lastMT) {
-    const seuil = Math.max(0, S.dureesMT[S.nbMT - 1] - 5 * 60);
-    if (S.elapsed >= seuil) {
-      ['A', 'B'].forEach(t => {
-        if (!S.tmeLocked[t]) {
-          const s0 = S.tme[t][lastMT][0];
-          if (!s0 || s0 === 'X') S.tmeLocked[t] = true;
-        }
-      });
-    }
+  const per = tmePerMax();
+  /* une ligne au-delà du maximum par période est retirée, sauf si elle contient un TME (pour pouvoir le supprimer) */
+  for (let i = 0; i < TME_ROWS; i++) {
+    const tr = document.getElementById('cA' + i)?.closest('tr');
+    if (tr) tr.style.display = (i < per || ['A', 'B'].some(t => _filled(_curSlots(t)[i]))) ? '' : 'none';
   }
 
   ['A', 'B'].forEach(team => {
     const slots    = _curSlots(team);
     const quotaRest = TME_MAX_MATCH - _totalTme(team);
+    /* v1.18.7 : cases utilisables = déjà prises + ce que permettent la période ET le quota du match
+       (avant : la 2e ligne disparaissait dès qu'il ne restait qu'1 TME au match, même si la période en permettait 2) */
+    const filled = slots.filter(_filled).length;
+    const usable = filled + Math.max(0, Math.min(per - filled, quotaRest));
 
-    for (let i = 0; i < 2; i++) {
+    for (let i = 0; i < TME_ROWS; i++) {
       const cell = document.getElementById('c' + team + i);
       if (!cell) return;
       const td = cell.parentElement;
       const v  = slots[i];
 
-      /* Masquer la 2ème ligne si quota restant ≤ 1 et slot vide
-         (on la garde visible si elle contient déjà un TME, pour pouvoir le supprimer) */
-      if (i === 1 && quotaRest <= 1 && !(v && v !== 'X')) {
+      if (i > 0 && i >= usable && !_filled(v)) {
         td.style.visibility = 'hidden';
         continue;
       }
@@ -116,8 +123,8 @@ export function refreshTme() {
 export function buildTme() {
   const tb = document.getElementById('tmeBody');
   tb.innerHTML = '';
-  /* v1.4.22 : 2 slots par MT uniquement */
-  for (let i = 0; i < 2; i++) {
+  /* v1.18.7 : jusqu'à 3 lignes ; refreshTme n'affiche que celles permises */
+  for (let i = 0; i < TME_ROWS; i++) {
     const tr = document.createElement('tr');
     tr.innerHTML =
       '<td style="font-size:12px;color:#888;text-align:center;">' + (i + 1) + '</td>' +
@@ -134,7 +141,7 @@ export function addTme(team, idx) {
   if (st === 'filled') return;
   if (st === 'red') {
     log.warn('TME', 'tme_bloque', { equipe: team, index: idx, temps: fmt(S.elapsed), periode: S.period });
-    window.App.showAlert('Impossible : 1 seul TME autorisé dans les 5 dernières minutes de la dernière mi-temps.');
+    window.App.showAlert('Impossible : 1 seul TME autorisé dans les 5 dernières minutes de la dernière période.');
     return;
   }
   if (st === 'gray') {

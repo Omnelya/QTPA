@@ -60,6 +60,19 @@ Quand une version corrige un bug ou un frag identifié dans l'audit, **toujours 
 
 ---
 
+## [1.18.7] — 2026-11-22
+
+### Corrigé
+- TME : la 2e ligne d'une période était masquée dès qu'il ne restait qu'1 TME au match (`quotaRest <= 1`), donc avec 1 TME pris en MT1 on ne pouvait plus en prendre qu'un en MT2. Cases utilisables = prises + min(max par période − prises, quota restant).
+- Tiers-temps : 1 TME par tiers-temps (au lieu de 2).
+- 5 dernières minutes de la dernière période : règle « 1 seul TME » calculée d'après l'heure des TME pris (≥ durée − 5 min) au lieu du verrou `S.tmeLocked` (supprimé) — 1er TME de MT2 à partir de 25:00 → pas de 2e ; TME à 20:00 puis un à 26:00 → permis.
+- `validateSnapshot` ne réinitialise plus un tableau de TME de 3 cases.
+
+### Ajouté
+- Réglages ⚙ : « TME max par période » (1 / 2 / 3), `S.tmeMax` (null = défaut du format : 2 en mi-temps, 1 en tiers-temps ; le défaut suit le format si on change 2 MT ↔ 3 TT). Jusqu'à 3 lignes dans le tableau TME, seules les utiles affichées. `tme` et `tmeMax` ajoutés à `matches.etat`. Nouveau test `tests/e2e/tme.test.js`.
+
+---
+
 ## [1.18.6] — 2026-11-22
 
 ### Modifié

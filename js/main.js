@@ -6,7 +6,7 @@
 import { applyTheme, toggleTheme, showAlert, closeAlert, buildQs, setAns } from './ui.js';
 import { updateCD, toggleChrono, resumeTme, tickC, advPeriod, activerProlong, resetChrono, applyRecal } from './timer.js';
 import { chgScore, buildTme, refreshTme, addTme, deleteTme, tmeVal } from './score.js';
-import { sgOpen, sgClose, sgNb, sgSave } from './settings.js';
+import { sgOpen, sgClose, sgNb, sgSave, sgTme } from './settings.js';
 import { mtOpen, mtClose, mtArb, mtNote, mtRender, mtPer } from './midtime.js';
 import { buildQuickNotes, closeDetail, saveDetail, toggleDetailFlag, toggleDetailTodo, askUndo, cancelUndo, doUndo, redoObs, refreshCounters, renderTable, renderEndTable, sorted, onFilterChange, onFilterChangeE, resetFilters, resetFiltersE, editObservation, deleteObservation, confirmDelete, closeConfirm } from './observations.js';
 import { setSynFilter, buildSynTable } from './synthesis.js';
@@ -91,7 +91,7 @@ window.closeDetail         = closeDetail;
 window.saveDetail          = saveDetail;
 window.toggleDetailFlag    = toggleDetailFlag;
 window.toggleDetailTodo    = toggleDetailTodo;
-window.sgOpen = sgOpen; window.sgClose = sgClose; window.sgNb = sgNb; window.sgSave = sgSave;
+window.sgOpen = sgOpen; window.sgClose = sgClose; window.sgNb = sgNb; window.sgSave = sgSave; window.sgTme = sgTme;
 window.mtOpen = mtOpen; window.mtClose = mtClose; window.mtArb = mtArb; window.mtPer = mtPer; window.mtNote = mtNote; window.mtRefresh = mtRender;
 window.askUndo             = askUndo;
 window.cancelUndo          = cancelUndo;
@@ -465,6 +465,7 @@ function _updateUserBadge() {
    CHANGELOG / BADGE VERSION (v1.4.8)
 ════════════════════════════════════════ */
 const CHANGELOG = [
+  { v: '1.18.7', items: ['Corrigé : avec 1 TME pris en MT1, la 2e mi-temps permet bien 2 TME (la 2e ligne disparaissait après le 1er)','Tiers-temps : 1 TME par tiers-temps','Réglages ⚙ : « TME max par période » (1, 2 ou 3 ; par défaut 2 en mi-temps, 1 en tiers-temps). Toujours 3 par match, et 1 seul à partir des 5 dernières minutes de la dernière période'] },
   { v: '1.18.6', items: ['Frise : le repère d\'une action liée montre une icône par catégorie (ex. ✘✘✔ pour 3 catégories, chacune sur sa couleur)','Deux catégories à revoir → double drapeau ⚑⚑'] },
   { v: '1.18.5', items: ['Frise chronologique : une action liée (ex. J7M + SPA) n\'a plus qu\'un seul repère (avant : un par catégorie, d\'où deux ⚑) ; une action ✘ + ✔ a un repère mi-rouge mi-vert'] },
   { v: '1.18.4', items: ['Corrigé : « Zone d\'influence » (nom avec apostrophe) ne se dépliait pas dans « À travailler » et « Points forts »'] },

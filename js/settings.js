@@ -10,7 +10,11 @@ const $ = id => document.getElementById(id);
 const _clamp = (v, a, b) => Math.max(a, Math.min(b, parseInt(v, 10) || a));
 
 /* v1.12.0 : choix en attente, appliqués seulement par « Enregistrer » (Annuler = rien ne change) */
-let _nb = 2, _durs = [1800, 1800];
+let _nb = 2, _durs = [1800, 1800], _tme = 2;
+/* v1.18.7 : TME max par période — par défaut 2 par mi-temps, 1 par tiers-temps */
+const _tmeDef = n => (n === 3 ? 1 : 2);
+function _tmeButtons() { [1, 2, 3].forEach(n => $('sgTme' + n).classList.toggle('on', _tme === n)); }
+export function sgTme(n) { _tme = n; _tmeButtons(); }
 
 /* v1.12.0 : durées choisies avec les mêmes roues que la fenêtre de démarrage */
 function _durRow() {
@@ -48,7 +52,8 @@ export function sgOpen() {
   pr.appendChild(makeWheel('sgWProl', 1, 30, Math.round((S.dureeProl || 300) / 60)));
   pr.insertAdjacentHTML('beforeend', '<div class="sg-wunit">min par prolongation</div>');
   _nb = S.nbMT; _durs = [...S.dureesMT];
-  _nbButtons(); _durRow();
+  _tme = S.tmeMax || _tmeDef(S.nbMT);
+  _nbButtons(); _durRow(); _tmeButtons();
   const card = $('sgOverlay').querySelector('.sg-card');
   if (card) card.scrollTop = 0;
 }
@@ -56,9 +61,10 @@ export function sgClose() { $('sgOverlay').classList.remove('on'); }
 
 export function sgNb(n) {
   if (S.period !== 'MT1' || n === _nb) return;
+  if (_tme === _tmeDef(_nb)) _tme = _tmeDef(n); /* le défaut suit le format, sauf choix personnel */
   _nb = n;
   _durs = n === 3 ? [900, 900, 900] : [1800, 1800];
-  _nbButtons(); _durRow();
+  _nbButtons(); _durRow(); _tmeButtons();
 }
 
 export function sgSave() {
@@ -70,6 +76,7 @@ export function sgSave() {
   if (S.period === 'MT1') S.nbMT = _nb;
   S.dureesMT = Array.from({ length: S.nbMT }, (_, i) => _clamp(readWheel('sgW' + i, 1), 1, 59) * 60);
   S.dureeProl = _clamp(readWheel('sgWProl', 1), 1, 30) * 60;
+  S.tmeMax = _tme === _tmeDef(S.nbMT) ? null : _tme; /* null = suit le format */
 
   /* cohérence des observations déjà saisies */
   S.obs.forEach(o => {

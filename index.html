@@ -369,6 +369,10 @@
     <div class="sg-wrow" id="sgDurs"></div>
     <div class="sg-lab">Durée d'une prolongation</div>
     <div class="sg-prol" id="sgProlW"></div>
+    <!-- v1.18.7 : TME max par période -->
+    <div class="sg-lab">TME max par période (par équipe)</div>
+    <div class="sg-nb"><button type="button" id="sgTme1" onclick="sgTme(1)">1</button><button type="button" id="sgTme2" onclick="sgTme(2)">2</button><button type="button" id="sgTme3" onclick="sgTme(3)">3</button></div>
+    <div class="sg-note" style="display:block">Par défaut : 2 par mi-temps, 1 par tiers-temps. Toujours 3 TME max par match, et 1 seul dans les 5 dernières minutes de la dernière période.</div>
     <div class="sg-acts">
       <button type="button" class="sg-cancel" onclick="sgClose()">Annuler</button>
       <button type="button" class="sg-save" onclick="sgSave()">Enregistrer</button>
