@@ -60,6 +60,13 @@ Quand une version corrige un bug ou un frag identifié dans l'audit, **toujours 
 
 ---
 
+## [1.18.5] — 2026-11-22
+
+### Corrigé
+- Frise chronologique : un repère par action (`oneLinePerAction`) au lieu d'un par catégorie — une action liée marquée ⚑ (J7M + SPA) montrait deux drapeaux superposés. Repère d'une action ✘ + ✔ : `.db-mk-m` mi-rouge mi-vert « ✘✔ » ; `aria-label` avec toutes les catégories. Les compteurs « n ✘ / n ✔ » restent par catégorie (comme le reste du débrief). Test `debrief-ligne-liee` complété.
+
+---
+
 ## [1.18.4] — 2026-11-22
 
 ### Corrigé

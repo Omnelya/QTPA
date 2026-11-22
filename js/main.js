@@ -465,6 +465,7 @@ function _updateUserBadge() {
    CHANGELOG / BADGE VERSION (v1.4.8)
 ════════════════════════════════════════ */
 const CHANGELOG = [
+  { v: '1.18.5', items: ['Frise chronologique : une action liée (ex. J7M + SPA) n\'a plus qu\'un seul repère (avant : un par catégorie, d\'où deux ⚑) ; une action ✘ + ✔ a un repère mi-rouge mi-vert'] },
   { v: '1.18.4', items: ['Corrigé : « Zone d\'influence » (nom avec apostrophe) ne se dépliait pas dans « À travailler » et « Points forts »'] },
   { v: '1.18.3', items: ['Radar par bloc : quand un arbitre est choisi, le tableau de détail n\'affiche plus que sa colonne (l\'autre arbitre n\'apparaît plus)'] },
   { v: '1.18.2', items: ['Tableau des observations : une action liée ✘ + ✔ a maintenant un seul dégradé sur toute la ligne (plus un par case), proportionnel au nombre de catégories ✘ et ✔'] },

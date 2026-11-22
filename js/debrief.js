@@ -190,7 +190,8 @@ function _renderFrise() {
     const nR = list.filter(o => o.col === 'red').length;
     /* Répartition sur des couloirs pour que les repères proches ne se chevauchent pas */
     const lanes = [];
-    const marks = list.map(o => {
+    /* v1.18.5 : un repère par action (J7M + SPA = 1 repère) ; les compteurs restent par catégorie */
+    const marks = oneLinePerAction(list).map(o => {
       const pos = (o.el || 0) / dur * 100;
       let lane = lanes.findIndex(last => pos - last >= 3.2);
       if (lane < 0) { lane = lanes.length; lanes.push(pos); } else { lanes[lane] = pos; }
@@ -201,9 +202,10 @@ function _renderFrise() {
       '<div class="db-axis" style="height:' + (nl * 30 + 8) + 'px">' +
       marks.map(m => {
         const idx = S.obs.indexOf(m.o);
-        const cls = m.o.flag ? 'fl' : (m.o.col === 'red' ? 'n' : 'o');
+        const g = linkGroup(m.o), red = g.some(x => x.col === 'red'), mixed = red && g.some(x => x.col !== 'red');
+        const cls = m.o.flag ? 'fl' : mixed ? 'm' : (red ? 'n' : 'o');
         return '<button type="button" class="db-mk db-mk-' + cls + (_bubble === idx ? ' sel' : '') + '" style="left:' + m.pos.toFixed(2) + '%;bottom:' + (m.lane * 30 + 3) + 'px" ' +
-          'aria-label="' + escapeHtml(m.o.time + ' ' + m.o.cat) + '" onclick="dbBubble(' + idx + ')">' + (m.o.flag ? '⚑' : (m.o.col === 'red' ? '✘' : '✔')) + '</button>';
+          'aria-label="' + escapeHtml(m.o.time + ' ' + g.map(x => x.cat).join(' + ')) + '" onclick="dbBubble(' + idx + ')">' + (m.o.flag ? '⚑' : mixed ? '✘✔' : (red ? '✘' : '✔')) + '</button>';
       }).join('') +
       '</div></div>' +
       '<div class="db-ticks"><span>0</span><span>' + fmt(Math.round(dur / 2)) + '</span><span>' + fmt(dur) + '</span></div>';

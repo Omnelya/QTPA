@@ -28,6 +28,15 @@ for(const [n,vp] of [['ipad',{width:1180,height:820}],['iph',{width:430,height:9
  const row=p.locator('#ES .db-row').filter({hasText:'Exécution du Jet'}).first();await row.scrollIntoViewIfNeeded();
  const w=await row.evaluate(r=>({row:Math.round(r.getBoundingClientRect().width),note:Math.round(r.querySelector('.db-note').getBoundingClientRect().width),h:Math.round(r.getBoundingClientRect().height),txt:r.querySelector('.db-note').textContent}));
  ok(w.note>w.row*0.4&&w.h<(n==='iph'?160:90),n+' note sur toute la largeur '+JSON.stringify(w));
+ /* v1.18.5 : frise — un repère par action liée (Jet Franc + Exécution du Jet = 1), compteurs par catégorie */
+ const fr=await p.evaluate(()=>({mk:[...document.querySelectorAll('#db-frise .db-mk')].map(m=>m.className+'|'+m.getAttribute('aria-label')),lab:document.querySelector('#db-frise .db-tl-lab span').textContent}));
+ ok(fr.mk.length===1&&fr.mk[0].includes('db-mk-n')&&fr.mk[0].includes('Jet Franc + Exécution du Jet')&&fr.lab==='2 ✘ / 0 ✔',n+' frise : 1 repère pour l\'action liée '+JSON.stringify(fr));
+ await p.evaluate(async()=>{const {S}=await import('/js/state.js');const mk=(cat,col)=>({time:'12:00',el:720,period:'MT1',arb:['A2'],an:'Lopez',cat,cats:[cat],col,flag:false,todo:false,tags:[],cmt:'',lien:'Lmix'});S.obs.push(mk('J7M','red'),mk('SPA','green'));window.dbFilter('frise','arb','all');});
+ const mix=await p.$$eval('#db-frise .db-mk',m=>m.map(x=>x.className+'|'+x.textContent));
+ ok(mix.length===2&&mix.some(x=>x.includes('db-mk-m')&&x.endsWith('✘✔')),n+' frise : action ✘ + ✔ = 1 repère mi-rouge mi-vert '+JSON.stringify(mix));
+ await p.locator('#db-frise .db-mk-m').click();
+ ok(/J7M\s*✘\s*\+\s*SPA\s*✔/.test(await p.textContent('#db-frise .db-bubble')),n+' frise : la bulle montre l\'action entière');
+ await p.locator('#db-frise').screenshot({path:`${OUT}frise_liee_${n}.png`});
  await row.screenshot({path:`${OUT}f115_${n}_rev.png`});
  ok(!errs.length,n+' erreurs JS '+errs.join(' | '));console.log(n,'largeur note mi-temps',mtNote);await ctx.close();}
 await b.close();console.log(fails?fails+' ÉCHEC(S)':'TOUS LES TESTS PASSENT');process.exit(fails?1:0);})();
