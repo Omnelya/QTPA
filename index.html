@@ -230,9 +230,11 @@
         <div class="card-title" style="margin-bottom:0;">Observations rapides</div>
         <div class="obs-cnt qn-cnt-head" id="OC">0 obs.</div>
         <span class="qn-head-spacer"></span>
-        <span class="qn-chip qn-chip-a1" id="qnStats_A1"></span>
-        <span class="qn-chip qn-chip-a2" id="qnStats_A2"></span>
-        <span class="qn-chip qn-chip-flag" id="qnFlags" title="Observations à revoir">⚑ 0</span>
+        <span class="qn-chips">
+          <span class="qn-chip qn-chip-a1" id="qnStats_A1"></span>
+          <span class="qn-chip qn-chip-a2" id="qnStats_A2"></span>
+          <span class="qn-chip qn-chip-flag" id="qnFlags" title="Observations à revoir">⚑ 0</span>
+        </span>
         <button type="button" class="qn-hbtn" id="btnUndo" onclick="askUndo()" disabled title="Annuler la dernière observation" aria-label="Annuler la dernière observation">↶</button>
         <button type="button" class="qn-hbtn" id="btnRedo" onclick="redoObs()" disabled title="Rétablir" aria-label="Rétablir">↷</button>
       </div>
@@ -298,6 +300,11 @@
     <div id="detailLinkZone" style="display:none;">
       <div class="qn-detail-label">Lier une catégorie · même action</div>
       <div class="qn-tags-wrap" id="detailLinkBtns"></div>
+    </div>
+    <!-- Groupe de « Autre » — v1.18.0 (affiché seulement pour Autre) -->
+    <div id="detailGrpZone" style="display:none;">
+      <div class="qn-detail-label">Classer « Autre » dans le groupe</div>
+      <div class="qn-tags-wrap" id="detailGrpBtns"></div>
     </div>
     <div class="qn-detail-label">Équipe · touchez pour choisir un numéro</div>
     <div class="qn-teams" id="detailTeams"></div>

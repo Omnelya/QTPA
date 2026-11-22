@@ -11,14 +11,14 @@ for(const [n,vp] of [['ipad',{width:1180,height:820}],['iph',{width:430,height:9
  await p.evaluate(()=>{tA.value='Toulouse';tB.value='Nîmes';nA.value='4,7';nB.value='';a1.value='Durand';a2.value='Lopez';window.startMatch();});
  await p.waitForTimeout(300);await p.locator('#_paramsOk').click();await p.waitForTimeout(500);
  const obs=()=>p.evaluate(async()=>{const m=await import('/js/state.js');return JSON.parse(JSON.stringify(m.S.obs))});
- // pas de liaison pour Marcher, pas de 🔗 sur la grille
- await p.click('[aria-label="Marcher non conforme"]');
- ok(!(await p.isVisible('#detailLinkZone')),n+' Marcher : pas de zone de liaison');
+ // pas de liaison pour Pied (Marcher est lié à Gestuelle depuis v1.18.0), pas de 🔗 sur la grille
+ await p.click('[aria-label="Pied non conforme"]');
+ ok(!(await p.isVisible('#detailLinkZone')),n+' Pied : pas de zone de liaison');
  await p.evaluate(()=>closeDetail());
  ok(!(await p.textContent('#quickNotesWrap')).includes('🔗'),n+' aucun 🔗 sur la grille');
  // J7M ✘ + SPA
  await p.click('[aria-label="J7M non conforme"]');
- ok(await p.locator('#detailLinkBtns .qn-link-btn').count()===3,n+' J7M propose 3 liaisons (SPA, SPP, Zone d\'influence)');
+ ok(await p.locator('#detailLinkBtns .qn-link-btn').count()===6,n+' J7M propose 6 liaisons (v1.18.0)');
  await p.click('#detailLinkBtns [data-link="SPA"]');
  ok(await p.locator('.qn-linked[data-cat="SPA"].qn-linked-red').count()===1,n+' carte SPA ajoutée, ✘ par défaut (option A)');
  ok((await p.textContent('#detailTitle'))==='J7M — Non conforme + SPA',n+' titre');

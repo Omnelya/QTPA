@@ -36,13 +36,17 @@ function _rank(st, kind) {
   const list = st.filter(s => (red ? s.r : s.g) >= 1)
     .sort((x, y) => (red ? dbPct(y.r, y.g) - dbPct(x.r, x.g) || y.r - x.r : dbPct(y.g, y.r) - dbPct(x.g, x.r) || y.g - x.g) || x.cat.localeCompare(y.cat, 'fr'))
     .slice(0, 3);
+  /* v1.18.0 : chaque catégorie se développe pour voir ses observations (réduit par défaut) */
   return list.length ? list.map(s => {
-    const p = red ? dbPct(s.r, s.g) : dbPct(s.g, s.r);
-    return '<div class="mt-rk"><span class="db-cname">' + escapeHtml(s.cat) + '</span>' +
+    const p = red ? dbPct(s.r, s.g) : dbPct(s.g, s.r), k = kind + ':' + s.cat;
+    return '<details class="mt-rk-d" data-k="' + escapeHtml(k) + '"' + (_openCats.has(k) ? ' open' : '') + '>' +
+      '<summary class="mt-rk"><span class="db-cname">' + escapeHtml(s.cat) + '</span>' +
       '<span class="db-bar db-bar-' + kind + '"><i style="width:' + p + '%"></i></span>' +
-      '<span class="db-cnt"><b class="db-n">' + s.r + '✘</b> / <b class="db-o">' + s.g + '✔</b> · ' + p + ' %</span></div>';
+      '<span class="db-cnt"><b class="db-n">' + s.r + '✘</b> / <b class="db-o">' + s.g + '✔</b> · ' + p + ' %</span></summary>' +
+      oneLinePerAction([...s.obs].sort(dbChrono)).map(o => dbObsLine(o, true)).join('') + '</details>';
   }).join('') : '<div class="db-empty">Rien pour l\'instant.</div>';
 }
+const _openCats = new Set();
 
 export function mtRender() {
   if (!_isOpen()) return;
@@ -69,8 +73,18 @@ function _head() {
   document.getElementById('mtPauseNote').value = S[_noteKey()] || '';
 }
 export function mtPer(p) { _per = p; _head(); mtRender(); }
+let _bound = false;
 export function mtOpen() {
   _arb = 'all'; _per = _defPer();
+  _openCats.clear();
+  if (!_bound) {
+    /* « toggle » ne remonte pas : écoute en capture ; garde l'état ouvert entre deux rendus */
+    document.getElementById('mtBody').addEventListener('toggle', e => {
+      const k = e.target.dataset?.k;
+      if (k) e.target.open ? _openCats.add(k) : _openCats.delete(k);
+    }, true);
+    _bound = true;
+  }
   _head();
   document.getElementById('mtOverlay').classList.add('on');
   mtRender();

@@ -60,6 +60,19 @@ Quand une version corrige un bug ou un frag identifié dans l'audit, **toujours 
 
 ---
 
+## [1.18.0] — 2026-11-22
+
+### Ajouté
+- Liaisons : `LINKS` construit depuis `LINK_PAIRS` (js/state.js) → toujours symétrique, listes triées A→Z (`localeCompare 'fr'`). 15 nouvelles paires : Jet Franc ↔ Zone d'influence, J7M ↔ Gestion du sifflet, Protocole ↔ SPA, Protocole ↔ J7M, Gestuelle ↔ Marcher / Passage en Force / Zone / Reprise de dribble / Jeu Passif / Jet Franc, Zone ↔ Zone d'influence, Placement ↔ J7M, Communication ↔ Déplacement, Mauvais Bloc ↔ Zone d'influence, Exécution du Jet ↔ Déplacement.
+- « Autre » : choix du groupe dans la fenêtre d'action (`#detailGrpZone`, A1 par défaut), enregistré dans `o.grp` ('A1'|'A2'|'B'|'C1'|'C2'). `blockOf(o, c)` et `catLabel(o)` (state.js) : radar (`_axisStat(obs, cats, k)`) et Préparation Suivi comptent « Autre » dans son groupe ; tableau, débrief et titre affichent « Autre (C2) ». Anciens suivis sans `grp` : toujours en A1.
+- Mi-temps : chaque catégorie des « 3 moins / mieux réussis » est un `<details class="mt-rk-d">` réduit par défaut, avec ses observations (lignes compactes, modifiables comme les autres lignes de la mi-temps) ; état ouvert gardé entre deux rendus, remis à zéro à chaque ouverture.
+
+### Modifié
+- iPad : `.qn-chips` (pastilles arbitres + ⚑) + requête de conteneur sur `.qn-head` — sous 760 px de large (iPad portrait), les pastilles passent en 2e ligne et ↶ ↷ restent en face du titre ; boutons gardés à 48×44 px.
+- Tests : `families.test.mjs` (liaisons symétriques/triées, blockOf, catLabel), nouveaux `autre-groupe` et `entete-observations`, `mi-temps` complété, `liaisons` / `liaisons-multiples` mis à jour (ordre alphabétique ; « Pied » remplace « Marcher » comme catégorie sans liaison).
+
+---
+
 ## [1.17.1] — 2026-11-22
 
 ### Modifié

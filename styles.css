@@ -1750,6 +1750,27 @@ body.dark .ps-code { color: var(--blue-text); }
 .ps-det[open] > summary::before { content: '▾'; }
 body.dark .ps-det > summary { color: var(--blue-text); }
 .db-row.db-ro { cursor: default; }
+
+/* ═══ v1.18.0 ═══════════════════════════════════════════════════════════ */
+/* Observations rapides (iPad) : ↶ ↷ restent en face du titre ; si la carte est
+   étroite (iPad portrait), les pastilles arbitres / ⚑ passent en 2e ligne. */
+.qn-chips { display: contents; }
+@media (min-width: 768px) {
+  .qn-head { container-type: inline-size; }
+  @container (max-width: 760px) {
+    .qn-chips { display: flex; order: 10; flex: 1 0 100%; justify-content: flex-end; flex-wrap: wrap; gap: 8px; }
+  }
+}
+/* Mi-temps : catégories des « 3 moins / mieux réussis » développables */
+.mt-rk-d > summary { list-style: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.mt-rk-d > summary::-webkit-details-marker { display: none; }
+.mt-rk-d > summary .db-cname::before { content: '▸ '; color: var(--text-muted); }
+.mt-rk-d[open] > summary .db-cname::before { content: '▾ '; }
+.mt-rk-d[open] { padding-bottom: 6px; }
+/* lignes compactes : la colonne est étroite sur iPad */
+.mt-rk-d .db-row, .mt-rk-d .db-row.db-nocat { grid-template-columns: 22px 1fr auto 34px; grid-template-areas: "i t w y" ". c c c" ". n n n"; gap: 2px 8px; padding: 8px 4px; }
+.mt-rk-d .db-ico { grid-area: i; } .mt-rk-d .db-tm { grid-area: t; } .mt-rk-d .db-who { grid-area: w; justify-content: flex-end; }
+.mt-rk-d .db-cat { grid-area: c; } .mt-rk-d .db-type { grid-area: y; width: 34px; } .mt-rk-d .db-note { grid-area: n; font-size: 13px; }
 @media (max-width: 767px) {
   .ps-info { grid-template-columns: 1fr; }
   .yn-btns.ps-yn .btn-yn { padding: 9px 12px; }

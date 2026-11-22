@@ -11,7 +11,7 @@ for(const [n,vp] of [['ipad',{width:1180,height:820}],['iph',{width:430,height:9
  await p.evaluate(()=>{tA.value='Toulouse';tB.value='Nîmes';a1.value='Durand';a2.value='Lopez';window.startMatch();});
  await p.waitForTimeout(300);await p.locator('#_paramsOk').click();await p.waitForTimeout(500);
  const links=async(cat,col)=>{await p.click(`[aria-label="${cat} ${col}"]`);const l=await p.$$eval('#detailLinkBtns .qn-link-btn',x=>x.map(y=>y.dataset.link));return l;};
- let l=await links('Exécution du Jet','non conforme');ok(l.join()==='Jet Franc,SPP,SPA,Gestion du sifflet',n+' Exécution du Jet → '+l);
+ let l=await links('Exécution du Jet','non conforme');ok(l.join()==='Déplacement,Gestion du sifflet,Jet Franc,SPA,SPP',n+' Exécution du Jet → '+l);
  ok(!(await p.$$eval('#detailTags .qn-tag',x=>x.map(y=>y.dataset.tag))).some(t=>/reprise/i.test(t)),n+' plus de « reprise » dans Exécution du Jet');
  await p.click('#detailLinkBtns [data-link="SPA"]');await p.click('#detailLinkBtns [data-link="Gestion du sifflet"]');
  ok(await p.locator('.qn-linked').count()===2,n+' 2 cartes liées (SPA + Gestion du sifflet)');
@@ -25,15 +25,15 @@ for(const [n,vp] of [['ipad',{width:1180,height:820}],['iph',{width:430,height:9
  ok(o.length===3&&new Set(o.map(x=>x.lien)).size===1&&o.map(x=>x.cat).join()==='Exécution du Jet,SPA,Gestion du sifflet',n+' 3 observations reliées');
  const r=await p.$$eval('#OTB tr',t=>t.map(x=>x.innerText.replace(/\s+/g,' ')));
  ok(r.length===1&&/Exécution du Jet ✘ \+ SPA ✘ \+ Gestion du sifflet ✔/.test(r[0]),n+' une seule ligne '+JSON.stringify(r));
- l=await links('Protocole','conforme');ok(l.join()==='SPP',n+' Protocole → '+l);await p.evaluate(()=>closeDetail());
- l=await links('SPP','conforme');ok(l.join()==='J7M,Exécution du Jet,Protocole',n+' SPP → '+l);await p.evaluate(()=>closeDetail());
- l=await links('Gestion du sifflet','conforme');ok(l.join()==='Exécution du Jet',n+' Gestion du sifflet → '+l);await p.evaluate(()=>closeDetail());
+ l=await links('Protocole','conforme');ok(l.join()==='J7M,SPA,SPP',n+' Protocole → '+l);await p.evaluate(()=>closeDetail());
+ l=await links('SPP','conforme');ok(l.join()==='Exécution du Jet,J7M,Protocole',n+' SPP → '+l);await p.evaluate(()=>closeDetail());
+ l=await links('Gestion du sifflet','conforme');ok(l.join()==='Exécution du Jet,J7M',n+' Gestion du sifflet → '+l);await p.evaluate(()=>closeDetail());
  /* v1.17.1 : J7M ↔ Zone d'influence, dans les deux sens, et enregistrement d'une action liée */
- l=await links('J7M','non conforme');ok(l.join()==="SPA,SPP,Zone d'influence",n+' J7M → '+l);
+ l=await links('J7M','non conforme');ok(l.join()==="Gestion du sifflet,Placement,Protocole,SPA,SPP,Zone d'influence",n+' J7M → '+l);
  await p.click(`#detailLinkBtns [data-link="Zone d'influence"]`);await p.click('#detailSave_A1');await p.waitForTimeout(200);
  const z=await p.evaluate(async()=>{const m=await import('/js/state.js');return JSON.parse(JSON.stringify(m.S.obs)).filter(x=>x.cat==='J7M'||x.cat==="Zone d'influence")});
  ok(z.length===2&&z[0].lien&&z[0].lien===z[1].lien&&z.map(x=>x.cat).join()==="J7M,Zone d'influence",n+" J7M + Zone d'influence enregistrées comme une seule action");
- l=await links("Zone d'influence",'conforme');ok(l.join()==='J7M',n+" Zone d'influence → "+l);await p.evaluate(()=>closeDetail());
+ l=await links("Zone d'influence",'conforme');ok(l.join()==="J7M,Jet Franc,Mauvais Bloc,Zone",n+" Zone d'influence → "+l);await p.evaluate(()=>closeDetail());
  ok(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),n+' pas de débordement');
  ok(!errs.length,n+' aucune erreur JS '+errs.join(' | '));await ctx.close();}
 await b.close();console.log(fails?fails+' ÉCHEC(S)':'TOUS LES TESTS PASSENT');process.exit(fails?1:0);})();

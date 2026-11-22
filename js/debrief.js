@@ -4,7 +4,7 @@
    Arbitre / Période (indépendants). Aucune donnée n'est modifiée ici :
    tout est calculé à partir de S.obs.
 ════════════════════════════════════════════════════════════════════════════ */
-import { S, pl, linkGroup, oneLinePerAction, actionNote, FAMILIES } from './state.js';
+import { S, pl, linkGroup, oneLinePerAction, actionNote, FAMILIES, CAU, blockOf, catLabel } from './state.js';
 import { fmt, escapeHtml } from './utils.js';
 
 const BLOCKS = ['rev', 'radar', 'work', 'strong', 'frise'];
@@ -99,7 +99,7 @@ function _obsLine(o, withCat, readOnly) {
     '<span class="db-ico">' + (o.flag ? '⚑' : (note ? '💬' : '')) + '</span>' +
     '<span class="db-tm">' + escapeHtml(o.time || '') + ' <i>' + escapeHtml(pl(o.period || '')) + '</i></span>' +
     '<span class="db-who">' + _arbChips(o) + '</span>' +
-    (withCat ? '<span class="db-cat">' + g.map(x => escapeHtml(x.cat) + (g.length > 1 ? ' ' + _typeChip(x) : '')).join(' + ') + '</span>' : '') +
+    (withCat ? '<span class="db-cat">' + g.map(x => escapeHtml(catLabel(x)) + (g.length > 1 ? ' ' + _typeChip(x) : '')).join(' + ') + '</span>' : '') +
     /* action liée : ✘/✔ déjà dans .db-cat ; case vide pour garder la note dans sa colonne */
     (g.length > 1 ? '<span class="db-type"></span>' : _typeChip(o)) +
     '<span class="db-note">' + (note ? '« ' + escapeHtml(note) + ' »' : '') + '</span></div>';
@@ -231,14 +231,15 @@ function _renderPause() {
 const AXIS_SHORT = { A1: 'Duels', A2: 'Continuité', B: 'Joueurs', C1: 'Technique', C2: 'Décisionnel' };
 const AXES = FAMILIES.flatMap(f => f.blocks.map(b => {
   const k = b.code.startsWith('B') ? 'B' : b.code;
-  return { k, t: AXIS_SHORT[k] || b.title, cats: b.cats };
+  /* v1.18.0 : « Autre » peut compter dans n'importe quel bloc (voir blockOf) */
+  return { k, t: AXIS_SHORT[k] || b.title, cats: b.cats.includes(CAU) ? b.cats : [...b.cats, CAU] };
 }));
 
 /** { n, g, p } : nombre d'observations du bloc, conformes, % conforme (null si 0). */
-function _axisStat(obs, cats) {
+function _axisStat(obs, cats, k) {
   let r = 0, g = 0;
   obs.forEach(o => (Array.isArray(o.cats) && o.cats.length ? o.cats : [o.cat]).forEach(c => {
-    if (cats.includes(c)) { if (o.col === 'red') r++; else g++; }
+    if (cats.includes(c) && blockOf(o, c) === k) { if (o.col === 'red') r++; else g++; }
   }));
   return { n: r + g, g, p: r + g ? _pct(g, r) : null };
 }
@@ -255,9 +256,9 @@ function _renderRadar() {
   const perOk = o => f.per === 'all' || o.period === f.per;
   const series = (f.arb === 'all' ? ['A1', 'A2'] : [f.arb]).map(a => ({
     a, cls: a === 'A2' ? 'a2' : 'a1',
-    vals: AXES.map(ax => _axisStat(S.obs.filter(o => _arbs(o).includes(a) && perOk(o)), ax.cats))
+    vals: AXES.map(ax => _axisStat(S.obs.filter(o => _arbs(o).includes(a) && perOk(o)), ax.cats, ax.k))
   }));
-  const tot = AXES.map(ax => _axisStat(L, ax.cats));
+  const tot = AXES.map(ax => _axisStat(L, ax.cats, ax.k));
   if (!_axis || !AXES.some(ax => ax.k === _axis)) {
     const cand = AXES.map((ax, i) => [ax.k, tot[i]]).filter(([, s]) => s.n >= 3).sort((x, y) => x[1].p - y[1].p);
     _axis = cand.length ? cand[0][0] : AXES[0].k;
@@ -294,8 +295,8 @@ function _renderRadar() {
 
   /* Détail de l'axe choisi */
   const ax = AXES.find(a => a.k === _axis);
-  const byArb = (a, c) => _axisStat(S.obs.filter(o => _arbs(o).includes(a) && perOk(o)), [c]);
-  const rows = ax.cats.map(c => ({ c, t: _axisStat(L, [c]), a1: byArb('A1', c), a2: byArb('A2', c) })).filter(r => r.t.n);
+  const byArb = (a, c) => _axisStat(S.obs.filter(o => _arbs(o).includes(a) && perOk(o)), [c], ax.k);
+  const rows = ax.cats.map(c => ({ c, t: _axisStat(L, [c], ax.k), a1: byArb('A1', c), a2: byArb('A2', c) })).filter(r => r.t.n);
   const pc = st => st.n ? st.p + ' %' : '–';
   const tone = p => p >= 70 ? 'ok' : p >= 50 ? 'mid' : 'ko';
   const det = '<div class="db-radar-det"><div class="db-radar-dt">' + ax.k + ' · ' + escapeHtml(ax.t) + '</div>' + (rows.length

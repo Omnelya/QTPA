@@ -2,21 +2,22 @@
    Feuille de suivi fédérale préremplie à partir du match (notes A1→C2, D, E, F),
    modifiable, enregistrée avec le match (S.prep), textes prêts à copier.
    Les propositions ne sont calculées qu'à la 1re ouverture (ou « Recalculer »). */
-import { S, ans, FAMILIES, oneLinePerAction } from './state.js';
+import { S, ans, FAMILIES, oneLinePerAction, CAU, blockOf } from './state.js';
 import { escapeHtml as esc, fmtDate } from './utils.js';
 import { log } from './logger.js';
 import { dbObsLine, dbChrono } from './debrief.js';
 
-const BLK = Object.fromEntries(FAMILIES.flatMap(f => f.blocks).map(b => [b.code, b.cats]));
+/* v1.18.0 : « Autre » peut compter dans chaque bloc (le groupe choisi, voir blockOf) */
+const BLK = Object.fromEntries(FAMILIES.flatMap(f => f.blocks).map(b => [b.code, b.cats.includes(CAU) ? b.cats : [...b.cats, CAU]]));
 const B2_TAGS = ['Râle', 'Théâtralité'];
 const isB2 = o => (o.tags || []).some(t => B2_TAGS.includes(t));
 const ITEMS = [
-  { f: 'A · Protection du jeu', code: 'A1', t: 'Gestion des duels', cats: BLK.A1 },
-  { code: 'A2', t: 'Continuité du jeu', cats: BLK.A2 },
-  { f: 'B · Protection du joueur', code: 'B1', t: 'Irrégularités avec SPP - SPA', cats: BLK['B1 / B2'], keep: o => !isB2(o) },
-  { code: 'B2', t: 'Comportements antisportifs SPP - SPA', cats: BLK['B1 / B2'], keep: isB2, hint: 'tags « Râle » et « Théâtralité »' },
-  { f: 'C · Savoir être', code: 'C1', t: "Technique d'arbitrage", cats: BLK.C1 },
-  { code: 'C2', t: 'Pouvoir décisionnel', cats: BLK.C2 }
+  { f: 'A · Protection du jeu', code: 'A1', blk: 'A1', t: 'Gestion des duels', cats: BLK.A1 },
+  { code: 'A2', blk: 'A2', t: 'Continuité du jeu', cats: BLK.A2 },
+  { f: 'B · Protection du joueur', code: 'B1', blk: 'B', t: 'Irrégularités avec SPP - SPA', cats: BLK['B1 / B2'], keep: o => !isB2(o) },
+  { code: 'B2', blk: 'B', t: 'Comportements antisportifs SPP - SPA', cats: BLK['B1 / B2'], keep: isB2, hint: 'tags « Râle » et « Théâtralité »' },
+  { f: 'C · Savoir être', code: 'C1', blk: 'C1', t: "Technique d'arbitrage", cats: BLK.C1 },
+  { code: 'C2', blk: 'C2', t: 'Pouvoir décisionnel', cats: BLK.C2 }
 ];
 const TYPES = ['Diagnostique JAN', 'Suivi formatif JAN', 'Vidéo', 'Présentiel'];
 const E1L = { td: 'Très difficile', d: 'Difficile', n: 'Normal', f: 'Facile' };
@@ -50,7 +51,7 @@ function _st(list, cats) {
   list.forEach(o => catsOf(o).forEach(c => { if (!cats || cats.includes(c)) { n++; if (o.col !== 'red') g++; } }));
   return { n, p: n ? Math.round(100 * g / n) : null };
 }
-const _itemObs = it => S.obs.filter(o => catsOf(o).some(c => it.cats.includes(c)) && (!it.keep || it.keep(o)));
+const _itemObs = it => S.obs.filter(o => catsOf(o).some(c => it.cats.includes(c) && blockOf(o, c) === it.blk) && (!it.keep || it.keep(o)));
 const _sugg = it => { const s = _st(_itemObs(it), it.cats); return { ...s, v: s.n >= 3 ? Math.round(s.p / 10) : null }; };
 function _topTags(list, k) {
   const m = {};

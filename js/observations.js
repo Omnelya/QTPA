@@ -5,7 +5,7 @@
    • Annuler (avec confirmation) / Rétablir (sans confirmation)
    • Aucun retour sonore, vibratoire ou lumineux à l'enregistrement
 ════════════════════════════════════════════════════════════════════════════ */
-import { S, pl, applyPeriodLabels, CA, CP, CAU, CAT_TAGS, TAG_GROUPS, TAGS_GENERAUX, FAMILIES, LINKS, linkGroup, oneLinePerAction, actionNote } from './state.js';
+import { S, pl, applyPeriodLabels, CA, CP, CAU, CAT_TAGS, TAG_GROUPS, TAGS_GENERAUX, FAMILIES, LINKS, linkGroup, oneLinePerAction, actionNote, GROUPS, catLabel } from './state.js';
 import { fmt, escapeHtml } from './utils.js';
 import { log } from './logger.js';
 import { renderDebrief } from './debrief.js';
@@ -228,7 +228,7 @@ let _editGroup = null; /* observations de l'action modifiée (hors de S : non sa
 function _syncTitle() {
   const d = S.detailPending;
   document.getElementById('detailTitle').textContent =
-    (_editGroup ? '✎ Modifier — ' : '') + d.cat + ' — ' + (d.col === 'red' ? 'Non conforme' : 'Conforme') +
+    (_editGroup ? '✎ Modifier — ' : '') + catLabel(d) + ' — ' + (d.col === 'red' ? 'Non conforme' : 'Conforme') +
     d.links.map(l => ' + ' + l.cat).join('');
 }
 
@@ -249,6 +249,27 @@ function _renderLinkBtns() {
     b.setAttribute('aria-pressed', on ? 'true' : 'false');
     b.textContent = (on ? '✓ ' : '＋ ') + c;
     b.onclick = () => _toggleLink(c);
+    box.appendChild(b);
+  });
+}
+
+/* v1.18.0 : « Autre » → choix du groupe où il compte (A1 par défaut) */
+function _renderGrp() {
+  const d = S.detailPending;
+  const zone = document.getElementById('detailGrpZone');
+  const box = document.getElementById('detailGrpBtns');
+  if (!zone || !box) return;
+  zone.style.display = d.cat === CAU ? '' : 'none';
+  box.innerHTML = '';
+  if (d.cat !== CAU) return;
+  Object.entries(GROUPS).forEach(([k, t]) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'qn-tag' + (d.grp === k ? ' selected' : '');
+    b.dataset.grp = k;
+    b.setAttribute('aria-pressed', d.grp === k ? 'true' : 'false');
+    b.textContent = t;
+    b.onclick = () => { d.grp = k; _renderGrp(); _syncTitle(); };
     box.appendChild(b);
   });
 }
@@ -364,12 +385,14 @@ function _openDetail(cat, col, prefill) {
     el:        isEdit ? prefill.el     : S.elapsed,
     period:    isEdit ? prefill.period : S.period,
     lien:      isEdit ? prefill.lien   : undefined,
-    links:     isEdit ? (prefill.links || []) : []  /* catégories liées : [{ cat, col, tags }] */
+    links:     isEdit ? (prefill.links || []) : [], /* catégories liées : [{ cat, col, tags }] */
+    grp:       cat === CAU ? ((isEdit && prefill.grp) || 'A1') : undefined
   };
 
-  /* ── Titre + liaisons possibles ── */
+  /* ── Titre + liaisons possibles (+ groupe de « Autre ») ── */
   _syncTitle();
   _renderLinkBtns();
+  _renderGrp();
   document.getElementById('detailMeta').textContent =
     S.detailPending.time + ' · ' + pl(S.detailPending.period);
 
@@ -470,7 +493,7 @@ export function saveDetail(sel) {
     todo: !!d.todo,
     tags,
     cmt: cmt
-  }, lien ? { lien } : {});
+  }, lien ? { lien } : {}, cat === CAU ? { grp: d.grp } : {});
   const entries = [mk(d.cat, d.col, selectedTags), ...d.links.map(l => mk(l.cat, l.col, [...common, ...l.tags]))];
   const obsEntry = entries[0];
 
@@ -586,6 +609,7 @@ export function editObservation(idx) {
     period:    p.period,
     group:     g,
     lien:      p.lien,
+    grp:       p.grp,
     links:     g.slice(1).map(m => ({ cat: m.cat, col: m.col, tags: own(m) }))
   });
 }
@@ -866,7 +890,7 @@ export function oRow(o, idx) {
     '<td style="white-space:nowrap;font-variant-numeric:tabular-nums;">' + o.time + '</td>' +
     '<td style="white-space:nowrap;">' + pl(o.period) + '</td>' +
     '<td><span class="badge ba">' + escapeHtml(o.an) + '</span></td>' +
-    '<td style="font-weight:700;white-space:nowrap;">' + (multi ? g.map(x => escapeHtml(x.cat) + ' ' + mark(x)).join(' + ') : escapeHtml(o.cat)) + '</td>' +
+    '<td style="font-weight:700;white-space:nowrap;">' + (multi ? g.map(x => escapeHtml(x.cat) + ' ' + mark(x)).join(' + ') : escapeHtml(catLabel(o))) + '</td>' +
     '<td>' + g.map(x => '<span class="lc' + (multi ? (x.col === 'red' ? ' lc-n' : ' lc-o') : '') + '">' + tl(x) + '</span>').join(' + ') + '</td>' +
     '<td class="obs-flag">' + (o.flag ? '<span role="img" aria-label="À revoir">⚑</span>' : '') + (o.todo ? '<span role="img" aria-label="À compléter" title="À compléter">✎</span>' : '') + '</td>' +
     '<td>' + escapeHtml(cmtText) + '</td>' +

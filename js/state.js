@@ -173,17 +173,32 @@ export const TAG_GROUPS = {
 
 /* ── Catégories liées — v1.11.0 ──
    Même action saisie dans une seule fenêtre (« ＋ SPA » dans J7M…).
-   Liaisons fixées par le suiveur, valables dans les deux sens. */
-export const LINKS = {
-  'J7M': ['SPA', 'SPP', "Zone d'influence"],                             /* v1.17.1 : + Zone d'influence */
-  'SPA': ['J7M', 'Exécution du Jet'],
-  'SPP': ['J7M', 'Exécution du Jet', 'Protocole'],
-  'Jet Franc': ['Exécution du Jet'],
-  'Exécution du Jet': ['Jet Franc', 'SPP', 'SPA', 'Gestion du sifflet'],  /* v1.13.0 : + SPP, SPA, Gestion du sifflet */
-  'Gestion du sifflet': ['Exécution du Jet'],
-  'Protocole': ['SPP'],                                                   /* v1.13.0 */
-  "Zone d'influence": ['J7M']                                             /* v1.17.1 */
-};
+   Liaisons fixées par le suiveur, valables dans les deux sens.
+   v1.18.0 : une liste de paires → LINKS symétrique, catégories liées triées A→Z. */
+const LINK_PAIRS = [
+  ['J7M', 'SPA'], ['J7M', 'SPP'], ['J7M', "Zone d'influence"], ['J7M', 'Gestion du sifflet'], ['J7M', 'Protocole'], ['J7M', 'Placement'],
+  ['SPA', 'Exécution du Jet'], ['SPA', 'Protocole'],
+  ['SPP', 'Exécution du Jet'], ['SPP', 'Protocole'],
+  ['Exécution du Jet', 'Jet Franc'], ['Exécution du Jet', 'Gestion du sifflet'], ['Exécution du Jet', 'Déplacement'],
+  ['Jet Franc', "Zone d'influence"], ['Jet Franc', 'Gestuelle'],
+  ['Gestuelle', 'Marcher'], ['Gestuelle', 'Passage en Force'], ['Gestuelle', 'Zone'], ['Gestuelle', 'Reprise de dribble'], ['Gestuelle', 'Jeu Passif'],
+  ['Zone', "Zone d'influence"], ['Mauvais Bloc', "Zone d'influence"],
+  ['Communication', 'Déplacement']
+];
+export const LINKS = {};
+LINK_PAIRS.forEach(([a, b]) => { (LINKS[a] = LINKS[a] || []).push(b); (LINKS[b] = LINKS[b] || []).push(a); });
+Object.values(LINKS).forEach(l => l.sort((x, y) => x.localeCompare(y, 'fr')));
+
+/* ── Bloc d'une catégorie — v1.18.0 ──
+   « Autre » est rangé par le suiveur dans un des 5 groupes (o.grp) ; sans choix
+   (anciens suivis) il reste dans A1, sa case de la grille. */
+export const GROUPS = { A1: 'A1 · Gestion des duels', A2: 'A2 · Continuité du jeu', B: 'B · Protection des joueurs', C1: "C1 · Technique d'arbitrage", C2: 'C2 · Pouvoir décisionnel' };
+const _BLK_OF = {};
+FAMILIES.forEach(f => f.blocks.forEach(b => b.cats.forEach(c => { _BLK_OF[c] = b.code.startsWith('B') ? 'B' : b.code; })));
+/** Bloc court (A1, A2, B, C1, C2) de la catégorie c de l'observation o. */
+export const blockOf = (o, c) => (c === CAU ? (o.grp || 'A1') : _BLK_OF[c]);
+/** Nom affiché : « Autre (C2) » quand un groupe a été choisi. */
+export const catLabel = o => (o.cat === CAU && o.grp ? CAU + ' (' + o.grp + ')' : o.cat);
 
 /* ── Durées (secondes) ── */
 export const PL  = 30 * 60;
