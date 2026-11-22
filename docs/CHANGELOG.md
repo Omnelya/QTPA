@@ -60,6 +60,15 @@ Quand une version corrige un bug ou un frag identifié dans l'audit, **toujours 
 
 ---
 
+## [1.19.0] — 2026-11-22
+
+### Modifié
+- PDF entièrement refait (js/pdf.js, maquette validée) : en-tête bleu marine + score toujours présents ; fenêtre d'export à cases à cocher (sans préréglages) : synthèse par bloc (radar A1 → C2 vectoriel + tableau par arbitre, règle `blockOf`), évaluation générale + contexte, à travailler / points forts (top 5), à revoir ⚑ + à dire à la pause, observations (`oneLinePerAction`, icônes ✘ ✔ ⚑ dessinées, dégradé proportionnel pour les actions ✘ + ✔), frise (décochée par défaut), commentaire global, Préparation Suivi en annexe sur nouvelle page (grisée tant qu'elle n'est pas faite ; `prepSummary()` dans js/prep.js). Texte filtré pour les polices standard (WinAnsi : emoji retirés, ⇒ → =>). Ancienne capture du radar `#synRadar` et synthèse par catégorie supprimées du PDF.
+- Ré-export depuis l'historique : local → `S.prep` du match exporté ; en ligne → `etat` (mi-temps, format, notes de pause, préparation) repris au lieu de ceux du match en cours.
+- Tests : nouveau `export-pdf` (génère un vrai PDF avec jsPDF servi depuis node_modules, contenu vérifié par pdftotext) ; `jspdf` et `jspdf-autotable` ajoutés en dépendances de test.
+
+---
+
 ## [1.18.8] — 2026-11-22
 
 ### Modifié

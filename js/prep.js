@@ -265,6 +265,20 @@ function _onInput(e) {
   window.App.autosaveDebounced();
 }
 
+/** v1.19.0 : résumé de la préparation pour le PDF (null si l'écran n'a jamais été ouvert). */
+export function prepSummary() {
+  const P = S.prep;
+  if (!P) return null;
+  const t = k => (P.txt[k] || '').trim();
+  return {
+    items: ITEMS.map(it => ({ code: it.code, t: it.t, note: P.notes[it.code], txt: t(it.code) })),
+    type: P.type.join(', '), sup: P.sup || '',
+    d1: D1L[P.d1] || '—', d1txt: t('D1'), e1: E1L[P.e1] || '—', e2: P.e2.join(', '),
+    total: _total(), f0: t('F0'), f2: t('F2'), f3: t('F3'), dlg: t('dlg'),
+    f1: F1.map(([sub, l]) => [sub, l.map(([lab]) => [lab, YN[P.f1[lab]] || '—'])])
+  };
+}
+
 let _bound = false;
 export function openPrep() {
   if (!S.prep) S.prep = _propose(null);

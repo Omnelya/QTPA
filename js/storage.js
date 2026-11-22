@@ -816,6 +816,8 @@ export async function reexportPDFRemote(id) {
   S.sA    = match.score_a     || 0;
   S.sB    = match.score_b     || 0;
   S.obs   = Array.isArray(match.observations) ? match.observations : [];
+  /* v1.19.0 : mi-temps, format, notes de pause et préparation de CE match (colonne etat), pas ceux du match en cours */
+  Object.assign(S, { htA: null, htB: null, ht2A: null, ht2B: null, nbMT: 2, dureesMT: [1800, 1800], pauseNote: '', pauseNote2: '', prep: null }, match.etat || {});
 
   // Compatibilité arrière observations (migration snapshots anciens format)
   S.obs.forEach(o => {
@@ -855,6 +857,7 @@ export function reexportPDF(id) {
   const savedGC  = document.getElementById('GC')?.value    || '';
   Object.keys(entry.S).forEach(k   => { S[k]   = entry.S[k];   });
   S.pauseNote = entry.S.pauseNote || ''; S.pauseNote2 = entry.S.pauseNote2 || '';
+  S.prep = entry.S.prep || null; /* v1.19.0 : pas la préparation du match en cours */
   Object.keys(entry.ans).forEach(k => { ans[k]  = entry.ans[k]; });
 
   // v0.3.22 (FRAG-7) : compat selArb/selCat retirée (code mort, cf. resumeMatch).
