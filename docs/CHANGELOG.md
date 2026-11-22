@@ -60,6 +60,13 @@ Quand une version corrige un bug ou un frag identifié dans l'audit, **toujours 
 
 ---
 
+## [1.18.8] — 2026-11-22
+
+### Modifié
+- Accueil (`renderHomeScreen`, js/main.js) : cases « N suivis » + % conforme par bloc A1 · A2 · B · C1 · C2 (règle du radar, `blockOf` : « Autre » dans son groupe ; seuils de couleur ≥ 70 / ≥ 50) au lieu de « buts moy. » et « compétition(s) ». Calcul sur les suivis affichés (suit la recherche). Historique local : `observations` ajoutées à la liste. Nouveau test `accueil-stats`.
+
+---
+
 ## [1.18.7] — 2026-11-22
 
 ### Corrigé

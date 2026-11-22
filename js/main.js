@@ -16,7 +16,7 @@ import { exportPDF } from './pdf.js';
 import { openMatchFromHome, autosave, autosaveDebounced, flushAutosave, checkResume, resumeMatch, discardMatch, saveToHistory, openHistory, closeHistory, renderHistory, deleteHistory, deleteHistoryRemote, reexportPDF, reexportPDFRemote, setAdminFilter, setHistFilters, startSafetyAutosave, stopSafetyAutosave } from './storage.js';
 import { startMatch, endMatch, backMatch, goHome, goHomeFromEnd } from './match.js';
 import { pad, escapeHtml } from './utils.js';
-import { S } from './state.js';
+import { S, blockOf } from './state.js';
 import { log, exportLogs } from './logger.js';
 import { APP_VERSION, APP_YEAR, APP_AUTHOR } from './version.js';
 import { initAuth, isLoggedIn, isAdmin, getEmail, getRole, getDisplayName, login, logout,
@@ -350,6 +350,7 @@ async function renderHomeScreen() {
         competition: h.S?.mComp || '',
         arbitre1:    h.S?.a1 || '',
         arbitre2:    h.S?.a2 || '',
+        observations: h.S?.obs || [],   /* v1.18.8 : stats par bloc de l'accueil */
         _local:      true
       }));
       syncLabel = '<span style="width:7px;height:7px;border-radius:50%;background:#aaa;display:inline-block;margin-right:4px;"></span>Local';
@@ -375,14 +376,25 @@ async function renderHomeScreen() {
   else if (_homeSortBy === 'score_desc')  filtered = [...filtered].sort((a,b) => ((b.score_a||0)+(b.score_b||0)) - ((a.score_a||0)+(a.score_b||0)));
   else if (_homeSortBy === 'competition') filtered = [...filtered].sort((a,b) => (a.competition||'').localeCompare(b.competition||''));
 
-  /* Stats */
+  /* Stats — v1.18.8 : nombre de suivis + % conforme par bloc (comme le radar),
+     calculés sur les suivis affichés (ils suivent la recherche) */
   if (statsEl && matches.length) {
-    const totalGoals = matches.reduce((s, m) => s + (m.score_a||0) + (m.score_b||0), 0);
-    const comps = [...new Set(matches.map(m => m.competition).filter(Boolean))];
+    const bp = {};
+    filtered.forEach(m => (m.observations || []).forEach(o =>
+      (Array.isArray(o.cats) && o.cats.length ? o.cats : [o.cat]).forEach(c => {
+        const k = blockOf(o, c);
+        if (!k) return;
+        bp[k] = bp[k] || { n: 0, g: 0 };
+        bp[k].n++; if (o.col !== 'red') bp[k].g++;
+      })));
     statsEl.innerHTML =
-      '<div class="home-stat-card"><div class="home-stat-val">' + matches.length + '</div><div class="home-stat-lbl">matchs</div></div>' +
-      '<div class="home-stat-card"><div class="home-stat-val">' + (matches.length ? Math.round(totalGoals / matches.length) : 0) + '</div><div class="home-stat-lbl">buts moy.</div></div>' +
-      '<div class="home-stat-card"><div class="home-stat-val">' + comps.length + '</div><div class="home-stat-lbl">compétition(s)</div></div>' +
+      '<div class="home-stat-card"><div class="home-stat-val">' + filtered.length + '</div><div class="home-stat-lbl">suivi' + (filtered.length > 1 ? 's' : '') + '</div></div>' +
+      [['A1', 'Duels'], ['A2', 'Continuité'], ['B', 'Joueurs'], ['C1', 'Technique'], ['C2', 'Décisionnel']].map(([k, t]) => {
+        const s = bp[k], p = s ? Math.round(100 * s.g / s.n) : null;
+        return '<div class="home-stat-card" data-blk="' + k + '"' + (s ? ' title="' + s.n + ' observation(s)"' : '') + '>' +
+          '<div class="home-stat-val' + (p === null ? '' : p >= 70 ? ' ok' : p >= 50 ? ' mid' : ' ko') + '">' + (p === null ? '–' : p + ' %') + '</div>' +
+          '<div class="home-stat-lbl">' + k + '<br>' + t + '</div></div>';
+      }).join('') +
       (syncLabel ? '<div class="home-stat-card home-stat-sync">' + syncLabel + '</div>' : '');
   } else if (statsEl) {
     statsEl.innerHTML = '';
@@ -465,6 +477,7 @@ function _updateUserBadge() {
    CHANGELOG / BADGE VERSION (v1.4.8)
 ════════════════════════════════════════ */
 const CHANGELOG = [
+  { v: '1.18.8', items: ['Accueil : les statistiques montrent le nombre de suivis et le % conforme par bloc (A1 Duels, A2 Continuité, B Joueurs, C1 Technique, C2 Décisionnel) à la place des buts et des compétitions','Elles suivent la recherche : tape le nom d\'un arbitre pour voir ses statistiques'] },
   { v: '1.18.7', items: ['Corrigé : avec 1 TME pris en MT1, la 2e mi-temps permet bien 2 TME (la 2e ligne disparaissait après le 1er)','Tiers-temps : 1 TME par tiers-temps','Réglages ⚙ : « TME max par période » (1, 2 ou 3 ; par défaut 2 en mi-temps, 1 en tiers-temps). Toujours 3 par match, et 1 seul à partir des 5 dernières minutes de la dernière période'] },
   { v: '1.18.6', items: ['Frise : le repère d\'une action liée montre une icône par catégorie (ex. ✘✘✔ pour 3 catégories, chacune sur sa couleur)','Deux catégories à revoir → double drapeau ⚑⚑'] },
   { v: '1.18.5', items: ['Frise chronologique : une action liée (ex. J7M + SPA) n\'a plus qu\'un seul repère (avant : un par catégorie, d\'où deux ⚑) ; une action ✘ + ✔ a un repère mi-rouge mi-vert'] },

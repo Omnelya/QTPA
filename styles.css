@@ -1307,6 +1307,16 @@ body.dark .edit-ctrl-green.edit-ctrl-active{ background: #1a6b35; border-color: 
   color: var(--text-hint);
   margin-top: 2px;
 }
+/* v1.18.8 : % conforme par bloc — mêmes seuils que le radar (≥ 70 vert, ≥ 50 orange) ;
+   7 cases sur une ligne en iPad : pas de coupure dans les valeurs ni les libellés */
+.home-stat-card { padding: 10px 8px; }
+.home-stat-val, .home-stat-lbl { white-space: nowrap; }
+.home-stat-sync { flex: 0 0 auto; white-space: nowrap; }
+.home-stat-sync > span { flex-shrink: 0; }
+.home-stat-val.ok  { color: var(--green-text); }
+.home-stat-val.mid { color: #8a6d00; }
+body.dark .home-stat-val.mid { color: #e0b84a; }
+.home-stat-val.ko  { color: var(--red-text); }
 
 .home-stat-sync {
   display: flex;
