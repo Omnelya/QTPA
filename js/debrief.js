@@ -88,12 +88,14 @@ export function dbBubble(idx) {
 }
 
 /* ── Une ligne d'observation avec sa note ────────────────────────────── */
-function _obsLine(o, withCat) {
+function _obsLine(o, withCat, readOnly) {
   const idx = S.obs.indexOf(o);
   /* v1.11.0 : dans les listes toutes catégories, une action liée = une ligne « J7M ✘ + SPA ✔ » */
   const g = withCat ? linkGroup(o) : [o];
   const note = withCat ? actionNote(g) : _noteText(o);
-  return '<div class="db-row' + (o.flag ? ' db-flag' : '') + (withCat ? '' : ' db-nocat') + '" onclick="editObservation(' + idx + ')" title="Modifier cette observation">' +
+  return '<div class="db-row' + (o.flag ? ' db-flag' : '') + (withCat ? '' : ' db-nocat') +
+    /* v1.17.0 : lecture seule dans Préparation Suivi (les propositions ne se recalculent pas) */
+    (readOnly ? ' db-ro">' : '" onclick="editObservation(' + idx + ')" title="Modifier cette observation">') +
     '<span class="db-ico">' + (o.flag ? '⚑' : (note ? '💬' : '')) + '</span>' +
     '<span class="db-tm">' + escapeHtml(o.time || '') + ' <i>' + escapeHtml(pl(o.period || '')) + '</i></span>' +
     '<span class="db-who">' + _arbChips(o) + '</span>' +

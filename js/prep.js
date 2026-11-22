@@ -5,6 +5,7 @@
 import { S, ans, FAMILIES, oneLinePerAction } from './state.js';
 import { escapeHtml as esc, fmtDate } from './utils.js';
 import { log } from './logger.js';
+import { dbObsLine, dbChrono } from './debrief.js';
 
 const BLK = Object.fromEntries(FAMILIES.flatMap(f => f.blocks).map(b => [b.code, b.cats]));
 const B2_TAGS = ['Râle', 'Théâtralité'];
@@ -115,6 +116,16 @@ const _total = () => {
   return v.length === ITEMS.length ? s + ' / 60 · ' + (s / v.length).toFixed(1).replace('.', ',') + ' / 10' : v.length + '/6 notes';
 };
 
+/* v1.17.0 : actions de la rubrique dans un menu réduit par défaut ; reste ouvert
+   pendant la consultation de l'écran (le rendu est refait à chaque appui). */
+const _open = new Set();
+function _acts(it) {
+  const l = oneLinePerAction(_itemObs(it).sort(dbChrono));
+  if (!l.length) return '';
+  return '<details class="ps-det" data-det="' + it.code + '"' + (_open.has(it.code) ? ' open' : '') + '><summary>' +
+    l.length + ' action' + (l.length > 1 ? 's' : '') + '</summary>' + l.map(o => dbObsLine(o, true, true)).join('') + '</details>';
+}
+
 function _render() {
   const P = S.prep;
   const when = [S.mDate ? fmtDate(S.mDate) : '', S.mTime].filter(Boolean).join(' à ');
@@ -134,7 +145,7 @@ function _render() {
     h += '<div class="ps-item">' + _head(it.code, it.t, '<span class="ps-sugg">' + info + (it.hint ? ' · ' + it.hint : '') + '</span>') +
       '<div class="db-seg ps-notes">' + [...Array(11).keys()].map(v => '<button class="db-seg-b' + (cur === v ? ' on' : '') + (s.v === v ? ' sugg' : '') +
         '" data-note="' + it.code + '" data-v="' + v + '" aria-label="Note ' + v + '">' + v + '</button>').join('') + '</div>' +
-      _ta(it.code, 'Commentaire ' + it.code + '…') + '</div>';
+      _acts(it) + _ta(it.code, 'Commentaire ' + it.code + '…') + '</div>';
   });
   h += '</div>';
   h += '<div class="card"><div class="card-title">D · Influence de l\'arbitrage</div><div class="ps-item">' +
@@ -256,10 +267,13 @@ function _onInput(e) {
 let _bound = false;
 export function openPrep() {
   if (!S.prep) S.prep = _propose(null);
+  _open.clear();
   if (!_bound) {
     const ps = document.getElementById('PS');
     ps.addEventListener('click', _onClick);
     ps.addEventListener('input', _onInput);
+    /* « toggle » ne remonte pas : écoute en capture */
+    ps.addEventListener('toggle', e => { const k = e.target.dataset?.det; if (k) e.target.open ? _open.add(k) : _open.delete(k); }, true);
     _bound = true;
   }
   _render();

@@ -1742,6 +1742,14 @@ body.dark .ps-code { color: var(--blue-text); }
 .ps-acts { display: flex; gap: 8px; flex-wrap: wrap; }
 .ps-export { display: none; white-space: pre-wrap; font-size: 13px; background: var(--bg-input); border: 1px solid var(--border-input); border-radius: 10px; padding: 12px; max-height: 340px; overflow: auto; margin-top: 10px; color: var(--text-main); }
 .ps-export.on { display: block; }
+/* v1.17.0 : menu des actions d'une rubrique (réduit par défaut) */
+.ps-det { margin: 0 0 8px; }
+.ps-det > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 2px; font-size: 13px; font-weight: 700; color: var(--blue-main); -webkit-tap-highlight-color: transparent; }
+.ps-det > summary::-webkit-details-marker { display: none; }
+.ps-det > summary::before { content: '▸'; color: var(--text-muted); width: 12px; }
+.ps-det[open] > summary::before { content: '▾'; }
+body.dark .ps-det > summary { color: var(--blue-text); }
+.db-row.db-ro { cursor: default; }
 @media (max-width: 767px) {
   .ps-info { grid-template-columns: 1fr; }
   .yn-btns.ps-yn .btn-yn { padding: 9px 12px; }

@@ -68,6 +68,15 @@ const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); if (!c) fails++
     ok(f1.length === 10 && f1.includes('TME=Non') && f1.includes('Engagement=Oui') && f1.includes('Utilisation du carton jaune=Oui') && f1.includes('Commotion=Non vu'), n + ' F1 : ' + f1.join(' | '));
     ok((await p.textContent('#psTot')) === '4/6 notes', n + ' note globale incomplète');
 
+    /* v1.17.0 : actions de chaque rubrique dans un menu réduit par défaut */
+    const sums = await p.locator('#PS details.ps-det > summary').allTextContents();
+    ok(sums.join('|') === '5 actions|4 actions|3 actions|1 action|3 actions|2 actions' && await p.locator('#PS details.ps-det[open]').count() === 0, n + ' menus des actions réduits : ' + sums.join('|'));
+    ok(!(await p.locator('[data-det="A1"] .db-row').first().isVisible()), n + ' actions cachées tant que le menu est réduit');
+    await p.locator('[data-det="A1"] > summary').click();
+    const acts = await p.locator('[data-det="A1"] .db-row').allInnerTexts();
+    ok(acts.length === 5 && acts[0].includes('38:12') && acts[0].includes('J7M') && await p.locator('[data-det="A1"] .db-row').first().isVisible(), n + ' menu A1 développé : 5 actions');
+    ok(await p.locator('#PS .ps-det [onclick]').count() === 0, n + ' actions en lecture seule');
+
     /* Modifications → S.prep */
     await p.locator('[data-note="A2"][data-v="7"]').click();
     await p.locator('[data-note="B2"][data-v="5"]').click(); await p.locator('[data-note="C2"][data-v="9"]').click();
@@ -78,6 +87,7 @@ const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); if (!c) fails++
     const st = await p.evaluate(async () => { const { S } = await import('/js/state.js'); return S.prep; });
     ok(st.notes.A2 === 7 && st.type.includes('Vidéo') && st.f1['Placement sur jet de 7m'] === 'nv' && st.txt.F2.length === 410 && st.sup === 'Vincent', n + ' modifications rangées dans S.prep');
     ok((await p.textContent('#psTot')) === '44 / 60 · 7,3 / 10', n + ' note globale ' + await p.textContent('#psTot'));
+    ok(await p.locator('[data-det="A1"][open]').count() === 1, n + ' menu A1 resté ouvert après les appuis');
     ok((await p.textContent('[data-cnt="F2"]')) === '410 / 400 caractères' && await p.locator('[data-cnt="F2"].over').count() === 1, n + ' compteur 400 en rouge');
 
     /* Copier */
@@ -96,6 +106,7 @@ const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); if (!c) fails++
     ok(await p.evaluate(() => getComputedStyle(ES).display === 'flex' && getComputedStyle(PS).display === 'none'), n + ' retour à la fin de match');
     await btn.click(); await p.waitForTimeout(200);
     ok((await p.locator('[data-note="A2"].on').textContent()) === '7' && (await p.inputValue('[data-fld="sup"]')) === 'Vincent', n + ' réouverture : modifications conservées');
+    ok(await p.locator('#PS details.ps-det[open]').count() === 0, n + ' réouverture : menus des actions de nouveau réduits');
 
     /* Recalculer en 2 appuis */
     const rs = p.locator('[data-act="reset"]');

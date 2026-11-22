@@ -60,6 +60,13 @@ Quand une version corrige un bug ou un frag identifié dans l'audit, **toujours 
 
 ---
 
+## [1.17.0] — 2026-11-22
+
+### Ajouté
+- Préparation Suivi : menu `<details class="ps-det">` « N actions » sous les notes de chaque rubrique A1 à C2 (actions des catégories de la rubrique, ordre chronologique, une ligne par action liée, rendu `dbObsLine` du débrief en lecture seule via le nouveau paramètre `readOnly`). Réduit par défaut ; l'état ouvert est gardé pendant la consultation et remis à zéro à chaque ouverture de l'écran.
+
+---
+
 ## [1.16.0] — 2026-11-22
 
 ### Ajouté
