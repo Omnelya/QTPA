@@ -296,13 +296,17 @@ function _renderRadar() {
   /* Détail de l'axe choisi */
   const ax = AXES.find(a => a.k === _axis);
   const byArb = (a, c) => _axisStat(S.obs.filter(o => _arbs(o).includes(a) && perOk(o)), [c], ax.k);
-  const rows = ax.cats.map(c => ({ c, t: _axisStat(L, [c], ax.k), a1: byArb('A1', c), a2: byArb('A2', c) })).filter(r => r.t.n);
+  /* v1.18.3 : un arbitre choisi → seule sa colonne (l'autre arbitre n'apparaît plus) */
+  const arbs = f.arb === 'all' ? ['A1', 'A2'] : [f.arb];
+  const rows = ax.cats.map(c => ({ c, t: _axisStat(L, [c], ax.k), by: Object.fromEntries(arbs.map(a => [a, byArb(a, c)])) })).filter(r => r.t.n);
   const pc = st => st.n ? st.p + ' %' : '–';
   const tone = p => p >= 70 ? 'ok' : p >= 50 ? 'mid' : 'ko';
   const det = '<div class="db-radar-det"><div class="db-radar-dt">' + ax.k + ' · ' + escapeHtml(ax.t) + '</div>' + (rows.length
-    ? '<table class="db-radar-tab"><thead><tr><th>Catégorie</th><th>Obs.</th><th class="a1">' + escapeHtml(S.a1) + '</th><th class="a2">' + escapeHtml(S.a2) + '</th><th>Total</th></tr></thead><tbody>' +
-      rows.map(r => '<tr><td>' + escapeHtml(r.c) + '</td><td>' + r.t.n + '</td><td class="a1">' + pc(r.a1) + '</td><td class="a2">' + pc(r.a2) +
-        '</td><td class="tot ' + tone(r.t.p) + '">' + r.t.p + ' %</td></tr>').join('') + '</tbody></table>'
+    ? '<table class="db-radar-tab"><thead><tr><th>Catégorie</th><th>Obs.</th>' +
+      arbs.map(a => '<th class="' + (a === 'A2' ? 'a2' : 'a1') + '">' + escapeHtml(a === 'A2' ? S.a2 : S.a1) + '</th>').join('') + '<th>Total</th></tr></thead><tbody>' +
+      rows.map(r => '<tr><td>' + escapeHtml(r.c) + '</td><td>' + r.t.n + '</td>' +
+        arbs.map(a => '<td class="' + (a === 'A2' ? 'a2' : 'a1') + '">' + pc(r.by[a]) + '</td>').join('') +
+        '<td class="tot ' + tone(r.t.p) + '">' + r.t.p + ' %</td></tr>').join('') + '</tbody></table>'
     : '<div class="db-empty">Aucune observation dans ce bloc pour ces filtres.</div>') + '</div>';
 
   return _filterBar('radar') + '<div class="db-radar"><div>' + svg + legend +

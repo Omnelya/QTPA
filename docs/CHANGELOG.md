@@ -60,6 +60,13 @@ Quand une version corrige un bug ou un frag identifié dans l'audit, **toujours 
 
 ---
 
+## [1.18.3] — 2026-11-22
+
+### Corrigé
+- Radar par bloc, tableau de détail : avec un arbitre choisi dans le filtre, seule sa colonne est affichée (avant, les colonnes des deux arbitres restaient, calculées sans tenir compte du filtre arbitre). Mode « Tous » inchangé. Test `radar` complété.
+
+---
+
 ## [1.18.2] — 2026-11-22
 
 ### Modifié

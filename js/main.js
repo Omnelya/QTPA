@@ -465,6 +465,7 @@ function _updateUserBadge() {
    CHANGELOG / BADGE VERSION (v1.4.8)
 ════════════════════════════════════════ */
 const CHANGELOG = [
+  { v: '1.18.3', items: ['Radar par bloc : quand un arbitre est choisi, le tableau de détail n\'affiche plus que sa colonne (l\'autre arbitre n\'apparaît plus)'] },
   { v: '1.18.2', items: ['Tableau des observations : une action liée ✘ + ✔ a maintenant un seul dégradé sur toute la ligne (plus un par case), proportionnel au nombre de catégories ✘ et ✔'] },
   { v: '1.18.1', items: ['Zone d\'influence : le tag « Pas ta zone » n\'est plus proposé qu\'en Non conforme'] },
   { v: '1.18.0', items: ['15 nouvelles liaisons (ex. J7M ↔ Gestion du sifflet, Protocole, Placement ; Gestuelle ↔ Marcher, Passage en force, Zone, Reprise de dribble, Jeu passif, Jet franc ; Communication ↔ Déplacement…) ; les catégories liées sont triées par ordre alphabétique','« Autre » : choix du groupe (A1, A2, B, C1, C2) dans la fenêtre ; il compte dans ce groupe (radar, Préparation Suivi) et s\'affiche « Autre (C2) »','iPad : flèches Annuler / Rétablir toujours en face de « Observations rapides » (en portrait, les pastilles passent dessous)','Mi-temps : touche une catégorie des « 3 moins / mieux réussis » pour voir ses observations'] },

@@ -41,6 +41,10 @@ const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); if (!c) fails++
     ok(rows.length === 3 && rows.some(r => /J7M\s+3\s+0 %\s+100 %\s+33 %/.test(r)), n + ' détail A1 : J7M 3 obs., Durand 0 %, Lopez 100 %, total 33 % ' + JSON.stringify(rows));
     await card.locator('.db-seg-b', { hasText: 'Lopez' }).click(); await p.waitForTimeout(100);
     ok(await card.locator('.rd-area').count() === 1 && await card.locator('.rd-area.rd-a2').count() === 1, n + ' filtre arbitre : courbe de Lopez seule');
+    /* v1.18.3 : tableau de détail → seule la colonne de Lopez, nombres de Lopez (J7M : 1 obs., 100 %) */
+    const th = (await card.locator('.db-radar-tab th').allTextContents()).join('|');
+    const rowsL = await card.locator('.db-radar-tab tbody tr').allInnerTexts();
+    ok(th === 'Catégorie|Obs.|Lopez|Total' && rowsL.some(r => /J7M\s+1\s+100 %\s+100 %/.test(r)), n + ' filtre Lopez : colonne Durand masquée ' + th + ' ' + JSON.stringify(rowsL));
     await card.locator('.db-seg-b', { hasText: 'Tous' }).first().click();
     await card.locator('.db-seg-b', { hasText: 'MT2' }).click(); await p.waitForTimeout(100);
     ok((await card.locator('.rd-n').allTextContents()).join(',') === '3 obs.,1 obs.,2 obs.,2 obs.,1 obs.', n + ' filtre période MT2 : obs. par axe ' + (await card.locator('.rd-n').allTextContents()).join(','));
