@@ -34,7 +34,16 @@ for(const [n,vp] of [['ipad',{width:1180,height:820}],['iph',{width:430,height:9
  await p.evaluate(async()=>{const {S}=await import('/js/state.js');const mk=(cat,col)=>({time:'12:00',el:720,period:'MT1',arb:['A2'],an:'Lopez',cat,cats:[cat],col,flag:false,todo:false,tags:[],cmt:'',lien:'Lmix'});S.obs.push(mk('J7M','red'),mk('SPA','green'));window.dbFilter('frise','arb','all');});
  const mix=await p.$$eval('#db-frise .db-mk',m=>m.map(x=>x.className+'|'+x.textContent));
  ok(mix.length===2&&mix.some(x=>x.includes('db-mk-m')&&x.endsWith('✘✔')),n+' frise : action ✘ + ✔ = 1 repère mi-rouge mi-vert '+JSON.stringify(mix));
- await p.locator('#db-frise .db-mk-m').click();
+ /* v1.18.6 : une icône par catégorie (2 ✘ → « ✘✘ », 3 catégories → 3 icônes), un ⚑ par catégorie à revoir */
+ ok(mix.some(x=>x.includes('db-mk-n')&&x.endsWith('|✘✘')),n+' frise : Jet Franc ✘ + Exécution du Jet ✘ → « ✘✘ »');
+ await p.evaluate(async()=>{const {S}=await import('/js/state.js');const mk=(cat,col,el,lien,flag)=>({time:'x',el,period:'MT1',arb:['A1'],an:'Durand',cat,cats:[cat],col,flag,todo:false,tags:[],cmt:'',lien});
+   S.obs.push(mk('Exécution du Jet','red',1200,'L3',false),mk('SPA','red',1200,'L3',false),mk('Gestion du sifflet','green',1200,'L3',false),mk('J7M','red',1500,'Lf',true),mk('SPA','red',1500,'Lf',true));window.dbFilter('frise','arb','all');});
+ const m3=await p.$$eval('#db-frise .db-mk',m=>m.map(x=>({c:x.className,t:x.textContent,w:Math.round(x.getBoundingClientRect().width),bg:x.style.background})));
+ const t3=m3.find(x=>x.t==='✘✘✔'),f2=m3.find(x=>x.t==='⚑⚑');
+ ok(m3.length===4&&t3&&t3.c.includes('db-mk-m')&&t3.w>=48&&/33%.+67%/.test(t3.bg),n+' frise : 3 catégories → « ✘✘✔ » sur 3 bandes '+JSON.stringify(t3));
+ ok(f2&&f2.c.includes('db-mk-fl')&&!f2.bg,n+' frise : 2 catégories à revoir → « ⚑⚑ » '+JSON.stringify(f2));
+ ok(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),n+' frise : pas de débordement');
+ await p.locator('#db-frise .db-mk-m',{hasText:/^✘✔$/}).click();
  ok(/J7M\s*✘\s*\+\s*SPA\s*✔/.test(await p.textContent('#db-frise .db-bubble')),n+' frise : la bulle montre l\'action entière');
  await p.locator('#db-frise').screenshot({path:`${OUT}frise_liee_${n}.png`});
  await row.screenshot({path:`${OUT}f115_${n}_rev.png`});

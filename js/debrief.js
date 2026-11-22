@@ -179,6 +179,9 @@ function _periodDuration(p) {
   return d || 30 * 60;
 }
 
+/** Largeur (px) d'un repère de la frise selon le nombre de catégories de l'action. */
+const _mkW = n => (n > 1 ? 12 + 13 * n : 28);
+
 function _renderFrise() {
   const f = _F.frise;
   const pers = f.per === 'all' ? periods() : [f.per];
@@ -191,10 +194,12 @@ function _renderFrise() {
     /* Répartition sur des couloirs pour que les repères proches ne se chevauchent pas */
     const lanes = [];
     /* v1.18.5 : un repère par action (J7M + SPA = 1 repère) ; les compteurs restent par catégorie */
+    /* v1.18.6 : une icône par catégorie de l'action (⚑ si à revoir) → repère plus large ;
+       l'écart minimal entre deux repères d'un même couloir grandit avec leur largeur. */
     const marks = oneLinePerAction(list).map(o => {
-      const pos = (o.el || 0) / dur * 100;
-      let lane = lanes.findIndex(last => pos - last >= 3.2);
-      if (lane < 0) { lane = lanes.length; lanes.push(pos); } else { lanes[lane] = pos; }
+      const pos = (o.el || 0) / dur * 100, w = _mkW(linkGroup(o).length);
+      let lane = lanes.findIndex(last => pos - last.pos >= 3.2 * (w + last.w) / 56);
+      if (lane < 0) { lane = lanes.length; lanes.push({ pos, w }); } else { lanes[lane] = { pos, w }; }
       return { o, pos, lane };
     });
     const nl = Math.max(1, lanes.length);
@@ -202,10 +207,18 @@ function _renderFrise() {
       '<div class="db-axis" style="height:' + (nl * 30 + 8) + 'px">' +
       marks.map(m => {
         const idx = S.obs.indexOf(m.o);
-        const g = linkGroup(m.o), red = g.some(x => x.col === 'red'), mixed = red && g.some(x => x.col !== 'red');
-        const cls = m.o.flag ? 'fl' : mixed ? 'm' : (red ? 'n' : 'o');
-        return '<button type="button" class="db-mk db-mk-' + cls + (_bubble === idx ? ' sel' : '') + '" style="left:' + m.pos.toFixed(2) + '%;bottom:' + (m.lane * 30 + 3) + 'px" ' +
-          'aria-label="' + escapeHtml(m.o.time + ' ' + g.map(x => x.cat).join(' + ')) + '" onclick="dbBubble(' + idx + ')">' + (m.o.flag ? '⚑' : mixed ? '✘✔' : (red ? '✘' : '✔')) + '</button>';
+        const g = linkGroup(m.o), n = g.length;
+        const tones = g.map(x => (x.flag ? 'flag' : x.col === 'red' ? 'red' : 'green'));
+        const same = tones.every(t => t === tones[0]);
+        const cls = same ? { flag: 'fl', red: 'n', green: 'o' }[tones[0]] : 'm';
+        let st = 'left:' + m.pos.toFixed(2) + '%;bottom:' + (m.lane * 30 + 3) + 'px';
+        if (n > 1) st += ';width:' + _mkW(n) + 'px;margin-left:' + (-_mkW(n) / 2) + 'px';
+        /* couleurs mélangées : une bande nette par catégorie, sous son icône */
+        if (!same) st += ';background:linear-gradient(90deg,' + tones.map((t, i) =>
+          'var(--' + t + '-bg) ' + Math.round(i * 100 / n) + '% ' + Math.round((i + 1) * 100 / n) + '%').join(',') + ')';
+        return '<button type="button" class="db-mk db-mk-' + cls + (n > 1 ? ' db-mk-x' : '') + (_bubble === idx ? ' sel' : '') + '" style="' + st + '" ' +
+          'aria-label="' + escapeHtml(m.o.time + ' ' + g.map(x => x.cat).join(' + ')) + '" onclick="dbBubble(' + idx + ')">' +
+          g.map(x => (x.flag ? '⚑' : x.col === 'red' ? '✘' : '✔')).join('') + '</button>';
       }).join('') +
       '</div></div>' +
       '<div class="db-ticks"><span>0</span><span>' + fmt(Math.round(dur / 2)) + '</span><span>' + fmt(dur) + '</span></div>';

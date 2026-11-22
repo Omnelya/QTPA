@@ -60,6 +60,13 @@ Quand une version corrige un bug ou un frag identifié dans l'audit, **toujours 
 
 ---
 
+## [1.18.6] — 2026-11-22
+
+### Modifié
+- Frise : repère d'une action liée = une icône par catégorie, dans l'ordre (⚑ si à revoir, sinon ✘ / ✔) → « ✘✘ », « ✘✘✔ », « ⚑⚑ ». Largeur `_mkW(n)` = 12 + 13 × n px (28 px pour une catégorie) ; couleurs différentes → une bande nette par catégorie sous son icône ; l'écart minimal d'un couloir tient compte de la largeur des repères. `.db-mk-x` (police des repères multiples). Test `debrief-ligne-liee` complété.
+
+---
+
 ## [1.18.5] — 2026-11-22
 
 ### Corrigé
