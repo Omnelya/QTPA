@@ -1511,6 +1511,9 @@ body.dark .home-stat-val.mid { color: #e0b84a; }
 /* v1.18.5–1.18.6 : action liée = un repère, une icône par catégorie (largeur et bandes de couleur en style) */
 .db-mk-m { color: var(--text-main); border-color: var(--border-input); }
 .db-mk-x { font-size: 13px; letter-spacing: 1px; }
+.db-mk-m .mk-n { color: var(--red-dark); }
+.db-mk-m .mk-o { color: var(--green-dark); }
+.db-mk-m .mk-f { color: var(--flag-main); }
 .db-mk.sel { outline: 3px solid var(--text-main); outline-offset: 1px; z-index: 2; }
 .db-bubble { background: var(--flag-bg); border: 1px solid var(--flag-border); border-radius: 10px; padding: 2px 8px; margin-top: 6px; }
 .db-bubble .db-row { border-top: 0; }

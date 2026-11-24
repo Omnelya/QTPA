@@ -218,7 +218,8 @@ function _renderFrise() {
           'var(--' + t + '-bg) ' + Math.round(i * 100 / n) + '% ' + Math.round((i + 1) * 100 / n) + '%').join(',') + ')';
         return '<button type="button" class="db-mk db-mk-' + cls + (n > 1 ? ' db-mk-x' : '') + (_bubble === idx ? ' sel' : '') + '" style="' + st + '" ' +
           'aria-label="' + escapeHtml(m.o.time + ' ' + g.map(x => x.cat).join(' + ')) + '" onclick="dbBubble(' + idx + ')">' +
-          g.map(x => (x.flag ? '⚑' : x.col === 'red' ? '✘' : '✔')).join('') + '</button>';
+          /* v1.19.1 : chaque icône dans sa couleur (rouge ✘, vert ✔, ⚑) comme les repères simples */
+          g.map(x => (x.flag ? '<span class="mk-f">⚑</span>' : x.col === 'red' ? '<span class="mk-n">✘</span>' : '<span class="mk-o">✔</span>')).join('') + '</button>';
       }).join('') +
       '</div></div>' +
       '<div class="db-ticks"><span>0</span><span>' + fmt(Math.round(dur / 2)) + '</span><span>' + fmt(dur) + '</span></div>';

@@ -41,6 +41,10 @@ for(const [n,vp] of [['ipad',{width:1180,height:820}],['iph',{width:430,height:9
  const m3=await p.$$eval('#db-frise .db-mk',m=>m.map(x=>({c:x.className,t:x.textContent,w:Math.round(x.getBoundingClientRect().width),bg:x.style.background})));
  const t3=m3.find(x=>x.t==='✘✘✔'),f2=m3.find(x=>x.t==='⚑⚑');
  ok(m3.length===4&&t3&&t3.c.includes('db-mk-m')&&t3.w>=48&&/33%.+67%/.test(t3.bg),n+' frise : 3 catégories → « ✘✘✔ » sur 3 bandes '+JSON.stringify(t3));
+ /* v1.19.1 : dans le repère mixte, ✘ et ✔ ont les couleurs des repères simples */
+ const col=await p.evaluate(()=>{const c=s=>getComputedStyle(document.querySelector(s)).color;return {n:c('#db-frise .db-mk-m .mk-n'),o:c('#db-frise .db-mk-m .mk-o'),refN:c('#db-frise .db-mk-n'),bx:c('#db-frise .db-mk-m')};});
+ const refO=await p.evaluate(()=>{const b=document.createElement('button');b.className='db-mk db-mk-o';document.getElementById('db-frise').appendChild(b);const v=getComputedStyle(b).color;b.remove();return v;});
+ ok(col.n===col.refN&&col.o===refO&&col.n!==col.bx&&col.o!==col.bx,n+' frise : ✘ rouge et ✔ vert dans le repère mixte '+JSON.stringify(Object.assign(col,{refO})));
  ok(f2&&f2.c.includes('db-mk-fl')&&!f2.bg,n+' frise : 2 catégories à revoir → « ⚑⚑ » '+JSON.stringify(f2));
  ok(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),n+' frise : pas de débordement');
  await p.locator('#db-frise .db-mk-m',{hasText:/^✘✔$/}).click();

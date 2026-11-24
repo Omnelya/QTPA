@@ -60,6 +60,13 @@ Quand une version corrige un bug ou un frag identifié dans l'audit, **toujours 
 
 ---
 
+## [1.19.1] — 2026-11-24
+
+### Corrigé
+- Frise : dans un repère d'action liée (ex. « ✔✔✘ »), chaque icône prend la couleur des repères simples (✘ rouge, ✔ vert, ⚑ couleur drapeau) au lieu du noir (`<span class="mk-n|mk-o|mk-f">` dans `_renderFrise`, règles `.db-mk-m .mk-*` dans styles.css). Test ajouté dans debrief-ligne-liee.
+
+---
+
 ## [1.19.0] — 2026-11-22
 
 ### Modifié

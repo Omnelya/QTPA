@@ -477,6 +477,7 @@ function _updateUserBadge() {
    CHANGELOG / BADGE VERSION (v1.4.8)
 ════════════════════════════════════════ */
 const CHANGELOG = [
+  { v: '1.19.1', items: ['Frise : dans un repère d\'action liée, chaque ✘ est rouge, chaque ✔ vert et chaque ⚑ de la couleur du drapeau, comme les autres repères'] },
   { v: '1.19.0', items: ['Nouveau PDF : en-tête bleu marine (match, arbitres, superviseur), score, puis les éléments que tu coches dans la fenêtre d\'export','Au choix : synthèse par bloc (radar A1 → C2 et tableau par arbitre), évaluation + contexte, à travailler / points forts, à revoir ⚑ + à dire à la pause, observations (une ligne par action liée, dégradé ✘ / ✔), frise, commentaire global, Préparation Suivi (sur une page à part)','Ré-export depuis l\'historique : la préparation, les mi-temps et les notes de pause sont bien celles du match exporté'] },
   { v: '1.18.8', items: ['Accueil : les statistiques montrent le nombre de suivis et le % conforme par bloc (A1 Duels, A2 Continuité, B Joueurs, C1 Technique, C2 Décisionnel) à la place des buts et des compétitions','Elles suivent la recherche : tape le nom d\'un arbitre pour voir ses statistiques'] },
   { v: '1.18.7', items: ['Corrigé : avec 1 TME pris en MT1, la 2e mi-temps permet bien 2 TME (la 2e ligne disparaissait après le 1er)','Tiers-temps : 1 TME par tiers-temps','Réglages ⚙ : « TME max par période » (1, 2 ou 3 ; par défaut 2 en mi-temps, 1 en tiers-temps). Toujours 3 par match, et 1 seul à partir des 5 dernières minutes de la dernière période'] },
